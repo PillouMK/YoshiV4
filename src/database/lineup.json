@@ -1,0 +1,72 @@
+{
+  "lineup": [
+    [
+      {
+        "userId": "450353797450039336",
+        "userName": "Pillou",
+        "isCan": true
+      }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      {
+        "userId": "450353797450039336",
+        "userName": "Pillou",
+        "isCan": true
+      }
+    ],
+    [
+      {
+        "userId": "156445194861019136",
+        "userName": "Ti_C",
+        "isCan": true
+      },
+      {
+        "userId": "338849885749116928",
+        "userName": "Sun",
+        "isCan": false
+      },
+      {
+        "userId": "133288350613372928",
+        "userName": "Storm",
+        "isCan": false
+      },
+      {
+        "userId": "268443528101625857",
+        "userName": "Raikou",
+        "isCan": true
+      }
+    ],
+    [
+      {
+        "userId": "450353797450039336",
+        "userName": "Pillou",
+        "isCan": true
+      },
+      {
+        "userId": "156445194861019136",
+        "userName": "Ti_C",
+        "isCan": true
+      }
+    ],
+    []
+  ]
+}

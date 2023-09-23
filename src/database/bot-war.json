@@ -1,0 +1,111 @@
+{
+  "channels": {
+    "428644679165411331": {
+      "team1": {
+        "nameTeam": "YFG",
+        "penality": 0,
+        "total": 495,
+        "recapScore": [
+          54,
+          41,
+          41,
+          51,
+          41,
+          26,
+          35,
+          56,
+          47,
+          39,
+          41,
+          23
+        ]
+      },
+      "team2": {
+        "nameTeam": "BB",
+        "penality": 0,
+        "total": 489,
+        "recapScore": [
+          28,
+          41,
+          41,
+          31,
+          41,
+          56,
+          47,
+          26,
+          35,
+          43,
+          41,
+          59
+        ]
+      },
+      "paramWar": {
+        "verifDoublon": {
+          "spots": [
+            "6",
+            "7",
+            "9",
+            "10",
+            "11",
+            "12"
+          ],
+          "map": "bSR"
+        },
+        "saveStats": true,
+        "isStoppable": false,
+        "race": 12,
+        "totaleDiff": 6,
+        "recapWar": [
+          {
+            "map": "rWS",
+            "score": 26
+          },
+          {
+            "map": "rMP",
+            "score": 0
+          },
+          {
+            "map": "bNYM",
+            "score": 0
+          },
+          {
+            "map": "dHC",
+            "score": 20
+          },
+          {
+            "map": "TM",
+            "score": 0
+          },
+          {
+            "map": "DS",
+            "score": -30
+          },
+          {
+            "map": "bRR",
+            "score": -12
+          },
+          {
+            "map": "SGF",
+            "score": 30
+          },
+          {
+            "map": "bAD",
+            "score": 12
+          },
+          {
+            "map": "rGV",
+            "score": -4
+          },
+          {
+            "map": "bVV",
+            "score": 0
+          },
+          {
+            "map": "bSR",
+            "score": -36
+          }
+        ]
+      }
+    }
+  }
+}
