@@ -26,7 +26,7 @@ module.exports = {
             embeds: res[0].embed,
             components: [res[0].buttons]
         });
-        console.log(response)
+        
         await interaction.followUp({
             content: response,
         })

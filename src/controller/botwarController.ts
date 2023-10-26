@@ -148,7 +148,7 @@ const sendProjectMapData = async (results: WarObjectType): Promise<boolean> => {
     }
 
     const apiCall: ResponseYF = await postProjectMap(apiObject);
-    console.log(apiCall);
+    
 
     return (apiCall.statusCode === 201)
 }
@@ -165,7 +165,7 @@ const similarMapMessage = (map: string, mapIdList: Map<string, string>) => {
         const mapSimilarList: Map<string, string> = findSimilarMaps(map, mapIdList);
         let message: string = `${errorMessage.mapNotValid(map)}\nVoici des maps ressemblante :\n\n`;
         let count = 0;
-        console.log(mapSimilarList);
+        
         for (const [key, value] of mapSimilarList.entries()) {
             if (count >= 5) {
                 break; // Sortir de la boucle après les 10 premiers éléments

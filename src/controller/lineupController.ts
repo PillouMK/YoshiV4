@@ -2,6 +2,8 @@ import { Embed, EmbedBuilder, ButtonBuilder, Collection, GuildMember, Role, APIE
 import lineUpData from "../database/lineup.json";
 import { saveJSONToFile } from "../controller/generalController"
 import { timeStamp } from "console";
+
+
 const lineUp : LineUpData = lineUpData as LineUpData;
 
 interface LineUpData {
@@ -50,7 +52,7 @@ const makeLineupFields = (lineUpByRoster: LineUpItem[], role: Role):APIEmbedFiel
     let field: APIEmbedField = {name:"", inline: false, value:""};
     let lineupCan: string[] = [];
     let lineupMaybe: string[] = [];
-    lineUpByRoster.forEach(elt => {
+    lineUpByRoster.forEach((elt: LineUpItem)  => {
         elt.isCan ? elt.isMute ? lineupCan.push(`${elt.userName} :mute:`) : lineupCan.push(elt.userName) : elt.isMute ? lineupMaybe.push(`${elt.userName} :mute:`) : lineupMaybe.push(elt.userName)
     })
     field.name = `__YF ${role.name} : (${lineupCan.length}/6)__`;
@@ -189,4 +191,11 @@ export const removeMember = (hour: string, member: User): string => {
     lineupByHour.splice(index, 1);
     saveJSONToFile(lineUp, lineupPath);
     return `${member.username} bien été retiré pour ${timestampDiscord(getTimestampForHour(hour))}`
+}
+
+export const resetAllLineups = () => {
+    lineUp.lineup.forEach((element) => {
+        element = [];
+    });
+    saveJSONToFile(lineUp, lineupPath);
 }

@@ -1,8 +1,11 @@
-import { Client, GatewayIntentBits, Events, Collection } from "discord.js";
+import { Client, GatewayIntentBits, Events, Collection, TextChannel } from "discord.js";
 import { config } from "./config";
 import path from "path";
 import fs from "fs";
 import { getAllMaps } from "./controller/yfApiController";
+import { ProjectMapData, getProjectMapData, updateProjectMapMessage } from "./controller/projectmapController";
+import { botLogs } from "./controller/generalController";
+import { projectMap } from "./controller/projectmapController";
 
 
 
@@ -28,6 +31,18 @@ const bot: Client<boolean> = new Client({
 
 bot.once(Events.ClientReady, async c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
+	botLogs(bot, "Yoshi successfully relloged");
+	try {
+        projectMap['YFG'] = await getProjectMapData("YFG", 3, 10);
+		
+		if(projectMap.YFG != undefined) {
+			updateProjectMapMessage(bot, "YFG", 3, 10, projectMap.YFG.projectMapValid, projectMap.YFG.projectMapNotValid, false)
+		} else {
+			botLogs(bot, "Erreur ProjectMap API");
+		}
+    } catch (error) {
+        console.error('Une erreur s\'est produite :', error);
+    }
 });
 
 bot.commands = new Collection();
@@ -79,7 +94,7 @@ bot.on(Events.InteractionCreate, async interaction => {
 		const buttonName: string = interaction.customId.split('-')[0];
 		const args: string[] = interaction.customId.split('-');
 		args.shift()
-		console.log('buttonName', buttonName)
+		
 		const button = interaction.client.buttons.get(buttonName)
 
 		if(!button) {
@@ -131,4 +146,6 @@ bot.on(Events.MessageCreate, async message => {
 	
 })
 bot.login(config.DISCORD_TOKEN);
+
+
 

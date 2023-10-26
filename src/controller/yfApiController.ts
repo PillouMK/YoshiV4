@@ -15,6 +15,8 @@ const timetrialEndpoint = '/timetrial';
 const playerEndpoint = '/player';
 const projectMapEndpoint = '/projectmap';
 
+
+
 const header = {
     "Accept" : "application/json",
     "api-key" : API_KEY
@@ -28,14 +30,14 @@ export const getAllMaps = async (): Promise<ResponseYF> => {
         `${API_URL}${mapsEndpoint}`,
         { headers: header }
     ).then(response => {
-        console.log("test", response.status);
+        
         responseObject = {
             statusCode: response.status,
             data: response.data
         }
         return responseObject;
     }).catch(error => {
-        console.log("testerror", error);
+       
         responseObject = {
             statusCode: error.response.status,
             data: error.response.data
@@ -66,5 +68,35 @@ export const postProjectMap = async (projectMapPostObject: any) => {
         }
         return responseObject
     });
+    return projectMap;
+}
+
+export const getProjectMap = async (idRoster: string, month: number, iteration: number) => {
+    
+    let responseObject: ResponseYF;
+    
+    const projectMap = await axios.get(
+        `${API_URL}${projectMapEndpoint}/${idRoster}`,
+        {
+            headers : header,  
+            params: {
+                month: month, 
+                iteration: iteration
+            }
+        }
+    ).then(response => {
+        responseObject = {
+            statusCode : response.status,
+            data : response.data
+        }
+        return responseObject;
+    }).catch(error => {
+        responseObject = {
+            statusCode : error.response.status,
+            data : error.response.data
+        }
+        return responseObject
+    });
+    
     return projectMap;
 }
