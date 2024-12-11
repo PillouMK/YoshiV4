@@ -1,4 +1,18 @@
-import { ButtonInteraction, Role, User } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  Role,
+  SlashCommandBuilder,
+  User,
+} from "discord.js";
+import {
+  createWar,
+  editRace,
+  raceAdd,
+} from "../../controller/botwarController";
 import {
   LineUpMessage,
   StatusLineUp,
@@ -10,14 +24,14 @@ import { sortByRoleId } from "../../controller/generalController";
 
 module.exports = {
   data: {
-    name: "maybe",
+    name: "cant",
   },
 
   async execute(interaction: ButtonInteraction, args: string[]) {
     const hour: string = args[0];
     const member: User = interaction.user;
     const isMix: boolean = args[1] === "mix";
-    const response = addMember(hour, member, StatusLineUp.Maybe);
+    const response = addMember(hour, member, StatusLineUp.Cant);
     const fetchedMembers = await interaction.guild?.members.fetch();
     const fetchedRoles = await interaction.guild?.roles.fetch();
     const rolesId: string[] = isMix ? [ROLE_YF] : ROLES;

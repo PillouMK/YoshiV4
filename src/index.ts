@@ -26,6 +26,8 @@ const bot: Client<boolean> = new Client({
 });
 
 export const LIST_MAPS: MapMK[] = mapsJSON.maps.map(convertToMapMK);
+export const ROLES = ["643871029210513419", "643569712353116170"];
+export const ROLE_YF = "199252384612876289";
 
 bot.once(Events.ClientReady, async (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);

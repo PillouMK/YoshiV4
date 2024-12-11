@@ -5,6 +5,7 @@ import {
   AttachmentBuilder,
   Client,
   ClientApplication,
+  Role,
   TextChannel,
 } from "discord.js";
 
@@ -26,6 +27,16 @@ export const filterMapList = (LIST_MAPS: MapMK[], value: string) => {
   return LIST_MAPS.filter((map) =>
     map.idMap.toLocaleLowerCase().includes(value)
   ).slice(0, 25);
+};
+
+export const sortByRoleId = (roleList: Role[], roleId: string) => {
+  roleList.sort((role1, role2) => {
+    if (role1.id === roleId) return -1;
+    if (role2.id === roleId) return 1;
+    return 0;
+  });
+
+  return roleList;
 };
 
 export const rosterColor = (idRoster: string): number => {
