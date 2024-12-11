@@ -17,7 +17,7 @@
   "scripts": {
     "dev": "ts-node src/index.ts",
     "deploy": "ts-node src/deploy-commands.ts",
-    "prestart": "npx tsc",
+    "prestart": "npx tsc --version && npx tsc",
     "start": "node dist/index.js"
   }
 }
