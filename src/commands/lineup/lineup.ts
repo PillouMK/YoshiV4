@@ -16,6 +16,8 @@ import {
   LineUpMessage,
   lineupResponse,
 } from "../../controller/lineupController";
+import { ROLE_YF, ROLES } from "../..";
+import { sortByRoleId } from "../../controller/generalController";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -31,16 +33,12 @@ module.exports = {
     const hours: string = interaction.options.getString("horaire")!;
     let fetchedMembers = await interaction.guild?.members.fetch();
     let fetchedRoles = await interaction.guild?.roles.fetch();
-    const rostersRolesId: string[] = [
-      "643871029210513419",
-      "643569712353116170",
-      "1124014509602897930",
-    ];
-    const roleYFId = ["199252384612876289"];
+    const rostersRolesId: string[] = ROLES;
     let roleList: Role[] = [];
     fetchedRoles?.forEach((role) => {
       if (rostersRolesId.includes(role.id)) roleList.push(role);
     });
+    sortByRoleId(roleList, ROLES[0]);
     const res: LineUpMessage[] = await lineupResponse(
       hours,
       roleList,

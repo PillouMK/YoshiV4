@@ -1,13 +1,13 @@
 {
-    "dev": "450353797450039336",
-    "rosters": ["YFG","YFO","YFS"],
-    "projectMap": {
-        "channel": "680148646846529540",
-        "YFG": "1167020090093486120",
-        "YFO": ""
-    },
-    "rankingTimetrial":"",
-    "botLogs": {
-        "channelId": "1167017785558306816"
-    }
+  "dev": "450353797450039336",
+  "rosters": ["YFG", "YFO", "YFS"],
+  "projectMap": {
+    "channel": "680148646846529540",
+    "YFG": "1167020090093486120",
+    "YFO": ""
+  },
+  "rankingTimetrial": "",
+  "botLogs": {
+    "channelId": "1167017785558306816"
+  }
 }
