@@ -17,6 +17,7 @@ for (const folder of commandFolders) {
         const command = require(filePath);
         if ("data" in command && "execute" in command) {
             commands.push(command.data.toJSON());
+            console.log(command.data.name);
         }
         else {
             console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
@@ -26,7 +27,6 @@ for (const folder of commandFolders) {
 const rest = new REST().setToken(config_1.config.DISCORD_TOKEN);
 (async () => {
     try {
-        console.log(commands);
         console.log(`Started refreshing ${commands.length} application (/) commands.`);
         const data = await rest.put(Routes.applicationGuildCommands(config_1.config.CLIENT_ID, config_1.config.GUILD_ID), { body: commands });
         console.log(`Successfully reloaded ${data.length} application (/) commands.`);

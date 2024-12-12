@@ -34,7 +34,7 @@ for (const folder of commandFolders) {
     const commandsPath = path_1.default.join(foldersPath, folder);
     const commandFiles = fs_1.default
         .readdirSync(commandsPath)
-        .filter((file) => file.endsWith(".ts"));
+        .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
     for (const file of commandFiles) {
         const filePath = path_1.default.join(commandsPath, file);
         const command = require(filePath);
@@ -55,7 +55,7 @@ for (const folder of buttonsFolders) {
     const buttonsPath = path_1.default.join(foldersPath2, folder);
     const buttonFiles = fs_1.default
         .readdirSync(buttonsPath)
-        .filter((file) => file.endsWith(".ts"));
+        .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
     for (const file of buttonFiles) {
         const filePath = path_1.default.join(buttonsPath, file);
         const button = require(filePath);
