@@ -5,6 +5,7 @@ import path from "path";
 
 const commands = [];
 // Grab all the command files from the commands directory you created earlier
+const commandExtensions = [".ts", ".js"];
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = readdirSync(foldersPath);
 
@@ -12,7 +13,7 @@ for (const folder of commandFolders) {
   // Grab all the command files from the commands directory you created earlier
   const commandsPath = path.join(foldersPath, folder);
   const commandFiles = readdirSync(commandsPath).filter((file) =>
-    file.endsWith(".ts")
+    commandExtensions.some((ext) => file.endsWith(ext))
   );
   // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
   for (const file of commandFiles) {
