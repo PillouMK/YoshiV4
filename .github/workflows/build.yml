@@ -19,6 +19,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        
+      - name: Commit local changes (if any)
+        run: |
+          git add package-lock.json
+          git commit -m "Fix package-lock changes" || echo "No changes to commit"
 
       - name: Compile TypeScript
         run: npm run compile
