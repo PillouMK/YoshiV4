@@ -18,7 +18,7 @@
     "dev": "ts-node src/index.ts",
     "deploy": "ts-node src/deploy-commands.ts",
     "compile": "npx tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/deploy-commands.js && node dist/index.js"
   },
   "nodeVersion": "20.11.1"
 }
