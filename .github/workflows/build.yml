@@ -33,6 +33,15 @@ jobs:
       - name: Compile TypeScript
         run: npm run compile
 
+      - name: Check if dist directory exists
+        run: |
+          if [ -d "dist" ]; then
+            echo "dist directory exists"
+          else
+            echo "dist directory does not exist"
+            exit 1
+          fi
+
       - name: Commit and push compiled files to 'compiled' branch
         run: |
           # Créer une branche 'compiled' qui n'a que les fichiers compilés
