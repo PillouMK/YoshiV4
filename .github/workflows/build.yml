@@ -20,6 +20,11 @@ jobs:
       - name: Install dependencies
         run: npm install
         
+      - name: Configure git user
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
       - name: Commit local changes (if any)
         run: |
           git add package-lock.json
