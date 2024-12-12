@@ -1,0 +1,868 @@
+{
+    "maps": [
+        {
+            "idMap": "bAD",
+            "nameMap": "Virée à Amsterdam",
+            "minia": "https://mario.wiki.gallery/images/thumb/c/c1/MK8D_Tour_Amsterdam_Drift_Course_Icon.png/226px-MK8D_Tour_Amsterdam_Drift_Course_Icon.png",
+            "bag": "",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bAtD",
+            "nameMap": "Athènes antique",
+            "minia": "https://mario.wiki.gallery/images/3/3a/MK8-Course-Tour_AthensDash.jpg",
+            "bag": "",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bBB",
+            "nameMap": "Balade Berlinoise",
+            "minia": "https://mario.wiki.gallery/images/thumb/7/73/MK8D_Tour_Berlin_Byways_Course_Icon.png/226px-MK8D_Tour_Berlin_Byways_Course_Icon.png",
+            "bag": "",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bBC",
+            "nameMap": "Château de Bowser 3",
+            "minia": "https://mario.wiki.gallery/images/thumb/0/05/MK8D_SNES_Bowser_Castle_3_Scene_1.png/150px-MK8D_SNES_Bowser_Castle_3_Scene_1.png",
+            "bag": "Absence de données",
+            "initialGame": "SNES",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bBL",
+            "nameMap": "Lac Boo",
+            "minia": "https://mario.wiki.gallery/images/thumb/7/71/MK8D_GBA_Boo_Lake_Course_Icon.png/226px-MK8D_GBA_Boo_Lake_Course_Icon.png",
+            "bag": "",
+            "initialGame": "GBA",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bBR",
+            "nameMap": "Bousculade à Bangkok",
+            "minia": "https://mario.wiki.gallery/images/thumb/f/f2/MK8D_Tour_Bangkok_Rush_Course_Icon.png/226px-MK8D_Tour_Bangkok_Rush_Course_Icon.png",
+            "bag": "",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "BC",
+            "nameMap": "Château de Bowser",
+            "minia": "https://www.mariowiki.com/images/2/2b/MK8_Bowser%27s_Castle_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/c/e/cefe99d2.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "bCM64",
+            "nameMap": "Montagne Choco",
+            "minia": "https://mario.wiki.gallery/images/thumb/7/74/MK8D_N64_Choco_Mountain_Course_Icon.png/226px-MK8D_N64_Choco_Mountain_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "N64",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bCMw",
+            "nameMap": "Supermarché Coco",
+            "minia": "https://mario.wiki.gallery/images/thumb/9/98/MK8D_Wii_Coconut_Mall_Course_Icon.png/226px-MK8D_Wii_Coconut_Mall_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "WII",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bDC",
+            "nameMap": "Paquebot Daisy",
+            "minia": "https://mario.wiki.gallery/images/1/19/MK8-Course-GCN_DaisyCruiser.jpg",
+            "bag": "",
+            "initialGame": "GCN",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bDCi",
+            "nameMap": "Circuit Daisy",
+            "minia": "https://mario.wiki.gallery/images/thumb/5/58/MK8-Course-Wii_DaisyCircuit.jpg/150px-MK8-Course-Wii_DaisyCircuit.jpg",
+            "bag": "Absence de données",
+            "initialGame": "WII",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "BDD",
+            "nameMap": "Désert Toussec",
+            "minia": "https://www.mariowiki.com/images/d/d3/MK8_Bone-Dry_Dunes_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/9/6/96d934b6.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "bDKM",
+            "nameMap": "Montagne DK",
+            "minia": "https://mario.wiki.gallery/images/thumb/9/9f/MK8-Course-GCN_DKMountain.jpg/150px-MK8-Course-GCN_DKMountain.jpg",
+            "bag": "Absence de données",
+            "initialGame": "GCN",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bDKS",
+            "nameMap": "PIC DK",
+            "minia": "https://mario.wiki.gallery/images/thumb/0/01/MK8D_Wii_DK_Summit_Course_Icon.png/226px-MK8D_Wii_DK_Summit_Course_Icon.png",
+            "bag": "",
+            "initialGame": "WII",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bKC",
+            "nameMap": "Cap Koopa",
+            "minia": "https://mario.wiki.gallery/images/e/ec/MK8-Course-Wii_KoopaCape.jpg",
+            "bag": "",
+            "initialGame": "WII",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bKD",
+            "nameMap": "Désert Kalimari",
+            "minia": "https://mario.wiki.gallery/images/thumb/3/3e/MK8D_N64_Kalimari_Desert_Course_Icon.png/226px-MK8D_N64_Kalimari_Desert_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "N64",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bLAL",
+            "nameMap": "Road-trip à Los Angeles",
+            "minia": "https://mario.wiki.gallery/images/1/12/MK8-Course-Tour_LosAngelesLaps.jpg",
+            "bag": "",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bLL",
+            "nameMap": "Detour à Londres",
+            "minia": "https://mario.wiki.gallery/images/thumb/2/24/MK8D_Tour_London_Loop_Course_Icon.png/226px-MK8D_Tour_London_Loop_Course_Icon.png",
+            "bag": "",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bMC",
+            "nameMap": "Circuit Mario",
+            "minia": "https://mario.wiki.gallery/images/thumb/2/2c/MK8D_DS_Mario_Circuit_Course_Icon.png/226px-MK8D_DS_Mario_Circuit_Course_Icon.png",
+            "bag": "",
+            "initialGame": "DS",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bMC3",
+            "nameMap": "Circuit Mario 3",
+            "minia": "https://mario.wiki.gallery/images/thumb/e/e4/MK8D_SNES_Mario_Circuit_3_Course_Icon.png/226px-MK8D_SNES_Mario_Circuit_3_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "GBA",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bMD",
+            "nameMap": "Méandres Madrilènes",
+            "minia": "https://mario.wiki.gallery/images/thumb/7/75/MK8-Course-Tour_MadridDrive.jpg/150px-MK8-Course-Tour_MadridDrive.jpg",
+            "bag": "Absence de données",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bMG",
+            "nameMap": "Gorge Champignon",
+            "minia": "https://mario.wiki.gallery/images/thumb/f/fb/MK8D_Wii_Mushroom_Gorge_Course_Icon.png/226px-MK8D_Wii_Mushroom_Gorge_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "WII",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bMH",
+            "nameMap": "Route Claire de Lune",
+            "minia": "https://mario.wiki.gallery/images/7/75/MK8D_Moonview_City_View.jpg",
+            "bag": "",
+            "initialGame": "WII",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bMM",
+            "nameMap": "Mont festif",
+            "minia": "https://mario.wiki.gallery/images/thumb/5/56/MK8D_Merry_Mountain_Course_Icon.png/226px-MK8D_Merry_Mountain_Course_Icon.png",
+            "bag": "",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bMT",
+            "nameMap": "Bois vermeil",
+            "minia": "https://mario.wiki.gallery/images/thumb/c/c9/MK8D_Wii_Maple_Treeway_Course_Icon.png/226px-MK8D_Wii_Maple_Treeway_Course_Icon.png",
+            "bag": "",
+            "initialGame": "WII",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bNH",
+            "nameMap": "Dojo ninja",
+            "minia": "https://mario.wiki.gallery/images/thumb/b/b1/MK8D_Ninja_Hideaway_Course_Icon.png/226px-MK8D_Ninja_Hideaway_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bNYM",
+            "nameMap": "Escapade new-yorkaise",
+            "minia": "https://mario.wiki.gallery/images/thumb/d/d7/MK8D_Tour_New_York_Minute_Course_Icon.png/226px-MK8D_Tour_New_York_Minute_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bPG",
+            "nameMap": "Jardin Peach",
+            "minia": "https://mario.wiki.gallery/images/thumb/0/0b/MK8D_DS_Peach_Gardens_Course_Icon.png/226px-MK8D_DS_Peach_Gardens_Course_Icon.png",
+            "bag": "",
+            "initialGame": "DS",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bPP",
+            "nameMap": "Promenade à Paris",
+            "minia": "https://mario.wiki.gallery/images/thumb/b/bb/MK8D_Tour_Paris_Promenade_Course_Icon.png/226px-MK8D_Tour_Paris_Promenade_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bPPC",
+            "nameMap": "Ruines Plante Piranha",
+            "minia": "https://mario.wiki.gallery/images/thumb/6/6a/MK8-Course-Tour_PiranhaPlantCove.jpg/150px-MK8-Course-Tour_PiranhaPlantCove.jpg",
+            "bag": "Absence de données",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bRA",
+            "nameMap": "Roma romatica",
+            "minia": "https://mario.wiki.gallery/images/thumb/5/5f/MK8-Course-Tour_RomeAvanti.jpg/150px-MK8-Course-Tour_RomeAvanti.jpg",
+            "bag": "Absence de données",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bRIW",
+            "nameMap": "Monde Glacé d'Harmonie",
+            "minia": "https://mario.wiki.gallery/images/thumb/9/9e/MK8-Course-3DS_RosalinaIceWorld.jpg/150px-MK8-Course-3DS_RosalinaIceWorld.jpg",
+            "bag": "Absence de données",
+            "initialGame": "3DS",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bRP",
+            "nameMap": "Riverside Park",
+            "minia": "https://mario.wiki.gallery/images/thumb/5/5d/MK8D_GBA_Riverside_Park_Course_Icon.png/226px-MK8D_GBA_Riverside_Park_Course_Icon.png",
+            "bag": "",
+            "initialGame": "GBA",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bRR",
+            "nameMap": "Route arc-en-ciel",
+            "minia": "https://mario.wiki.gallery/images/thumb/9/9f/MK8D_3DS_Rainbow_Road_Course_Icon.png/226px-MK8D_3DS_Rainbow_Road_Course_Icon.png",
+            "bag": "",
+            "initialGame": "3DS",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bRRM",
+            "nameMap": "Mont éboulis",
+            "minia": "https://mario.wiki.gallery/images/thumb/e/ee/MK8D_3DS_Rock_Rock_Mountain_Course_Icon.png/226px-MK8D_3DS_Rock_Rock_Mountain_Course_Icon.png",
+            "bag": "",
+            "initialGame": "3DS",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bRRw",
+            "nameMap": "Route Arc-en-Ciel",
+            "minia": "https://mario.wiki.gallery/images/thumb/d/dd/MK8D_Wii_Rainbow_Road_Scene_1.png/150px-MK8D_Wii_Rainbow_Road_Scene_1.png",
+            "bag": "Absence de données",
+            "initialGame": "WII",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bSCS",
+            "nameMap": "Course à la propreté",
+            "minia": "https://mario.wiki.gallery/images/b/b0/MK8-Course-SqueakyCleanSprint.jpg",
+            "bag": "",
+            "initialGame": "MK8D",
+            "DLC": 1,
+            "retro": 0
+        },
+        {
+            "idMap": "bSG",
+            "nameMap": "Jardin volant",
+            "minia": "https://mario.wiki.gallery/images/thumb/0/09/MK8D_GBA_Sky_Garden_Course_Icon.png/226px-MK8D_GBA_Sky_Garden_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "GBA",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bSHS",
+            "nameMap": "Cité Sorbet",
+            "minia": "https://mario.wiki.gallery/images/thumb/d/d0/MK8D_Sky-High_Sundae_Course_Icon.png/226px-MK8D_Sky-High_Sundae_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "MK8D",
+            "DLC": 1,
+            "retro": 0
+        },
+        {
+            "idMap": "bSL",
+            "nameMap": "Pays Neigeux",
+            "minia": "https://mario.wiki.gallery/images/thumb/b/bc/MK8D_GBA_Snow_Land_Course_Icon.png/226px-MK8D_GBA_Snow_Land_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "GBA",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bSR",
+            "nameMap": "Corniche Champignon",
+            "minia": "https://mario.wiki.gallery/images/thumb/7/7e/MK8D_DS_Shroom_Ridge_Course_Icon.png/226px-MK8D_DS_Shroom_Ridge_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "DS",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bSS",
+            "nameMap": "Sprint à Sydney",
+            "minia": "https://mario.wiki.gallery/images/thumb/d/d4/MK8D_Tour_Sydney_Sprint_Course_Icon.png/226px-MK8D_Tour_Sydney_Sprint_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bSSy",
+            "nameMap": "Poursuite à Singapour",
+            "minia": "https://mario.wiki.gallery/images/thumb/f/f5/MK8D_Tour_Singapore_Speedway_Course_Icon.png/226px-MK8D_Tour_Singapore_Speedway_Course_Icon.png",
+            "bag": "",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bSW",
+            "nameMap": "Pays Crépuscule",
+            "minia": "https://mario.wiki.gallery/images/4/48/MK8D_GBA_Sunset_Wilds_Scene_2.jpg",
+            "bag": "",
+            "initialGame": "GBA",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bTB",
+            "nameMap": "Traversée de Tokyo",
+            "minia": "https://mario.wiki.gallery/images/thumb/8/81/MK8D_Tour_Tokyo_Blur_Course_Icon.png/226px-MK8D_Tour_Tokyo_Blur_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bTC",
+            "nameMap": "Circuit Toad",
+            "minia": "https://mario.wiki.gallery/images/thumb/3/3b/MK8D_3DS_Toad_Circuit_Course_Icon.png/226px-MK8D_3DS_Toad_Circuit_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "MK7",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bVV",
+            "nameMap": "Virages à Vancouver",
+            "minia": "https://mario.wiki.gallery/images/8/8f/MK8-Course-Tour_VancouverVelocity.jpg",
+            "bag": "",
+            "initialGame": "Tour",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bWP",
+            "nameMap": "Flipper Waluigi",
+            "minia": "https://mario.wiki.gallery/images/thumb/b/b6/MK8D_DS_Waluigi_Pinball_Course_Icon.png/226px-MK8D_DS_Waluigi_Pinball_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "DS",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bWS",
+            "nameMap": "Stade Waluigi",
+            "minia": "https://mario.wiki.gallery/images/thumb/f/f6/MK8D_GCN_Waluigi_Stadium_Course_Icon.png/226px-MK8D_GCN_Waluigi_Stadium_Course_Icon.png",
+            "bag": "[value-4]",
+            "initialGame": "GCN",
+            "DLC": 1,
+            "retro": 1
+        },
+        {
+            "idMap": "bYI",
+            "nameMap": "Ile de Yoshi",
+            "minia": "https://mario.wiki.gallery/images/thumb/2/23/MK8D_Yoshi%27s_Island_Course_Icon.png/226px-MK8D_Yoshi%27s_Island_Course_Icon.png",
+            "bag": "",
+            "initialGame": "MK8D",
+            "DLC": 1,
+            "retro": 0
+        },
+        {
+            "idMap": "CC",
+            "nameMap": "Voie Céleste",
+            "minia": "https://www.mariowiki.com/images/8/81/MK8_Cloudtop_Cruise_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/b/0/b0cd1c04.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dAC",
+            "nameMap": "Animal Crossing",
+            "minia": "https://mario.wiki.gallery/images/thumb/1/15/MK8_Animal_Crossing_Course_Icon.png/226px-MK8_Animal_Crossing_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/c/6/c63a9866.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dBB",
+            "nameMap": "Big Blue",
+            "minia": "https://mario.wiki.gallery/images/thumb/0/06/MK8_Big_Blue_Course_Icon.png/226px-MK8_Big_Blue_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/d/9/d9ee2a3d.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dBP",
+            "nameMap": "Parc Baby",
+            "minia": "https://www.mariowiki.com/images/c/c2/MK8_DLC_GCN_Baby_Park_Course_Icon.png",
+            "bag": "Absence de données",
+            "initialGame": "GCN",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "dCL",
+            "nameMap": "Pays Fromage",
+            "minia": "https://www.mariowiki.com/images/5/5c/MK8_DLC_Cheese_Land_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/6/2/629a932d.jpg",
+            "initialGame": "GBA",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "dDD",
+            "nameMap": "Route du Dragon",
+            "minia": "https://mario.wiki.gallery/images/thumb/b/bb/MK8_Dragon_Driftway_Course_Icon.png/226px-MK8_Dragon_Driftway_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/a/9/a92cd120.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dEA",
+            "nameMap": "Arène d'Excitebike",
+            "minia": "https://mario.wiki.gallery/images/thumb/5/57/MK8_Excitebike_Arena_Course_Icon.png/226px-MK8_Excitebike_Arena_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/1/e/1ee7a21b.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dHC",
+            "nameMap": "Circuit Hyrule",
+            "minia": "https://mario.wiki.gallery/images/thumb/5/5e/MK8_Hyrule_Circuit_Course_Icon.png/226px-MK8_Hyrule_Circuit_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/a/9/a94e7e1d.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dIIO",
+            "nameMap": "Station Glagla",
+            "minia": "https://mario.wiki.gallery/images/thumb/c/c4/MK8_Ice_Ice_Outpost_Course_Icon.png/226px-MK8_Ice_Ice_Outpost_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/1/e/1e695700.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dMC",
+            "nameMap": "Mute City",
+            "minia": "https://mario.wiki.gallery/images/thumb/f/fa/MK8_Mute_City_Course_Icon.png/226px-MK8_Mute_City_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/a/2/a29683e1.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dNBC",
+            "nameMap": "Koopapolis",
+            "minia": "https://mario.wiki.gallery/images/thumb/b/b0/MK8_3DS_Neo_Bowser_City_Course_Icon.png/226px-MK8_3DS_Neo_Bowser_City_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/9/1/912a504d.jpg",
+            "initialGame": "3DS",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "dRiR",
+            "nameMap": "Route Ruban",
+            "minia": "https://www.mariowiki.com/images/b/ba/MK8_DLC_GBA_Ribbon_Road_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/c/2/c29b5957.jpg",
+            "initialGame": "GBA",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "dRR",
+            "nameMap": "Route Arc-En-Ciel",
+            "minia": "https://mario.wiki.gallery/images/thumb/0/05/MK8_SNES_Rainbow_Road_Course_Icon.png/226px-MK8_SNES_Rainbow_Road_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/8/8/882f1441.jpg",
+            "initialGame": "SNES",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "DS",
+            "nameMap": "Lagon Tourbillon",
+            "minia": "https://www.mariowiki.com/images/f/fc/MK8_Dolphin_Shoals_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/5/9/595c8772.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dSBS",
+            "nameMap": "Métro Turbo",
+            "minia": "https://mario.wiki.gallery/images/thumb/7/7e/MK8_Super_Bell_Subway_Course_Icon.png/226px-MK8_Super_Bell_Subway_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/e/2/e2efafa8.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dWGM",
+            "nameMap": "Mine Wario",
+            "minia": "https://mario.wiki.gallery/images/thumb/9/94/MK8_Wii_Wario%27s_Gold_Mine_Course_Icon.png/226px-MK8_Wii_Wario%27s_Gold_Mine_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/e/9/e903662a.jpg",
+            "initialGame": "WII",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "dWW",
+            "nameMap": "Passage Feuillage",
+            "minia": "https://mario.wiki.gallery/images/thumb/e/e4/MK8_Wild_Woods_Course_Icon.png/226px-MK8_Wild_Woods_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/2/c/2c5c229c.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "dYC",
+            "nameMap": "Circuit Yoshi",
+            "minia": "https://mario.wiki.gallery/images/thumb/9/94/MK8_GCN_Yoshi_Circuit_Course_Icon.png/226px-MK8_GCN_Yoshi_Circuit_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/6/f/6f0da888.jpg",
+            "initialGame": "GCN",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "Ed",
+            "nameMap": "Club Mario",
+            "minia": "https://www.mariowiki.com/images/1/14/MK8_Electrodrome_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/9/d/9d9ff290.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "MC",
+            "nameMap": "Circuit Mario",
+            "minia": "https://www.mariowiki.com/images/2/28/MK8_Mario_Circuit_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/a/d/ad580247.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "MKS",
+            "nameMap": "Champidrome",
+            "minia": "https://www.mariowiki.com/images/0/09/MK8_Mario_Kart_Stadium_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/e/d/ed590862.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "MW",
+            "nameMap": "Descente Givrée",
+            "minia": "https://www.mariowiki.com/images/3/38/MK8_Mount_Wario_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/9/0/90a986d6.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "rCCB",
+            "nameMap": "Plage Cheep Cheep",
+            "minia": "https://www.mariowiki.com/images/9/9e/MK8_DS_Cheep_Cheep_Beach_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/0/c/0cda8996.jpg",
+            "initialGame": "DS",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rDDD",
+            "nameMap": "Désert Sec Sec",
+            "minia": "https://www.mariowiki.com/images/6/64/MK8_GCN_Dry_Dry_Desert_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/2/f/2f5c14cd.jpg",
+            "initialGame": "WII",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rDKJ",
+            "nameMap": "Forêt tropicale DK",
+            "minia": "https://www.mariowiki.com/images/3/35/MK8_3DS_DK_Jungle_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/c/4/c4a47802.jpg",
+            "initialGame": "3DS",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rDP3",
+            "nameMap": "Plaine Donut 3",
+            "minia": "https://www.mariowiki.com/images/b/b1/MK8_SNES_Donut_Plains_3_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/3/c/3cdd7ff1.jpg",
+            "initialGame": "SNES",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rGV",
+            "nameMap": "Volcan Grondant",
+            "minia": "https://www.mariowiki.com/images/b/b2/MK8_Wii_Grumble_Volcano_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/8/7/877d953c.jpg",
+            "initialGame": "WII",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rMC",
+            "nameMap": "Circuit Mario",
+            "minia": "https://www.mariowiki.com/images/f/f7/MK8_GBA_Mario_Circuit_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/f/9/f92fb6d8.jpg",
+            "initialGame": "GBA",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rMMM",
+            "nameMap": "Prairie Meuh Meuh",
+            "minia": "https://www.mariowiki.com/images/9/97/MK8_Wii_Moo_Moo_Meadows_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/f/2/f2798db7.jpg",
+            "initialGame": "WII",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rMP",
+            "nameMap": "Piste musicale",
+            "minia": "https://www.mariowiki.com/images/9/94/MK8_3DS_Music_Park_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/2/d/2d48ca59.jpg",
+            "initialGame": "3DS",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rPPS",
+            "nameMap": "Égout Piranha",
+            "minia": "https://www.mariowiki.com/images/d/d1/MK8_3DS_Piranha_Plant_Slide_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/8/4/84c5073c.jpg",
+            "initialGame": "3DS",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "RR",
+            "nameMap": "Route Arc-En-Ciel",
+            "minia": "https://www.mariowiki.com/images/7/77/MK8_Rainbow_Road_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/1/4/145ee22f.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "rRRd",
+            "nameMap": "Route Arc-en-ciel",
+            "minia": "https://www.mariowiki.com/images/b/b9/MK8_N64_Rainbow_Road_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/5/a/5a7e0143.jpg",
+            "initialGame": "N64",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rRRy",
+            "nameMap": "Autodrome Royal",
+            "minia": "https://www.mariowiki.com/images/8/8a/MK8_N64_Royal_Raceway_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/5/f/5f9ce995.jpg",
+            "initialGame": "N64",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rSL",
+            "nameMap": "Royaume Sorbet",
+            "minia": "https://www.mariowiki.com/images/3/3f/MK8_GCN_Sherbet_Land_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/0/a/0a0d8531.jpg",
+            "initialGame": "GCN",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rTT",
+            "nameMap": "Autoroute Toad",
+            "minia": "https://www.mariowiki.com/images/5/55/MK8_N64_Toad%27s_Turnpike_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/8/a/8afff8bd.jpg",
+            "initialGame": "N64",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rTTC",
+            "nameMap": "Horloge Tic-Tac",
+            "minia": "https://www.mariowiki.com/images/0/0b/MK8_DS_Tick-Tock_Clock_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/2/d/2df0e550.jpg",
+            "initialGame": "DS",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rWS",
+            "nameMap": "Stade Wario",
+            "minia": "https://www.mariowiki.com/images/1/1a/MK8_DS_Wario_Stadium_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/0/7/07fc914a.jpg",
+            "initialGame": "DS",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "rYV",
+            "nameMap": "Vallée Yoshi",
+            "minia": "https://www.mariowiki.com/images/a/a4/MK8_N64_Yoshi_Valley_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/b/1/b11cd77b.jpg",
+            "initialGame": "N64",
+            "DLC": 0,
+            "retro": 1
+        },
+        {
+            "idMap": "SA",
+            "nameMap": "Aéroport Azur",
+            "minia": "https://www.mariowiki.com/images/9/99/MK8_Sunshine_Airport_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/4/9/49c00edc.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "SGF",
+            "nameMap": "Cascades Maskass",
+            "minia": "https://www.mariowiki.com/images/2/2a/MK8_Shy_Guy_Falls_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/4/5/45c75a5f.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "SSC",
+            "nameMap": "Piste aux Délices",
+            "minia": "https://www.mariowiki.com/images/a/ad/MK8_Sweet_Sweet_Canyon_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/7/2/72fd79db.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "TH",
+            "nameMap": "Promenade Toad",
+            "minia": "https://www.mariowiki.com/images/2/2a/MK8_Toad_Harbor_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/7/2/7209cba9.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "TM",
+            "nameMap": "Manoir Trempé",
+            "minia": "https://www.mariowiki.com/images/6/68/MK8_Twisted_Mansion_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/c/5/c511aa6b.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "TR",
+            "nameMap": "Temple Thwomp",
+            "minia": "https://www.mariowiki.com/images/e/e8/MK8_Thwomp_Ruins_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/1/5/15f34362.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        },
+        {
+            "idMap": "WP",
+            "nameMap": "Parc Glougloop",
+            "minia": "https://www.mariowiki.com/images/4/40/MK8_Water_Park_Course_Icon.png",
+            "bag": "https://livedoor.blogimg.jp/nim_2525/imgs/6/a/6a33f204.jpg",
+            "initialGame": "MK8",
+            "DLC": 0,
+            "retro": 0
+        }
+    ]
+}

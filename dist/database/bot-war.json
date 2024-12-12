@@ -1,0 +1,135 @@
+{
+    "channels": {
+        "680148646846529540": {
+            "team1": {
+                "nameTeam": "YF",
+                "penality": 0,
+                "total": 905,
+                "recapScore": [
+                    61,
+                    61,
+                    61,
+                    37,
+                    61,
+                    61,
+                    61,
+                    59,
+                    59,
+                    58,
+                    55,
+                    53,
+                    58,
+                    43,
+                    58,
+                    59
+                ]
+            },
+            "team2": {
+                "nameTeam": "rg",
+                "penality": 0,
+                "total": 407,
+                "recapScore": [
+                    21,
+                    21,
+                    21,
+                    45,
+                    21,
+                    21,
+                    21,
+                    23,
+                    23,
+                    24,
+                    27,
+                    29,
+                    24,
+                    39,
+                    24,
+                    23
+                ]
+            },
+            "paramWar": {
+                "verifDoublon": {
+                    "spots": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "8"
+                    ],
+                    "map": "bCMw"
+                },
+                "saveStats": false,
+                "isStoppable": false,
+                "race": 16,
+                "totaleDiff": 498,
+                "recapWar": [
+                    {
+                        "map": "bR",
+                        "score": 40
+                    },
+                    {
+                        "map": "bAD",
+                        "score": 40
+                    },
+                    {
+                        "map": "bAD",
+                        "score": 40
+                    },
+                    {
+                        "map": "BDD | MK8 Désert Toussec",
+                        "score": -8
+                    },
+                    {
+                        "map": "bRR",
+                        "score": 40
+                    },
+                    {
+                        "map": "bDC",
+                        "score": 40
+                    },
+                    {
+                        "map": "bBR",
+                        "score": 40
+                    },
+                    {
+                        "map": "bDC | GCN Paquebot Daisy",
+                        "score": 36
+                    },
+                    {
+                        "map": "bBC | SNES Château de Bowser 3",
+                        "score": 36
+                    },
+                    {
+                        "map": "bBL",
+                        "score": 34
+                    },
+                    {
+                        "map": "bCMw",
+                        "score": 28
+                    },
+                    {
+                        "map": "bVV",
+                        "score": 24
+                    },
+                    {
+                        "map": "bAD",
+                        "score": 34
+                    },
+                    {
+                        "map": "bCMw | WII Supermarché Coco",
+                        "score": 4
+                    },
+                    {
+                        "map": "bDC",
+                        "score": 34
+                    },
+                    {
+                        "map": "bCMw",
+                        "score": 36
+                    }
+                ]
+            }
+        }
+    }
+}
