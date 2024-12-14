@@ -165,18 +165,22 @@ export const lineupResponse = async (
 };
 
 function getTimestampForHour(hour: string): string {
-  let now = new Date(Date.now());
+  const offsetWithFrance = getTimezoneOffsetInHours("Europe/Paris");
+  console.log("offsetWithFrance", offsetWithFrance);
+  let now = new Date(Date.now() + offsetWithFrance);
   now.setHours(parseInt(hour), 0, 0, 0);
+  console.log("now", now);
   return (now.valueOf() / 1000).toString();
 }
 
-const _timestampDiscord = (timeStamp: string): string => `<t:${timeStamp}:t>`;
+const timestampDiscord = (timeStamp: string): string => `<t:${timeStamp}:t>`;
 
-const timestampDiscord = (timeStamp: string): string => {
-  console.log("timeStamp", timeStamp);
-  const timeInFrance = dayjs.unix(Number(timeStamp)).tz("Europe/Paris").unix();
-  console.log("timeInFrance", timeInFrance); // Convertit en timestamp UNIX
-  return `<t:${timeInFrance}:t>`;
+const getTimezoneOffsetInHours = (targetTimeZone: string) => {
+  const serverTime = dayjs.default(); // Heure locale du serveur
+  const targetTime = serverTime.tz(targetTimeZone); // Heure dans le fuseau horaire cible
+
+  // Différence entre le fuseau cible et le fuseau du serveur en heures
+  return targetTime.utcOffset() - serverTime.utcOffset();
 };
 
 const makeEmbedLineup = (hour: string, isMix: boolean): EmbedBuilder => {
