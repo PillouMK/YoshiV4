@@ -167,7 +167,7 @@ export const lineupResponse = async (
 function getTimestampForHour(hour: string): string {
   const offsetWithFrance = getTimezoneOffsetInHours("Europe/Paris");
   console.log("offsetWithFrance", offsetWithFrance);
-  let now = new Date(Date.now() + offsetWithFrance);
+  let now = new Date(Date.now() + offsetWithFrance * 60 * 60);
   now.setHours(parseInt(hour), 0, 0, 0);
   console.log("now", now);
   return (now.valueOf() / 1000).toString();
