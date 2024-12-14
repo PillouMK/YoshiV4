@@ -5,6 +5,11 @@ const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
 const lineup_json_1 = tslib_1.__importDefault(require("../database/lineup.json"));
 const generalController_1 = require("../controller/generalController");
+const dayjs = tslib_1.__importStar(require("dayjs"));
+const timezone = tslib_1.__importStar(require("dayjs/plugin/timezone"));
+const utc = tslib_1.__importStar(require("dayjs/plugin/utc"));
+dayjs.extend(timezone.default);
+dayjs.extend(utc.default);
 const lineUp = lineup_json_1.default;
 var StatusLineUp;
 (function (StatusLineUp) {
@@ -120,7 +125,13 @@ function getTimestampForHour(hour) {
     now.setHours(parseInt(hour), 0, 0, 0);
     return (now.valueOf() / 1000).toString();
 }
-const timestampDiscord = (timeStamp) => `<t:${timeStamp}:t>`;
+const _timestampDiscord = (timeStamp) => `<t:${timeStamp}:t>`;
+const timestampDiscord = (timeStamp) => {
+    console.log("timeStamp", timeStamp);
+    const timeInFrance = dayjs.unix(Number(timeStamp)).tz("Europe/Paris").unix();
+    console.log("timeInFrance", timeInFrance);
+    return `<t:${timeInFrance}:t>`;
+};
 const makeEmbedLineup = (hour, isMix) => {
     const isMixLabel = !isMix ? "Line up par roster" : "Line up mixte";
     const timestamp = timestampDiscord(getTimestampForHour(hour));
