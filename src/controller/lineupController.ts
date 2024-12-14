@@ -16,6 +16,7 @@ import { timeStamp } from "console";
 import * as dayjs from "dayjs";
 import * as timezone from "dayjs/plugin/timezone";
 import * as utc from "dayjs/plugin/utc";
+import { off } from "process";
 dayjs.extend(timezone.default);
 dayjs.extend(utc.default);
 
@@ -167,8 +168,8 @@ export const lineupResponse = async (
 function getTimestampForHour(hour: string): string {
   const offsetWithFrance = getTimezoneOffsetInHours("Europe/Paris");
   console.log("offsetWithFrance", offsetWithFrance);
-  let now = new Date(Date.now() + offsetWithFrance * 60 * 60);
-  now.setHours(parseInt(hour), 0, 0, 0);
+  let now = new Date(Date.now());
+  now.setHours(parseInt(hour) + offsetWithFrance, 0, 0, 0);
   console.log("now", now);
   return (now.valueOf() / 1000).toString();
 }
@@ -180,7 +181,7 @@ const getTimezoneOffsetInHours = (targetTimeZone: string) => {
   const targetTime = serverTime.tz(targetTimeZone); // Heure dans le fuseau horaire cible
 
   // Différence entre le fuseau cible et le fuseau du serveur en heures
-  return targetTime.utcOffset() - serverTime.utcOffset();
+  return targetTime.utcOffset() / 60 - serverTime.utcOffset() / 60;
 };
 
 const makeEmbedLineup = (hour: string, isMix: boolean): EmbedBuilder => {
