@@ -123,8 +123,8 @@ exports.lineupResponse = lineupResponse;
 function getTimestampForHour(hour) {
     const offsetWithFrance = getTimezoneOffsetInHours("Europe/Paris");
     console.log("offsetWithFrance", offsetWithFrance);
-    let now = new Date(Date.now() + offsetWithFrance * 60 * 60);
-    now.setHours(parseInt(hour), 0, 0, 0);
+    let now = new Date(Date.now());
+    now.setHours(parseInt(hour) + offsetWithFrance, 0, 0, 0);
     console.log("now", now);
     return (now.valueOf() / 1000).toString();
 }
@@ -132,7 +132,7 @@ const timestampDiscord = (timeStamp) => `<t:${timeStamp}:t>`;
 const getTimezoneOffsetInHours = (targetTimeZone) => {
     const serverTime = dayjs.default();
     const targetTime = serverTime.tz(targetTimeZone);
-    return targetTime.utcOffset() - serverTime.utcOffset();
+    return targetTime.utcOffset() / 60 - serverTime.utcOffset() / 60;
 };
 const makeEmbedLineup = (hour, isMix) => {
     const isMixLabel = !isMix ? "Line up par roster" : "Line up mixte";
