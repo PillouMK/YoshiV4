@@ -13,6 +13,11 @@ import {
 import lineUpData from "../database/lineup.json";
 import { saveJSONToFile } from "../controller/generalController";
 import { timeStamp } from "console";
+import * as dayjs from "dayjs";
+import * as timezone from "dayjs/plugin/timezone";
+import * as utc from "dayjs/plugin/utc";
+dayjs.extend(timezone.default);
+dayjs.extend(utc.default);
 
 const lineUp: LineUpData = lineUpData as LineUpData;
 
@@ -165,7 +170,14 @@ function getTimestampForHour(hour: string): string {
   return (now.valueOf() / 1000).toString();
 }
 
-const timestampDiscord = (timeStamp: string): string => `<t:${timeStamp}:t>`;
+const _timestampDiscord = (timeStamp: string): string => `<t:${timeStamp}:t>`;
+
+const timestampDiscord = (timeStamp: string): string => {
+  console.log("timeStamp", timeStamp);
+  const timeInFrance = dayjs.unix(Number(timeStamp)).tz("Europe/Paris").unix();
+  console.log("timeInFrance", timeInFrance); // Convertit en timestamp UNIX
+  return `<t:${timeInFrance}:t>`;
+};
 
 const makeEmbedLineup = (hour: string, isMix: boolean): EmbedBuilder => {
   const isMixLabel = !isMix ? "Line up par roster" : "Line up mixte";
