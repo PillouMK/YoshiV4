@@ -181,7 +181,7 @@ const getTimezoneOffsetInHours = (targetTimeZone: string) => {
   const targetTime = serverTime.tz(targetTimeZone); // Heure dans le fuseau horaire cible
 
   // Différence entre le fuseau cible et le fuseau du serveur en heures
-  return targetTime.utcOffset() / 60 - serverTime.utcOffset() / 60;
+  return serverTime.utcOffset() / 60 - targetTime.utcOffset() / 60;
 };
 
 const makeEmbedLineup = (hour: string, isMix: boolean): EmbedBuilder => {

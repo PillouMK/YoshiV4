@@ -132,7 +132,7 @@ const timestampDiscord = (timeStamp) => `<t:${timeStamp}:t>`;
 const getTimezoneOffsetInHours = (targetTimeZone) => {
     const serverTime = dayjs.default();
     const targetTime = serverTime.tz(targetTimeZone);
-    return targetTime.utcOffset() / 60 - serverTime.utcOffset() / 60;
+    return serverTime.utcOffset() / 60 - targetTime.utcOffset() / 60;
 };
 const makeEmbedLineup = (hour, isMix) => {
     const isMixLabel = !isMix ? "Line up par roster" : "Line up mixte";
