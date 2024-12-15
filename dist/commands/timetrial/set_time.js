@@ -23,10 +23,12 @@ module.exports = {
         const filtered = (0, generalController_1.filterMapList)(__1.LIST_MAPS, value);
         if (!interaction)
             return;
-        await interaction.respond(filtered.map((choice) => ({
+        const choices = filtered.map((choice) => ({
             name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
             value: choice.idMap,
-        })));
+        }));
+        console.log("Choices being sent to autocomplete:", choices);
+        await interaction.respond(choices);
     },
     async execute(interaction) {
         const time = interaction.options.getString("time");

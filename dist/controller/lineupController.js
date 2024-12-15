@@ -8,6 +8,8 @@ const generalController_1 = require("../controller/generalController");
 const dayjs = tslib_1.__importStar(require("dayjs"));
 const timezone = tslib_1.__importStar(require("dayjs/plugin/timezone"));
 const utc = tslib_1.__importStar(require("dayjs/plugin/utc"));
+const __1 = require("..");
+const fs_1 = tslib_1.__importDefault(require("fs"));
 dayjs.extend(timezone.default);
 dayjs.extend(utc.default);
 const lineUp = lineup_json_1.default;
@@ -99,7 +101,8 @@ const lineupResponse = async (hours, roles, listMembers) => {
     const isMix = roles.length === 1;
     let response = [];
     hourArray.forEach(async (hour) => {
-        const lineUpByHour = lineUp.lineup[hour];
+        const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
+        const lineUpByHour = _lineUpData.lineup[hour];
         let embed = makeEmbedLineup(hour.toString(), isMix);
         for (const role of roles) {
             console.log(role.name);
@@ -122,10 +125,8 @@ const lineupResponse = async (hours, roles, listMembers) => {
 exports.lineupResponse = lineupResponse;
 function getTimestampForHour(hour) {
     const offsetWithFrance = getTimezoneOffsetInHours("Europe/Paris");
-    console.log("offsetWithFrance", offsetWithFrance);
     let now = new Date(Date.now());
     now.setHours(parseInt(hour) + offsetWithFrance, 0, 0, 0);
-    console.log("now", now);
     return (now.valueOf() / 1000).toString();
 }
 const timestampDiscord = (timeStamp) => `<t:${timeStamp}:t>`;
@@ -196,9 +197,32 @@ const addMember = (hour, member, status) => {
 };
 exports.addMember = addMember;
 const resetAllLineups = () => {
-    lineUp.lineup.forEach((element) => {
-        element = [];
+    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
+    _lineUpData.lineup.forEach((element, index) => {
+        _lineUpData.lineup[index] = [];
     });
-    (0, generalController_1.saveJSONToFile)(lineUp, lineupPath);
+    console.log(_lineUpData.lineup);
+    (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
 };
 exports.resetAllLineups = resetAllLineups;
+const EditSavedMessages = async (lineup, bot) => {
+    const guild = await bot.guilds.cache.get("135721923568074753");
+    const fetchedRoles = await guild?.roles.fetch();
+    const fetchedMembers = await guild?.members.fetch();
+    const channel = await bot.channels.cache.get(lineup.idChannel);
+    if (channel.isTextBased()) {
+        const msg = await channel.messages.fetch(lineup.id);
+        const rolesId = lineup.isMix ? [__1.ROLE_YF] : __1.ROLES;
+        let roleList = [];
+        fetchedRoles?.forEach((role) => {
+            if (rolesId.includes(role.id))
+                roleList.push(role);
+        });
+        (0, generalController_1.sortByRoleId)(roleList, __1.ROLES[0]);
+        const res = await (0, exports.lineupResponse)(lineup.hour, roleList, fetchedMembers);
+        await msg.edit({
+            embeds: res[0].embed,
+            components: [res[0].buttons],
+        });
+    }
+};

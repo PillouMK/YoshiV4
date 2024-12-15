@@ -9,14 +9,17 @@ import {
   ActionRowBuilder,
   ButtonStyle,
   User,
+  Client,
 } from "discord.js";
 import lineUpData from "../database/lineup.json";
-import { saveJSONToFile } from "../controller/generalController";
+import { saveJSONToFile, sortByRoleId } from "../controller/generalController";
 import { timeStamp } from "console";
 import * as dayjs from "dayjs";
 import * as timezone from "dayjs/plugin/timezone";
 import * as utc from "dayjs/plugin/utc";
 import { off } from "process";
+import { ROLE_YF, ROLES } from "..";
+import fs from "fs";
 dayjs.extend(timezone.default);
 dayjs.extend(utc.default);
 
@@ -42,6 +45,13 @@ export type LineUpItem = {
   userId: string;
   userName: string;
   status: StatusLineUp;
+};
+
+export type LineUp = {
+  hour: string;
+  isMix: boolean;
+  id: string;
+  idChannel: string;
 };
 
 const lineupPath: string = "./src/database/lineup.json";
@@ -143,7 +153,10 @@ export const lineupResponse = async (
   const isMix: boolean = roles.length === 1;
   let response: LineUpMessage[] = [];
   hourArray.forEach(async (hour) => {
-    const lineUpByHour = lineUp.lineup[hour];
+    const _lineUpData = JSON.parse(
+      fs.readFileSync(lineupPath, "utf-8")
+    ) as LineUpData;
+    const lineUpByHour = _lineUpData.lineup[hour];
     let embed = makeEmbedLineup(hour.toString(), isMix);
     for (const role of roles) {
       console.log(role.name);
@@ -167,20 +180,16 @@ export const lineupResponse = async (
 
 function getTimestampForHour(hour: string): string {
   const offsetWithFrance = getTimezoneOffsetInHours("Europe/Paris");
-  console.log("offsetWithFrance", offsetWithFrance);
   let now = new Date(Date.now());
   now.setHours(parseInt(hour) + offsetWithFrance, 0, 0, 0);
-  console.log("now", now);
   return (now.valueOf() / 1000).toString();
 }
 
 const timestampDiscord = (timeStamp: string): string => `<t:${timeStamp}:t>`;
 
 const getTimezoneOffsetInHours = (targetTimeZone: string) => {
-  const serverTime = dayjs.default(); // Heure locale du serveur
-  const targetTime = serverTime.tz(targetTimeZone); // Heure dans le fuseau horaire cible
-
-  // Différence entre le fuseau cible et le fuseau du serveur en heures
+  const serverTime = dayjs.default();
+  const targetTime = serverTime.tz(targetTimeZone);
   return serverTime.utcOffset() / 60 - targetTime.utcOffset() / 60;
 };
 
@@ -271,8 +280,35 @@ export const addMember = (
 };
 
 export const resetAllLineups = () => {
-  lineUp.lineup.forEach((element) => {
-    element = [];
+  const _lineUpData = JSON.parse(fs.readFileSync(lineupPath, "utf-8"));
+  _lineUpData.lineup.forEach((element: any, index: string | number) => {
+    _lineUpData.lineup[index] = [];
   });
-  saveJSONToFile(lineUp, lineupPath);
+  console.log(_lineUpData.lineup);
+  saveJSONToFile(_lineUpData, lineupPath);
+};
+
+const EditSavedMessages = async (lineup: LineUp, bot: Client) => {
+  const guild = await bot.guilds.cache.get("135721923568074753");
+  const fetchedRoles = await guild?.roles.fetch();
+  const fetchedMembers = await guild?.members.fetch();
+  const channel = await bot.channels.cache.get(lineup.idChannel);
+  if (channel!.isTextBased()) {
+    const msg = await channel!.messages.fetch(lineup.id);
+    const rolesId: string[] = lineup.isMix ? [ROLE_YF] : ROLES;
+    let roleList: Role[] = [];
+    fetchedRoles?.forEach((role) => {
+      if (rolesId.includes(role.id)) roleList.push(role);
+    });
+    sortByRoleId(roleList, ROLES[0]);
+    const res: LineUpMessage[] = await lineupResponse(
+      lineup.hour,
+      roleList,
+      fetchedMembers!
+    );
+    await msg.edit({
+      embeds: res[0].embed,
+      components: [res[0].buttons],
+    });
+  }
 };
