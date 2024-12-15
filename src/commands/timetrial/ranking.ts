@@ -42,20 +42,21 @@ module.exports = {
           { name: "YFO", value: "YFO" }
         )
     ),
-  // async autocomplete(interaction: AutocompleteInteraction) {
-  //   const value = interaction.options.getFocused().toLocaleLowerCase();
+  async autocomplete(interaction: AutocompleteInteraction) {
+    const value = interaction.options.getFocused().toLocaleLowerCase();
+    const filtered = filterMapList(LIST_MAPS, value);
 
-  //   const filtered = filterMapList(LIST_MAPS, value);
+    if (!interaction) return;
 
-  //   if (!interaction) return;
+    const choices = filtered.map((choice) => ({
+      name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
+      value: choice.idMap,
+    }));
 
-  //   await interaction.respond(
-  //     filtered.map((choice) => ({
-  //       name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
-  //       value: choice.idMap,
-  //     }))
-  //   );
-  // },
+    console.log("Choices being sent to autocomplete:", choices);
+
+    await interaction.respond(choices);
+  },
 
   async execute(interaction: ChatInputCommandInteraction) {
     const idMap: string[] = interaction.options.getString("idmap")!.split(" ");

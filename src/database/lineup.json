@@ -1,12 +1,5 @@
 {
   "lineup": [
-    [
-      {
-        "userId": "450353797450039336",
-        "userName": "Pillou",
-        "status": 0
-      }
-    ],
     [],
     [],
     [],
@@ -24,81 +17,38 @@
     [],
     [],
     [],
-    [
-      {
-        "userId": "450353797450039336",
-        "userName": "pilloou",
-        "status": 0
-      }
-    ],
     [],
-    [
-      {
-        "userId": "450353797450039336",
-        "userName": "Pillou",
-        "status": 0
-      }
-    ],
-    [
-      {
-        "userId": "156445194861019136",
-        "userName": "Ti_C",
-        "status": 0
-      },
-      {
-        "userId": "338849885749116928",
-        "userName": "Sun",
-        "status": 1
-      },
-      {
-        "userId": "133288350613372928",
-        "userName": "Storm",
-        "status": 1
-      },
-      {
-        "userId": "268443528101625857",
-        "userName": "Raikou",
-        "status": 0
-      },
-      {
-        "userId": "450353797450039336",
-        "userName": "Pillou",
-        "status": 0
-      },
-      {
-        "userId": "396688115588399119",
-        "userName": "zac__h",
-        "status": 3
-      },
-      {
-        "userId": "133978257006526464",
-        "userName": "thiiibz",
-        "status": 0
-      }
-    ],
-    [
-      {
-        "userId": "268443528101625857",
-        "userName": "Raikou",
-        "status": 0
-      },
-      {
-        "userId": "396688115588399119",
-        "userName": "zac__h",
-        "status": 1
-      },
-      {
-        "userId": "450353797450039336",
-        "userName": "pilloou",
-        "status": 0
-      }
-    ],
-    [
-      {
-        "userId": "450353797450039336",
-        "userName": "pilloou",
-        "status": 0
-      }
-    ]
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ],
+  "save": [
+    {
+      "hour": "18",
+      "isMix": false,
+      "id": "1317540362377494540",
+      "idChannel": "1294743209200844800"
+    },
+    {
+      "hour": "21",
+      "isMix": false,
+      "id": "1317540365296992366",
+      "idChannel": "1294743209200844800"
+    },
+    {
+      "hour": "22",
+      "isMix": false,
+      "id": "1317540366299299891",
+      "idChannel": "1294743209200844800"
+    },
+    {
+      "hour": "23",
+      "isMix": false,
+      "id": "1317540367477899403",
+      "idChannel": "1294743209200844800"
+    }
   ]
 }

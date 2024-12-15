@@ -6,9 +6,11 @@ const discord_js_1 = require("discord.js");
 const config_1 = require("./config");
 const path_1 = tslib_1.__importDefault(require("path"));
 const fs_1 = tslib_1.__importDefault(require("fs"));
+const node_cron_1 = tslib_1.__importDefault(require("node-cron"));
 const generalController_1 = require("./controller/generalController");
 const mapDAO_1 = require("./model/mapDAO");
 const maps_json_1 = tslib_1.__importDefault(require("./database/maps.json"));
+const lineupController_1 = require("./controller/lineupController");
 const bot = new discord_js_1.Client({
     intents: [
         discord_js_1.GatewayIntentBits.DirectMessages,
@@ -146,5 +148,12 @@ bot.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
         }
     }
 });
-bot.on(discord_js_1.Events.MessageCreate, async (message) => { });
+node_cron_1.default.schedule("0 2,3,4 * * *", () => {
+    (0, lineupController_1.resetAllLineups)();
+    console.log("Task executed at", new Date().toLocaleString());
+});
+node_cron_1.default.schedule("* * * * *", () => {
+    (0, lineupController_1.resetAllLineups)();
+    console.log("Task executed at", new Date().toLocaleString());
+});
 bot.login(config_1.config.DISCORD_TOKEN);

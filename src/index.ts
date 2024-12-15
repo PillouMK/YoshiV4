@@ -2,9 +2,11 @@ import { Client, GatewayIntentBits, Events, Collection } from "discord.js";
 import { config } from "./config";
 import path from "path";
 import fs from "fs";
+import cron from "node-cron";
 import { botLogs } from "./controller/generalController";
 import { MapMK, convertToMapMK } from "./model/mapDAO";
 import mapsJSON from "./database/maps.json";
+import { resetAllLineups } from "./controller/lineupController";
 
 declare module "discord.js" {
   interface Client {
@@ -176,5 +178,14 @@ bot.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
-bot.on(Events.MessageCreate, async (message) => {});
+cron.schedule("0 2,3,4 * * *", () => {
+  resetAllLineups();
+  console.log("Task executed at", new Date().toLocaleString());
+});
+
+cron.schedule("* * * * *", () => {
+  resetAllLineups();
+  console.log("Task executed at", new Date().toLocaleString());
+});
+
 bot.login(config.DISCORD_TOKEN);

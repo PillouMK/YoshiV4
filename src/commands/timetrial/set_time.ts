@@ -38,19 +38,19 @@ module.exports = {
 
   async autocomplete(interaction: AutocompleteInteraction) {
     const value = interaction.options.getFocused().toLocaleLowerCase();
-
     const filtered = filterMapList(LIST_MAPS, value);
 
     if (!interaction) return;
 
-    await interaction.respond(
-      filtered.map((choice) => ({
-        name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
-        value: choice.idMap,
-      }))
-    );
-  },
+    const choices = filtered.map((choice) => ({
+      name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
+      value: choice.idMap,
+    }));
 
+    console.log("Choices being sent to autocomplete:", choices);
+
+    await interaction.respond(choices);
+  },
   async execute(interaction: ChatInputCommandInteraction) {
     const time: string = interaction.options.getString("time")!;
     const idMap: string[] = interaction.options.getString("map")!.split(" "); // prevent user refocus
