@@ -1,12 +1,27 @@
-import { Client, GatewayIntentBits, Events, Collection } from "discord.js";
+import {
+  Client,
+  GatewayIntentBits,
+  Events,
+  Collection,
+  GuildMember,
+  PartialGuildMember,
+} from "discord.js";
 import { config } from "./config";
 import path from "path";
 import fs from "fs";
 import cron from "node-cron";
-import { botLogs } from "./controller/generalController";
+import {
+  botLogs,
+  playerAddInGuild,
+  playerRemovedInGuild,
+  playerRosterChange,
+} from "./controller/generalController";
 import { MapMK, convertToMapMK } from "./model/mapDAO";
 import mapsJSON from "./database/maps.json";
-import { resetAllLineups } from "./controller/lineupController";
+import {
+  EditSavedMessages,
+  resetAllLineups,
+} from "./controller/lineupController";
 
 declare module "discord.js" {
   interface Client {
@@ -86,9 +101,22 @@ for (const folder of buttonsFolders) {
   }
 }
 
-bot.on(Events.InteractionCreate, async (interaction) => {
-  //if (interaction.member?.user.id !== "450353797450039336") return
+bot.on(Events.GuildMemberAdd, async (member: GuildMember) => {
+  playerAddInGuild(bot, member);
+});
 
+bot.on(
+  Events.GuildMemberRemove,
+  async (member: GuildMember | PartialGuildMember) => {
+    playerRemovedInGuild(bot, member);
+  }
+);
+
+bot.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
+  playerRosterChange(bot, oldMember, newMember);
+});
+
+bot.on(Events.InteractionCreate, async (interaction) => {
   // button interactions
   if (interaction.isButton()) {
     console.log(interaction.customId);
@@ -179,12 +207,12 @@ bot.on(Events.InteractionCreate, async (interaction) => {
 });
 
 cron.schedule("0 2,3,4 * * *", () => {
-  resetAllLineups();
+  resetAllLineups(bot);
   console.log("Task executed at", new Date().toLocaleString());
 });
 
 cron.schedule("* * * * *", () => {
-  resetAllLineups();
+  resetAllLineups(bot);
   console.log("Task executed at", new Date().toLocaleString());
 });
 

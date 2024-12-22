@@ -44,8 +44,8 @@ type Timetrial = {
   name: string;
   date: string;
   rosterName: string;
-  idRoster: string;
-  difference: string;
+  idRoster?: string;
+  difference?: string;
   duration: string;
 };
 
@@ -326,6 +326,52 @@ export const timeToMs = (time: string): number => {
 };
 
 export const updateTimetrial = async (
+  time: string,
+  idMap: string,
+  isShroomless: boolean,
+  user: User,
+  bot: Client
+): Promise<string> => {
+  if (!isTimeValid(time)) {
+    botLogs(bot, `Error time is not valid : ${time}`);
+    return `${time} n'est pas un temps valide`;
+  }
+  const timeInMs = timeToMs(time);
+
+  const patchTime = await patchTimetrial(
+    user.id,
+    idMap,
+    timeInMs,
+    isShroomless
+  );
+  const response = isShroomless ? `en shroomless` : `avec items`;
+  if (patchTime.statusCode != 200) {
+    const postTime = await postTimetrial(
+      user.id,
+      idMap,
+      timeInMs,
+      isShroomless
+    );
+    if (postTime.statusCode != 201) {
+      botLogs(bot, `Error when adding time : ${postTime.data.toString()}`);
+      return `Erreur : ${postTime.data.toString()}`;
+    } else {
+      botLogs(
+        bot,
+        `${user.username} successfully added time (${idMap}, ${time}, ${isShroomless})`
+      );
+      return `Nouveau temps : ${time} ${response}`;
+    }
+  } else {
+    botLogs(
+      bot,
+      `${user.username} successfully updated time (${idMap}, ${time}, ${isShroomless})`
+    );
+    return `Nouveau temps : ${patchTime.data.newTime} (${patchTime.data.diff}s) ${response}\nTon ancien temps était : ${patchTime.data.oldTime}`;
+  }
+};
+
+export const updateWeeklyTimetrial = async (
   time: string,
   idMap: string,
   isShroomless: boolean,

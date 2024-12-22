@@ -58,7 +58,7 @@ module.exports = {
       interaction.options.getBoolean("no_item") ?? false;
     const user = interaction.user;
 
-    botLogs(interaction.client, `${user.username} used /set_tt command`);
+    botLogs(interaction.client, `${user.username} used /set_weeklytt command`);
     const response = await updateTimetrial(
       time,
       idMap[0],

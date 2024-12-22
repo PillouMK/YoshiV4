@@ -15,6 +15,7 @@ import {
 import {
   LineUpMessage,
   lineupResponse,
+  toggleMessage,
 } from "../../controller/lineupController";
 import { ROLE_YF, ROLES } from "../..";
 
@@ -44,5 +45,6 @@ module.exports = {
       embeds: res[0].embed,
       components: [res[0].buttons],
     });
+    toggleMessage(interaction.message.id, isMix);
   },
 };

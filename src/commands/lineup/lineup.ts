@@ -15,6 +15,7 @@ import {
 import {
   LineUpMessage,
   lineupResponse,
+  pushTempMessage,
 } from "../../controller/lineupController";
 import { ROLE_YF, ROLES } from "../..";
 import { sortByRoleId } from "../../controller/generalController";
@@ -45,20 +46,22 @@ module.exports = {
       fetchedMembers!
     );
     await interaction.deferReply();
-    await interaction.editReply({
+    const message = await interaction.editReply({
       embeds: res[0].embed,
       components: [res[0].buttons],
     });
+    pushTempMessage(message.id, message.channelId, res[0].hour);
 
     let index = 0;
     for (const resItem of res) {
       if (index === 0) {
         index++;
       } else {
-        await (interaction.channel as TextChannel).send({
+        let msg = await (interaction.channel as TextChannel).send({
           embeds: resItem.embed,
           components: [resItem.buttons],
         });
+        pushTempMessage(msg.id, msg.channelId, resItem.hour);
       }
     }
   },
