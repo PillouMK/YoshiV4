@@ -4,6 +4,7 @@ import {
   StatusLineUp,
   addMember,
   lineupResponse,
+  updateLineupsByHour,
 } from "../../controller/lineupController";
 import { ROLE_YF, ROLES } from "../..";
 import { sortByRoleId } from "../../controller/generalController";
@@ -42,5 +43,6 @@ module.exports = {
         content: response,
       });
     }
+    updateLineupsByHour(interaction.client, hour);
   },
 };

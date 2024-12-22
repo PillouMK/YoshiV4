@@ -10,6 +10,7 @@ import {
   ButtonStyle,
   User,
   Client,
+  TextChannel,
 } from "discord.js";
 import lineUpData from "../database/lineup.json";
 import { saveJSONToFile, sortByRoleId } from "../controller/generalController";
@@ -23,15 +24,16 @@ import fs from "fs";
 dayjs.extend(timezone.default);
 dayjs.extend(utc.default);
 
-const lineUp: LineUpData = lineUpData as LineUpData;
-
 interface LineUpData {
   lineup: LineUpItem[][];
+  save: LineUp[];
+  temp_save: LineUp[];
 }
 
 export type LineUpMessage = {
   embed: EmbedBuilder[];
   buttons: ActionRowBuilder<ButtonBuilder>;
+  hour: string;
 };
 
 export enum StatusLineUp {
@@ -152,14 +154,14 @@ export const lineupResponse = async (
   const hourArray: number[] = convertValidsHoursToNumberArray(hours);
   const isMix: boolean = roles.length === 1;
   let response: LineUpMessage[] = [];
-  hourArray.forEach(async (hour) => {
+  for (let hour of hourArray) {
     const _lineUpData = JSON.parse(
       fs.readFileSync(lineupPath, "utf-8")
     ) as LineUpData;
     const lineUpByHour = _lineUpData.lineup[hour];
     let embed = makeEmbedLineup(hour.toString(), isMix);
+
     for (const role of roles) {
-      console.log(role.name);
       const sortedData = await sortByRoster(role.id, lineUpByHour, listMembers);
       embed.addFields(makeLineupFields(sortedData, role));
     }
@@ -172,9 +174,10 @@ export const lineupResponse = async (
     const res: LineUpMessage = {
       embed: [embed],
       buttons: buttonList,
+      hour: hour.toString(),
     };
     response.push(res);
-  });
+  }
   return response;
 };
 
@@ -253,7 +256,10 @@ export const addMember = (
   member: User,
   status: StatusLineUp
 ): string => {
-  let lineupByHour = lineUp.lineup[parseInt(hour)];
+  const _lineUpData = JSON.parse(
+    fs.readFileSync(lineupPath, "utf-8")
+  ) as LineUpData;
+  let lineupByHour = _lineUpData.lineup[parseInt(hour)];
   const index = lineupByHour.findIndex((elt) => elt.userId === member.id);
   if (index === -1) {
     lineupByHour.push({
@@ -261,14 +267,14 @@ export const addMember = (
       userName: member.username,
       status: status,
     });
-    saveJSONToFile(lineUp, lineupPath);
+    saveJSONToFile(_lineUpData, lineupPath);
     return `${member.username} bien ajouté à ${timestampDiscord(
       getTimestampForHour(hour)
     )}`;
   } else {
     if (lineupByHour[index].status !== status) {
       lineupByHour[index].status = status;
-      saveJSONToFile(lineUp, lineupPath);
+      saveJSONToFile(_lineUpData, lineupPath);
       return `${member.username} bien passé en ${
         StatusLineUp[status]
       } à ${timestampDiscord(getTimestampForHour(hour))}`;
@@ -279,20 +285,94 @@ export const addMember = (
   }
 };
 
-export const resetAllLineups = () => {
-  const _lineUpData = JSON.parse(fs.readFileSync(lineupPath, "utf-8"));
-  _lineUpData.lineup.forEach((element: any, index: string | number) => {
+export const resetAllLineups = async (bot: Client) => {
+  const _lineUpData: LineUpData = JSON.parse(
+    fs.readFileSync(lineupPath, "utf-8")
+  );
+  for (let msg of _lineUpData.temp_save) {
+    deleteLineupMsgById(msg.id, msg.idChannel, bot);
+  }
+  _lineUpData.temp_save = [];
+  _lineUpData.lineup.forEach((element: any, index: number) => {
     _lineUpData.lineup[index] = [];
   });
-  console.log(_lineUpData.lineup);
+  (_lineUpData.save as LineUp[]).forEach(async (elt) => {
+    await EditSavedMessages(elt, bot);
+  });
   saveJSONToFile(_lineUpData, lineupPath);
 };
 
-const EditSavedMessages = async (lineup: LineUp, bot: Client) => {
-  const guild = await bot.guilds.cache.get("135721923568074753");
+const deleteLineupMsgById = async (
+  idMsg: string,
+  idChannel: string,
+  bot: Client
+) => {
+  try {
+    const channel = await bot.channels.fetch(idChannel);
+
+    if (channel && channel.isTextBased() && channel instanceof TextChannel) {
+      const message = await channel.messages.fetch(idMsg);
+      await message.delete();
+      console.log(`Message avec l'ID ${idMsg} supprimé.`);
+    } else {
+      console.error("Le canal spécifié n'est pas un TextChannel.");
+    }
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération ou de la suppression du message :",
+      error
+    );
+  }
+};
+
+export const updateLineupsByHour = async (bot: Client, hour: string) => {
+  const _lineUpData: LineUpData = JSON.parse(
+    fs.readFileSync(lineupPath, "utf-8")
+  );
+  const lineupTempMsg = _lineUpData.temp_save.filter(
+    (elt) => elt.hour === hour
+  );
+  for (let lineup of lineupTempMsg) {
+    EditSavedMessages(lineup, bot);
+  }
+  const lineupSavedMsg = _lineUpData.save.filter((elt) => elt.hour === hour);
+  for (let lineup of lineupSavedMsg) {
+    EditSavedMessages(lineup, bot);
+  }
+};
+
+export const pushTempMessage = (
+  idMsg: string,
+  idChannel: string,
+  hour: string
+) => {
+  const _lineUpData: LineUpData = JSON.parse(
+    fs.readFileSync(lineupPath, "utf-8")
+  );
+  const temp_lineup: LineUp = {
+    id: idMsg,
+    idChannel: idChannel,
+    hour: hour,
+    isMix: false,
+  };
+  _lineUpData.temp_save.push(temp_lineup);
+  saveJSONToFile(_lineUpData, lineupPath);
+};
+
+export const toggleMessage = (idMsg: string, isMix: boolean) => {
+  const _lineUpData: LineUpData = JSON.parse(
+    fs.readFileSync(lineupPath, "utf-8")
+  );
+
+  _lineUpData.temp_save.find((elt) => elt.id === idMsg)!.isMix = isMix;
+  saveJSONToFile(_lineUpData, lineupPath);
+};
+
+export const EditSavedMessages = async (lineup: LineUp, bot: Client) => {
+  const guild = bot.guilds.cache.get("135721923568074753");
   const fetchedRoles = await guild?.roles.fetch();
   const fetchedMembers = await guild?.members.fetch();
-  const channel = await bot.channels.cache.get(lineup.idChannel);
+  const channel = bot.channels.cache.get(lineup.idChannel);
   if (channel!.isTextBased()) {
     const msg = await channel!.messages.fetch(lineup.id);
     const rolesId: string[] = lineup.isMix ? [ROLE_YF] : ROLES;
