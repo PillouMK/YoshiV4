@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeListButtonRanking = exports.makeFields = exports.makeEmbedRanking = exports.timetrialFinalRanking = exports.updateTimetrial = exports.msToTime = exports.timeToMs = exports.isTimeValid = exports.makeListButton = exports.makeEmbedTimetrial = exports.makeTimetrialFields = exports.emote_string = exports.makeTimetrialMessage = exports.getTimetrialsDataByMap = void 0;
+exports.updateFinalRanking = exports.makeListButtonRanking = exports.makeFields = exports.makeEmbedRanking = exports.timetrialFinalRanking = exports.updateTimetrial = exports.msToTime = exports.timeToMs = exports.isTimeValid = exports.makeListButton = exports.makeEmbedTimetrial = exports.makeTimetrialFields = exports.emote_string = exports.makeTimetrialMessage = exports.getTimetrialsDataByMap = void 0;
+const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
 const yfApiController_1 = require("./yfApiController");
 const generalController_1 = require("./generalController");
+const settings_json_1 = tslib_1.__importDefault(require("../settings.json"));
 const terminaison = ["st", "nd", "rd", "th"];
 const testTime = /[\d]{1}[\:|\.][\d]{2}[\.|\:][\d]{3}/;
 const getTimetrialsDataByMap = async (idMap, idRoster) => {
@@ -274,7 +276,6 @@ const makeFields = (classement) => {
     const maxLengthName = Math.max(...classement
         .filter((player) => player.tt_points > 0)
         .map((player) => player.name.length)) + 3;
-    console.log("maxLengthName", maxLengthName);
     let fieldMobile = "";
     let fieldPLayer = "";
     let fieldTt_point = "";
@@ -325,3 +326,30 @@ const makeListButtonRanking = (isMobile) => {
     return row;
 };
 exports.makeListButtonRanking = makeListButtonRanking;
+const updateFinalRanking = async (bot) => {
+    const newMsg = await (0, exports.timetrialFinalRanking)(bot, false);
+    const channelId = settings_json_1.default.channels.rankings;
+    const msgId = settings_json_1.default.rankingTimetrial.msgId;
+    try {
+        const channel = (await bot.channels.fetch(channelId));
+        const message = (await channel.messages.fetch(msgId));
+        message.edit({
+            content: newMsg.content,
+            components: newMsg.buttons != undefined ? [newMsg.buttons] : [],
+            embeds: newMsg.embed,
+            files: newMsg.file,
+        });
+        const successMessage = `Yoshi successfully updated Final Ranking message`;
+        (0, generalController_1.botLogs)(bot, successMessage);
+    }
+    catch (e) {
+        const errorMessage = `Erreur projetMap : ${e}`;
+        try {
+            (0, generalController_1.botLogs)(bot, errorMessage);
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+};
+exports.updateFinalRanking = updateFinalRanking;

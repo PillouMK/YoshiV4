@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resfreshProjectMap = exports.updateProjectMapMessage = exports.rankingMessage = exports.makeEmbedProjectMap = exports.makeProjectMapMobileRankingField = exports.makeProjectMapRankingFields = exports.maxLengthFields = exports.getProjectMapData = exports.projectMap = void 0;
+exports.updateProjectMapMessage = exports.rankingMessage = exports.makeEmbedProjectMap = exports.makeProjectMapMobileRankingField = exports.makeProjectMapRankingFields = exports.maxLengthFields = exports.getProjectMapData = exports.projectMap = void 0;
 const tslib_1 = require("tslib");
 const generalController_1 = require("../controller/generalController");
 const yfApiController_1 = require("./yfApiController");
@@ -181,7 +181,6 @@ const makeEmbedProjectMap = (idRoster, projetMapValid, projetMapNotValid, isMobi
 };
 exports.makeEmbedProjectMap = makeEmbedProjectMap;
 const rankingMessage = (idRoster, month, iteration, projetMapValid, projetMapNotValid, isMobile) => {
-    console.log("rankingMessage", month);
     const content = messageRecap(idRoster, month, iteration);
     const buttons = makeButtonList(idRoster, isMobile);
     const file = new discord_js_1.AttachmentBuilder("./image/LaYoshiFamily.png");
@@ -195,7 +194,6 @@ const rankingMessage = (idRoster, month, iteration, projetMapValid, projetMapNot
 };
 exports.rankingMessage = rankingMessage;
 const messageRecap = (idRoster, month, iteration) => {
-    console.log("messageRecap", month);
     let saut2ligne = ".\n\n\n";
     let endMsg = "Affichage des données valides et non valides";
     return `${saut2ligne}**ProjectMap ${idRoster} : ** données des ${month} derniers mois, données jugées valides à partir de ${iteration} itérations\n${endMsg}`;
@@ -236,5 +234,3 @@ const updateProjectMapMessage = async (bot, idRoster, month, iteration, isMobile
     }
 };
 exports.updateProjectMapMessage = updateProjectMapMessage;
-const resfreshProjectMap = async (Bot, idRoster) => { };
-exports.resfreshProjectMap = resfreshProjectMap;

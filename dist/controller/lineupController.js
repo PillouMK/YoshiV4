@@ -9,6 +9,7 @@ const timezone = tslib_1.__importStar(require("dayjs/plugin/timezone"));
 const utc = tslib_1.__importStar(require("dayjs/plugin/utc"));
 const __1 = require("..");
 const fs_1 = tslib_1.__importDefault(require("fs"));
+const fc_json_1 = tslib_1.__importDefault(require("../database/fc.json"));
 dayjs.extend(timezone.default);
 dayjs.extend(utc.default);
 var StatusLineUp;
@@ -173,13 +174,18 @@ const makeButtonList = (hour, isMix) => {
         .setStyle(discord_js_1.ButtonStyle.Secondary));
 };
 const addMember = (hour, member, status) => {
+    const nameJson = fc_json_1.default.names;
     const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
     let lineupByHour = _lineUpData.lineup[parseInt(hour)];
     const index = lineupByHour.findIndex((elt) => elt.userId === member.id);
+    let name = member.username;
+    if (nameJson[member.id] != undefined) {
+        name = nameJson[member.id];
+    }
     if (index === -1) {
         lineupByHour.push({
             userId: member.id,
-            userName: member.username,
+            userName: name,
             status: status,
         });
         (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
@@ -189,9 +195,9 @@ const addMember = (hour, member, status) => {
         if (lineupByHour[index].status !== status) {
             lineupByHour[index].status = status;
             (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
-            return `${member.username} bien passé en ${StatusLineUp[status]} à ${timestampDiscord(getTimestampForHour(hour))}`;
+            return `${name} bien passé en ${StatusLineUp[status]} à ${timestampDiscord(getTimestampForHour(hour))}`;
         }
-        return `${member.username} est déjà en ${StatusLineUp[status]} à ${timestampDiscord(getTimestampForHour(hour))}`;
+        return `${name} est déjà en ${StatusLineUp[status]} à ${timestampDiscord(getTimestampForHour(hour))}`;
     }
 };
 exports.addMember = addMember;

@@ -27,7 +27,6 @@ module.exports = {
             name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
             value: choice.idMap,
         }));
-        console.log("Choices being sent to autocomplete:", choices);
         await interaction.respond(choices);
     },
     async execute(interaction) {

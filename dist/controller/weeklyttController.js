@@ -21,7 +21,6 @@ const getAllWeeklyMap = async () => {
             silverTime: weeklytt.map.silverTime,
             bronzeTime: weeklytt.map.bronzeTime,
         }));
-        console.log(weeklyMaps);
         return weeklyMaps;
     }
     catch (error) {
@@ -165,8 +164,6 @@ const updateWeeklyTimetrial = async (time, idMap, isShroomless, user, bot) => {
     }
     else {
         let endText = "";
-        console.log("patchTime.data");
-        console.log(patchTime.data);
         if (patchTime.data.newIsBetter) {
             endText += `\nTu as également battu ton record personnel qui était de : ${patchTime.data.timetrial}`;
         }
@@ -208,7 +205,6 @@ const getWeeklytt = async (bot, idMap, isShroomless) => {
 };
 exports.getWeeklytt = getWeeklytt;
 const makeWeeklyttEmbed = (map) => {
-    console.log("map", map);
     const mapMK = __1.LIST_MAPS.find((v) => v.idMap === map.idMap);
     const title = `Weekly TT : ${mapMK.initialGame} ${mapMK.nameMap}`;
     const emote = (0, timetrialController_1.emote_string)(map.isShroomless);
