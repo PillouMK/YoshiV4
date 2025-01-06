@@ -29,7 +29,6 @@ module.exports = {
         const time = interaction.options.getString("temps");
         const idMap = interaction.options.getString("map").split("-")[0];
         const isShroomless = interaction.options.getString("map").split("-")[1] === "1";
-        console.log(interaction.options.getString("map").split("-")[1]);
         const user = interaction.user;
         (0, generalController_1.botLogs)(interaction.client, `${user.username} used /set_weeklytt command`);
         const response = await (0, weeklyttController_1.updateWeeklyTimetrial)(time, idMap, isShroomless, user, interaction.client);

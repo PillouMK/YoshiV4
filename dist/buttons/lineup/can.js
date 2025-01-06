@@ -28,7 +28,6 @@ module.exports = {
             components: [res[0].buttons],
         });
         if (interaction.channelId !== "1294743209200844800") {
-            console.log(interaction.channelId);
             await interaction.followUp({
                 content: response,
             });

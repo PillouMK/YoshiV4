@@ -32,7 +32,6 @@ module.exports = {
             name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
             value: choice.idMap,
         }));
-        console.log("Choices being sent to autocomplete:", choices);
         await interaction.respond(choices);
     },
     async execute(interaction) {
@@ -40,7 +39,6 @@ module.exports = {
         const idRoster = interaction.options.getString("idroster") ?? undefined;
         const isMobile = interaction.options.getBoolean("is_mobile") ?? false;
         const isShroomless = interaction.options.getBoolean("no_item") ?? false;
-        console.log("isShroomless", isShroomless);
         const user = interaction.user;
         await interaction.deferReply();
         const message = await (0, timetrialController_1.makeTimetrialMessage)(idMap[0], idRoster, isShroomless, user, isMobile);

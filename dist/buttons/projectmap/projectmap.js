@@ -5,11 +5,11 @@ const projectmapController_2 = require("../../controller/projectmapController");
 const generalController_1 = require("../../controller/generalController");
 module.exports = {
     data: {
-        name: 'projectmap'
+        name: "projectmap",
     },
     async execute(interaction, args) {
         await interaction.deferUpdate();
-        const isMobile = args[0] === 'pc' ? false : true;
+        const isMobile = args[0] === "pc" ? false : true;
         const idRoster = args[1];
         if (projectmapController_1.projectMap[idRoster] == undefined) {
             projectmapController_1.projectMap[idRoster] = await (0, projectmapController_2.getProjectMapData)(idRoster, 3, 10);
@@ -21,7 +21,7 @@ module.exports = {
                     content: msg.content,
                     components: [msg.buttons],
                     embeds: msg.embed,
-                    files: [msg.file]
+                    files: [msg.file],
                 });
                 const log = `${interaction.user.username} used ProjectMap Button with success`;
                 (0, generalController_1.botLogs)(interaction.client, log);
@@ -38,5 +38,5 @@ module.exports = {
                 console.log(err);
             }
         }
-    }
+    },
 };

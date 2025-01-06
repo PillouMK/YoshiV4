@@ -36,7 +36,6 @@ module.exports = {
                 console.log(e);
             }
         }
-        console.log("projectmap", month);
         const msg = (0, projectmapController_1.rankingMessage)(idRoster, month, iteration, projectMap.projectMapValid, projectMap.projectMapNotValid, false);
         const log = `${interaction.user.username} a utilisé /project_map (roster: ${idRoster}, month: ${month}, iteration: ${iteration}). Réussite de la commande`;
         try {

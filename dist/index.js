@@ -12,6 +12,7 @@ const mapDAO_1 = require("./model/mapDAO");
 const maps_json_1 = tslib_1.__importDefault(require("./database/maps.json"));
 const lineupController_1 = require("./controller/lineupController");
 const projectmapController_1 = require("./controller/projectmapController");
+const timetrialController_1 = require("./controller/timetrialController");
 const bot = new discord_js_1.Client({
     intents: [
         discord_js_1.GatewayIntentBits.DirectMessages,
@@ -46,12 +47,10 @@ for (const folder of commandFolders) {
         const filePath = path_1.default.join(commandsPath, file);
         const command = require(filePath);
         if ("data" in command && "execute" in command) {
-            console.log("command", command.data.name);
             bot.commands.set(command.data.name, command);
         }
         else {
             console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-            console.log("c", command);
         }
     }
 }
@@ -67,7 +66,6 @@ for (const folder of buttonsFolders) {
         const filePath = path_1.default.join(buttonsPath, file);
         const button = require(filePath);
         if ("execute" in button) {
-            console.log("button", button.data.name);
             bot.buttons.set(button.data.name, button);
         }
         else {
@@ -86,7 +84,6 @@ bot.on(discord_js_1.Events.GuildMemberUpdate, async (oldMember, newMember) => {
 });
 bot.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
     if (interaction.isButton()) {
-        console.log(interaction.customId);
         const buttonName = interaction.customId.split("-")[0];
         const args = interaction.customId.split("-");
         args.shift();
@@ -165,5 +162,9 @@ bot.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
 node_cron_1.default.schedule("0 2,3,4 * * *", () => {
     (0, lineupController_1.resetAllLineups)(bot);
     console.log("Reset executed at", new Date().toLocaleString());
+});
+node_cron_1.default.schedule("0 * * * *", () => {
+    (0, timetrialController_1.updateFinalRanking)(bot);
+    console.log("Update executed at", new Date().toLocaleString());
 });
 bot.login(config_1.config.DISCORD_TOKEN);
