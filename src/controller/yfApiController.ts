@@ -4,6 +4,7 @@ import { url } from "inspector";
 import { error } from "console";
 import { MapMK } from "src/model/mapDAO";
 import { ResponseYF } from "../model/responseYF";
+import { weeklyMapAPI } from "./weeklyttController";
 
 // CONSTANTE
 const API_URL: string = "https://yoshi-family-api.fr/v1";
@@ -396,59 +397,31 @@ export const getWeeklyTT = async () => {
   return weeklytt;
 };
 
-// const postMapWeekly = async (weeklyMapArray) => {
-//   let responseObject;
-//   const postMap = await axios
-//     .post(
-//       `${API_URL}/maps/weekly`,
-//       {
-//         weekly_maps: weeklyMapArray,
-//       },
-//       {
-//         headers: header,
-//       }
-//     )
-//     .then((response) => {
-//       responseObject = {
-//         statusCode: response.status,
-//         data: response.data,
-//       };
-//       return responseObject;
-//     })
-//     .catch((error) => {
-//       responseObject = {
-//         statusCode: error.response.status,
-//         data: error.response.data,
-//       };
-//       return responseObject;
-//     });
-//   return postMap;
-// };
-
-// const patchMapWeekly = async (idMap, time) => {
-//   let responseObject;
-//   let body = {};
-//   if (time.goldTime != undefined) body.goldTime = time.goldTime;
-//   if (time.silverTime != undefined) body.silverTime = time.silverTime;
-//   if (time.bronzeTime != undefined) body.bronzeTime = time.bronzeTime;
-//   if (time.ironTime != undefined) body.idRoster = time.ironTime;
-//   const patchMap = await axios
-//     .patch(`${API_URL}/maps/weekly/${idMap}`, body, {
-//       headers: header,
-//     })
-//     .then((response) => {
-//       responseObject = {
-//         statusCode: response.status,
-//         data: response.data,
-//       };
-//       return responseObject;
-//     })
-//     .catch((error) => {
-//       responseObject = {
-//         statusCode: error.response.status,
-//         data: error.response.data,
-//       };
-//       return responseObject;
-//     });
-//   return patchMap;
-// };
+export const postMapWeekly = async (weeklyMapArray: weeklyMapAPI[]) => {
+  let responseObject;
+  const postMap = await axios
+    .post(
+      `${API_URL}${mapsEndpoint}/weekly`,
+      {
+        weekly_maps: weeklyMapArray,
+      },
+      {
+        headers: header,
+      }
+    )
+    .then((response) => {
+      responseObject = {
+        statusCode: response.status,
+        data: response.data,
+      };
+      return responseObject;
+    })
+    .catch((error) => {
+      responseObject = {
+        statusCode: error.response.status,
+        data: error.response.data,
+      };
+      return responseObject;
+    });
+  return postMap;
+};

@@ -14,7 +14,7 @@ import { filterMapList } from "../../controller/generalController";
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("edit_race")
+    .setName("a")
     .setDescription("Editer une course 6v6")
     .addStringOption((option) =>
       option
@@ -70,10 +70,12 @@ module.exports = {
 
   async execute(interaction: ChatInputCommandInteraction) {
     const spots: string[] = interaction.options.getString("spots")!.split(" ");
-    const map: string[] = interaction.options.getString("map")!.split(" ");
+    const map: string[] = interaction.options
+      .getString("editrace_map")!
+      .split(" ");
     const channelId: string = interaction.channelId;
     const race: number =
-      interaction.options.getInteger("race") ?? getNumberOfRace(channelId);
+      interaction.options.getInteger("nb_race") ?? getNumberOfRace(channelId);
     const newRace = await editRace(spots, map[0], channelId, race.toString());
 
     await interaction.reply(newRace);

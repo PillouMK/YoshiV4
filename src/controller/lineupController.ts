@@ -12,7 +12,6 @@ import {
   Client,
   TextChannel,
 } from "discord.js";
-import lineUpData from "../database/lineup.json";
 import { saveJSONToFile, sortByRoleId } from "../controller/generalController";
 import { timeStamp } from "console";
 import * as dayjs from "dayjs";

@@ -18,7 +18,7 @@ module.exports = {
     .setDescription("Test de data"),
   async execute(interaction: ChatInputCommandInteraction) {
     try {
-      getAllWeeklyMap();
+      interaction.reply("ici future ranking TT");
     } catch (e) {
       console.log(e);
     }
