@@ -7,6 +7,7 @@ const generalController_1 = require("../controller/generalController");
 const yfApiController_1 = require("./yfApiController");
 const mapController_1 = require("./mapController");
 const errorMessage_1 = require("../model/errorMessage");
+const projectmapController_1 = require("./projectmapController");
 const pointMapping = {
     "1": 15,
     "2": 12,
@@ -161,7 +162,7 @@ const createWar = (idChannel, nameTeam1, nameTeam2) => {
     return true;
 };
 exports.createWar = createWar;
-const stopWar = async (idChannel, isForced = false) => {
+const stopWar = async (bot, idChannel, isForced = false) => {
     if (!checkIfWarExistInChannel(idChannel))
         return errorMessage.noWarInChannel();
     if (!isForced && (0, exports.getNumberOfRace)(idChannel) < 12)
@@ -176,6 +177,8 @@ const stopWar = async (idChannel, isForced = false) => {
     if ((0, exports.getNumberOfRace)(idChannel) > 7 &&
         botwar.channels[idChannel].paramWar.saveStats) {
         const sendMapsData = await sendProjectMapData(botwar.channels[idChannel]);
+        if (result.team1.nameTeam === "YFG" || result.team1.nameTeam === "YFO")
+            (0, projectmapController_1.updateProjectMapMessage)(bot, result.team1.nameTeam, 3, 10, false);
         if (sendMapsData)
             msg += "\nSauvegarde des données effectuées";
         else

@@ -23,5 +23,6 @@ module.exports = {
             embeds: res[0].embed,
             components: [res[0].buttons],
         });
+        (0, lineupController_1.toggleMessage)(interaction.message.id, isMix);
     },
 };

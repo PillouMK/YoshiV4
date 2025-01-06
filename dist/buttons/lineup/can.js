@@ -33,5 +33,6 @@ module.exports = {
                 content: response,
             });
         }
+        (0, lineupController_1.updateLineupsByHour)(interaction.client, hour);
     },
 };

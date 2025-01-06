@@ -6,7 +6,7 @@ const __1 = require("../..");
 const generalController_1 = require("../../controller/generalController");
 module.exports = {
     data: new discord_js_1.SlashCommandBuilder()
-        .setName("edit_race")
+        .setName("a")
         .setDescription("Editer une course 6v6")
         .addStringOption((option) => option
         .setName("spots")
@@ -49,9 +49,11 @@ module.exports = {
     },
     async execute(interaction) {
         const spots = interaction.options.getString("spots").split(" ");
-        const map = interaction.options.getString("map").split(" ");
+        const map = interaction.options
+            .getString("editrace_map")
+            .split(" ");
         const channelId = interaction.channelId;
-        const race = interaction.options.getInteger("race") ?? (0, botwarController_1.getNumberOfRace)(channelId);
+        const race = interaction.options.getInteger("nb_race") ?? (0, botwarController_1.getNumberOfRace)(channelId);
         const newRace = await (0, botwarController_1.editRace)(spots, map[0], channelId, race.toString());
         await interaction.reply(newRace);
     },

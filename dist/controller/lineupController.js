@@ -1,9 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetAllLineups = exports.addMember = exports.lineupResponse = exports.convertValidsHoursToNumberArray = exports.StatusLineUp = void 0;
+exports.EditSavedMessages = exports.toggleMessage = exports.pushTempMessage = exports.updateLineupsByHour = exports.resetAllLineups = exports.addMember = exports.lineupResponse = exports.convertValidsHoursToNumberArray = exports.StatusLineUp = void 0;
 const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
-const lineup_json_1 = tslib_1.__importDefault(require("../database/lineup.json"));
 const generalController_1 = require("../controller/generalController");
 const dayjs = tslib_1.__importStar(require("dayjs"));
 const timezone = tslib_1.__importStar(require("dayjs/plugin/timezone"));
@@ -12,7 +11,6 @@ const __1 = require("..");
 const fs_1 = tslib_1.__importDefault(require("fs"));
 dayjs.extend(timezone.default);
 dayjs.extend(utc.default);
-const lineUp = lineup_json_1.default;
 var StatusLineUp;
 (function (StatusLineUp) {
     StatusLineUp[StatusLineUp["Can"] = 0] = "Can";
@@ -100,12 +98,11 @@ const lineupResponse = async (hours, roles, listMembers) => {
     const hourArray = (0, exports.convertValidsHoursToNumberArray)(hours);
     const isMix = roles.length === 1;
     let response = [];
-    hourArray.forEach(async (hour) => {
+    for (let hour of hourArray) {
         const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
         const lineUpByHour = _lineUpData.lineup[hour];
         let embed = makeEmbedLineup(hour.toString(), isMix);
         for (const role of roles) {
-            console.log(role.name);
             const sortedData = await sortByRoster(role.id, lineUpByHour, listMembers);
             embed.addFields(makeLineupFields(sortedData, role));
         }
@@ -117,9 +114,10 @@ const lineupResponse = async (hours, roles, listMembers) => {
         const res = {
             embed: [embed],
             buttons: buttonList,
+            hour: hour.toString(),
         };
         response.push(res);
-    });
+    }
     return response;
 };
 exports.lineupResponse = lineupResponse;
@@ -175,7 +173,8 @@ const makeButtonList = (hour, isMix) => {
         .setStyle(discord_js_1.ButtonStyle.Secondary));
 };
 const addMember = (hour, member, status) => {
-    let lineupByHour = lineUp.lineup[parseInt(hour)];
+    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
+    let lineupByHour = _lineUpData.lineup[parseInt(hour)];
     const index = lineupByHour.findIndex((elt) => elt.userId === member.id);
     if (index === -1) {
         lineupByHour.push({
@@ -183,33 +182,85 @@ const addMember = (hour, member, status) => {
             userName: member.username,
             status: status,
         });
-        (0, generalController_1.saveJSONToFile)(lineUp, lineupPath);
+        (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
         return `${member.username} bien ajouté à ${timestampDiscord(getTimestampForHour(hour))}`;
     }
     else {
         if (lineupByHour[index].status !== status) {
             lineupByHour[index].status = status;
-            (0, generalController_1.saveJSONToFile)(lineUp, lineupPath);
+            (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
             return `${member.username} bien passé en ${StatusLineUp[status]} à ${timestampDiscord(getTimestampForHour(hour))}`;
         }
         return `${member.username} est déjà en ${StatusLineUp[status]} à ${timestampDiscord(getTimestampForHour(hour))}`;
     }
 };
 exports.addMember = addMember;
-const resetAllLineups = () => {
+const resetAllLineups = async (bot) => {
     const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
+    for (let msg of _lineUpData.temp_save) {
+        deleteLineupMsgById(msg.id, msg.idChannel, bot);
+    }
+    _lineUpData.temp_save = [];
     _lineUpData.lineup.forEach((element, index) => {
         _lineUpData.lineup[index] = [];
     });
-    console.log(_lineUpData.lineup);
+    _lineUpData.save.forEach(async (elt) => {
+        await (0, exports.EditSavedMessages)(elt, bot);
+    });
     (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
 };
 exports.resetAllLineups = resetAllLineups;
+const deleteLineupMsgById = async (idMsg, idChannel, bot) => {
+    try {
+        const channel = await bot.channels.fetch(idChannel);
+        if (channel && channel.isTextBased() && channel instanceof discord_js_1.TextChannel) {
+            const message = await channel.messages.fetch(idMsg);
+            await message.delete();
+            console.log(`Message avec l'ID ${idMsg} supprimé.`);
+        }
+        else {
+            console.error("Le canal spécifié n'est pas un TextChannel.");
+        }
+    }
+    catch (error) {
+        console.error("Erreur lors de la récupération ou de la suppression du message :", error);
+    }
+};
+const updateLineupsByHour = async (bot, hour) => {
+    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
+    const lineupTempMsg = _lineUpData.temp_save.filter((elt) => elt.hour === hour);
+    for (let lineup of lineupTempMsg) {
+        (0, exports.EditSavedMessages)(lineup, bot);
+    }
+    const lineupSavedMsg = _lineUpData.save.filter((elt) => elt.hour === hour);
+    for (let lineup of lineupSavedMsg) {
+        (0, exports.EditSavedMessages)(lineup, bot);
+    }
+};
+exports.updateLineupsByHour = updateLineupsByHour;
+const pushTempMessage = (idMsg, idChannel, hour) => {
+    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
+    const temp_lineup = {
+        id: idMsg,
+        idChannel: idChannel,
+        hour: hour,
+        isMix: false,
+    };
+    _lineUpData.temp_save.push(temp_lineup);
+    (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
+};
+exports.pushTempMessage = pushTempMessage;
+const toggleMessage = (idMsg, isMix) => {
+    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
+    _lineUpData.temp_save.find((elt) => elt.id === idMsg).isMix = isMix;
+    (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
+};
+exports.toggleMessage = toggleMessage;
 const EditSavedMessages = async (lineup, bot) => {
-    const guild = await bot.guilds.cache.get("135721923568074753");
+    const guild = bot.guilds.cache.get("135721923568074753");
     const fetchedRoles = await guild?.roles.fetch();
     const fetchedMembers = await guild?.members.fetch();
-    const channel = await bot.channels.cache.get(lineup.idChannel);
+    const channel = bot.channels.cache.get(lineup.idChannel);
     if (channel.isTextBased()) {
         const msg = await channel.messages.fetch(lineup.id);
         const rolesId = lineup.isMix ? [__1.ROLE_YF] : __1.ROLES;
@@ -226,3 +277,4 @@ const EditSavedMessages = async (lineup, bot) => {
         });
     }
 };
+exports.EditSavedMessages = EditSavedMessages;
