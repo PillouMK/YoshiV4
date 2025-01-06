@@ -18,7 +18,7 @@ module.exports = {
     const idChannel: string = interaction.channelId;
     const isForce: boolean = interaction.options.getBoolean("force") ?? false;
 
-    const stopTheWar = await stopWar(idChannel, isForce);
+    const stopTheWar = await stopWar(interaction.client, idChannel, isForce);
     await interaction.reply(stopTheWar);
   },
 };
