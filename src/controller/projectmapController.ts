@@ -318,19 +318,19 @@ export const updateProjectMapMessage = async (
   idRoster: string,
   month: number,
   iteration: number,
-  projetMapValid: ProjectMap[],
-  projetMapNotValid: ProjectMap[],
   isMobile: Boolean
 ) => {
+  const projectMap = await getProjectMapData(idRoster, 3, 10);
+
   const newMsg = rankingMessage(
     idRoster,
     month,
     iteration,
-    projetMapValid,
-    projetMapNotValid,
+    projectMap!.projectMapValid,
+    projectMap!.projectMapNotValid,
     isMobile
   );
-  const channelId = settings.projectMap.channel;
+  const channelId = settings.channels.rankings;
   const msgId = (settings.projectMap as any)[idRoster];
   try {
     const channel = (await bot.channels.fetch(channelId)) as TextChannel;
@@ -353,3 +353,5 @@ export const updateProjectMapMessage = async (
     }
   }
 };
+
+export const resfreshProjectMap = async (Bot: Client, idRoster: string) => {};

@@ -1,29 +1,5 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  ChatInputCommandInteraction,
-  Role,
-  SlashCommandBuilder,
-  User,
-} from "discord.js";
-import {
-  createWar,
-  editRace,
-  raceAdd,
-} from "../../controller/botwarController";
-import {
-  LineUpMessage,
-  addMember,
-  lineupResponse,
-} from "../../controller/lineupController";
-import { projectMap } from "../../controller/projectmapController";
-import {
-  getProjectMapData,
-  rankingMessage,
-  updateProjectMapMessage,
-} from "../../controller/projectmapController";
+import { ButtonInteraction } from "discord.js";
+
 import { botLogs } from "../../controller/generalController";
 import { makeTimetrialMessage } from "../../controller/timetrialController";
 

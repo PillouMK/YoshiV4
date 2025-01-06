@@ -22,6 +22,7 @@ import {
   EditSavedMessages,
   resetAllLineups,
 } from "./controller/lineupController";
+import { updateProjectMapMessage } from "./controller/projectmapController";
 
 declare module "discord.js" {
   interface Client {
@@ -45,9 +46,13 @@ const bot: Client<boolean> = new Client({
 export const LIST_MAPS: MapMK[] = mapsJSON.maps.map(convertToMapMK);
 export const ROLES = ["643871029210513419", "643569712353116170"];
 export const ROLE_YF = "199252384612876289";
+export const ADMIN_ROLE = "353621406891769866";
+export const LOGO_YF = "attachment://LaYoshiFamily.png";
 
 bot.once(Events.ClientReady, async (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
+  updateProjectMapMessage(bot, "YFG", 3, 10, false);
+  updateProjectMapMessage(bot, "YFO", 3, 10, false);
   botLogs(bot, "Yoshi successfully relloged");
 });
 
@@ -208,12 +213,7 @@ bot.on(Events.InteractionCreate, async (interaction) => {
 
 cron.schedule("0 2,3,4 * * *", () => {
   resetAllLineups(bot);
-  console.log("Task executed at", new Date().toLocaleString());
-});
-
-cron.schedule("* * * * *", () => {
-  resetAllLineups(bot);
-  console.log("Task executed at", new Date().toLocaleString());
+  console.log("Reset executed at", new Date().toLocaleString());
 });
 
 bot.login(config.DISCORD_TOKEN);

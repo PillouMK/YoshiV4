@@ -39,7 +39,7 @@ type InfoMap = {
   retro: boolean;
 };
 
-type Timetrial = {
+export type Timetrial = {
   idPlayer: string;
   name: string;
   date: string;
@@ -68,7 +68,7 @@ type RankingFields = {
   members: APIEmbedField;
   points: APIEmbedField;
   tops: APIEmbedField;
-  mobileField: APIEmbedField;
+  mobileField: APIEmbedField[];
 };
 
 export type TimetrialMessage = {
@@ -140,7 +140,7 @@ export const makeTimetrialMessage = async (
   };
 };
 
-const emote = (isShroomless: boolean): string => {
+export const emote_string = (isShroomless: boolean): string => {
   return isShroomless
     ? ` <:no_mushroom_bot:1033130955470295131>`
     : ` <:mushroom_bot:1033128412405047356>`;
@@ -158,7 +158,7 @@ export const makeTimetrialFields = (
   if (data == null) {
     return undefined;
   }
-  const emoteEmbed = emote(isShroomless);
+  const emoteEmbed = emote_string(isShroomless);
   const indexUser = data.findIndex((x) => x.idPlayer === user.id);
   const maxLength =
     Math.max(...data.map((el) => el.name.length)) > 10
@@ -220,7 +220,7 @@ export const makeEmbedTimetrial = (
   info: InfoTimetrial
 ): EmbedBuilder => {
   const title = `Classement : ${infoMap.initialGame} ${infoMap.nameMap}`;
-  const emoteEmbed: string = emote(info.isShroomless);
+  const emoteEmbed: string = emote_string(info.isShroomless);
   const colorEmbed = rosterColor(info.idRoster);
   const isDLC = infoMap.DLC ? "DLC" : "Not DLC";
   const isRetro = infoMap.retro ? "Retro" : "Not retro";
@@ -325,53 +325,25 @@ export const timeToMs = (time: string): number => {
   return minToMil + secTomil + milli;
 };
 
-export const updateTimetrial = async (
-  time: string,
-  idMap: string,
-  isShroomless: boolean,
-  user: User,
-  bot: Client
-): Promise<string> => {
-  if (!isTimeValid(time)) {
-    botLogs(bot, `Error time is not valid : ${time}`);
-    return `${time} n'est pas un temps valide`;
+export const msToTime = (s: number, isDiff = false) => {
+  // Pad to 2 or 3 digits, default is 2
+  function pad(n: number, z?: number) {
+    z = z || 2;
+    return ("00" + n).slice(-z);
   }
-  const timeInMs = timeToMs(time);
 
-  const patchTime = await patchTimetrial(
-    user.id,
-    idMap,
-    timeInMs,
-    isShroomless
-  );
-  const response = isShroomless ? `en shroomless` : `avec items`;
-  if (patchTime.statusCode != 200) {
-    const postTime = await postTimetrial(
-      user.id,
-      idMap,
-      timeInMs,
-      isShroomless
-    );
-    if (postTime.statusCode != 201) {
-      botLogs(bot, `Error when adding time : ${postTime.data.toString()}`);
-      return `Erreur : ${postTime.data.toString()}`;
-    } else {
-      botLogs(
-        bot,
-        `${user.username} successfully added time (${idMap}, ${time}, ${isShroomless})`
-      );
-      return `Nouveau temps : ${time} ${response}`;
-    }
-  } else {
-    botLogs(
-      bot,
-      `${user.username} successfully updated time (${idMap}, ${time}, ${isShroomless})`
-    );
-    return `Nouveau temps : ${patchTime.data.newTime} (${patchTime.data.diff}s) ${response}\nTon ancien temps était : ${patchTime.data.oldTime}`;
-  }
+  let ms = s % 1000;
+  s = (s - ms) / 1000;
+  let secs = s % 60;
+  s = (s - secs) / 60;
+  let mins = s % 60;
+
+  return !isDiff
+    ? pad(mins) + ":" + pad(secs) + "." + pad(ms, 3)
+    : secs + "." + pad(ms, 3);
 };
 
-export const updateWeeklyTimetrial = async (
+export const updateTimetrial = async (
   time: string,
   idMap: string,
   isShroomless: boolean,
@@ -469,14 +441,19 @@ export const makeEmbedRanking = (
 
 export const makeFields = (classement: Player[]): RankingFields => {
   const maxLengthPts = classement[0].tt_points.toString().length;
-  const maxLengthName = Math.max(
-    ...classement.map((player) => player.name.length)
-  );
+  const maxLengthName =
+    Math.max(
+      ...classement
+        .filter((player) => player.tt_points > 0)
+        .map((player) => player.name.length)
+    ) + 3;
+
+  console.log("maxLengthName", maxLengthName);
   let fieldMobile: string = "";
   let fieldPLayer: string = "";
   let fieldTt_point: string = "";
   let fieldTt_tops: string = "";
-
+  const fieldsMobile: APIEmbedField[] = [];
   classement.forEach((player, index) => {
     if (player.tt_points == 0) return;
     const name = addBlank(player.name, maxLengthName, true);
@@ -486,8 +463,17 @@ export const makeFields = (classement: Player[]): RankingFields => {
     const space = index < 9 ? ` ` : ``;
 
     // sécurité pour pas dépasser 1024 caractères
-    if (fieldMobile.length < 980) {
+    if (fieldMobile.length < 900) {
       fieldMobile += `\`${
+        index + 1
+      }${space} : ${name}${tt_points}pts | ${tt_top1} - ${tt_top3}\`\n`;
+    } else {
+      fieldsMobile.push({
+        name: "__Membre:       Points:         Top 1 & Top 3:__",
+        value: fieldMobile,
+        inline: false,
+      });
+      fieldMobile = `\`${
         index + 1
       }${space} : ${name}${tt_points}pts | ${tt_top1} - ${tt_top3}\`\n`;
     }
@@ -496,16 +482,17 @@ export const makeFields = (classement: Player[]): RankingFields => {
     fieldTt_point += `\`${tt_points} pts\`\n`;
     fieldTt_tops += `\`${tt_top1}  -  ${tt_top3}\`\n`;
   });
+  fieldsMobile.push({
+    name: "__Membre:       Points:         Top 1 & Top 3:__",
+    value: fieldMobile,
+    inline: false,
+  });
 
   return {
     members: { name: "__Membre :__", value: fieldPLayer, inline: true },
     points: { name: "__Points :__", value: fieldTt_point, inline: true },
     tops: { name: "__Tops :__", value: fieldTt_tops, inline: true },
-    mobileField: {
-      name: "__Membre:       Points:         Top 1 & Top 3:__",
-      value: fieldMobile,
-      inline: true,
-    },
+    mobileField: fieldsMobile,
   };
 };
 

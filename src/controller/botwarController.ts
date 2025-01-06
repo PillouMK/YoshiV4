@@ -4,6 +4,8 @@ import { getAllMaps, postProjectMap } from "./yfApiController";
 import { findSimilarMaps, responsetoMapIdList } from "./mapController";
 import { ErrorMessage } from "../model/errorMessage";
 import { ResponseYF } from "../model/responseYF";
+import { updateProjectMapMessage } from "./projectmapController";
+import { Client } from "discord.js";
 
 // ------------
 // CONSTANTE
@@ -277,6 +279,7 @@ export const createWar = (
 };
 
 export const stopWar = async (
+  bot: Client,
   idChannel: string,
   isForced: boolean = false
 ): Promise<string> => {
@@ -298,6 +301,8 @@ export const stopWar = async (
     botwar.channels[idChannel].paramWar.saveStats
   ) {
     const sendMapsData = await sendProjectMapData(botwar.channels[idChannel]);
+    if (result.team1.nameTeam === "YFG" || result.team1.nameTeam === "YFO")
+      updateProjectMapMessage(bot, result.team1.nameTeam, 3, 10, false);
 
     if (sendMapsData) msg += "\nSauvegarde des données effectuées";
     else

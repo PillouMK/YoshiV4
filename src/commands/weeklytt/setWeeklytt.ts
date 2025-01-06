@@ -14,6 +14,10 @@ import {
 } from "../../controller/generalController";
 import { LIST_MAPS } from "../..";
 import { updateTimetrial } from "../../controller/timetrialController";
+import {
+  getAllWeeklyMap,
+  updateWeeklyTimetrial,
+} from "../../controller/weeklyttController";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -22,46 +26,43 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("map")
-        .setDescription("Tag de la map jouée")
+        .setDescription("Tag de la map")
         .setRequired(true)
         .setAutocomplete(true)
     )
     .addStringOption((option) =>
       option
-        .setName("time")
+        .setName("temps")
         .setDescription("Temps : xx:xx.xxx")
         .setRequired(true)
-    )
-    .addBooleanOption((option) =>
-      option.setName("no_item").setDescription("No item ?").setRequired(false)
     ),
 
   async autocomplete(interaction: AutocompleteInteraction) {
-    const value = interaction.options.getFocused().toLocaleLowerCase();
-
-    const filtered = filterMapList(LIST_MAPS, value);
+    const list = await getAllWeeklyMap();
 
     if (!interaction) return;
 
     await interaction.respond(
-      filtered.map((choice) => ({
-        name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
-        value: choice.idMap,
+      list.map((choice) => ({
+        name: `${choice.idMap} | ${choice.isShroomless ? "No item" : "Item"}`,
+        value: `${choice.idMap}-${choice.isShroomless}`,
       }))
     );
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const time: string = interaction.options.getString("time")!;
-    const idMap: string[] = interaction.options.getString("map")!.split(" ");
+    const time: string = interaction.options.getString("temps")!;
+    const idMap: string = interaction.options.getString("map")!.split("-")[0];
     const isShroomless: boolean =
-      interaction.options.getBoolean("no_item") ?? false;
+      interaction.options.getString("map")!.split("-")[1] === "1";
+    console.log(interaction.options.getString("map")!.split("-")[1]);
+
     const user = interaction.user;
 
     botLogs(interaction.client, `${user.username} used /set_weeklytt command`);
-    const response = await updateTimetrial(
+    const response = await updateWeeklyTimetrial(
       time,
-      idMap[0],
+      idMap,
       isShroomless,
       user,
       interaction.client
