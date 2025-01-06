@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ROLE_YF = exports.ROLES = exports.LIST_MAPS = void 0;
+exports.LOGO_YF = exports.ADMIN_ROLE = exports.ROLE_YF = exports.ROLES = exports.LIST_MAPS = void 0;
 const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
 const config_1 = require("./config");
@@ -11,6 +11,7 @@ const generalController_1 = require("./controller/generalController");
 const mapDAO_1 = require("./model/mapDAO");
 const maps_json_1 = tslib_1.__importDefault(require("./database/maps.json"));
 const lineupController_1 = require("./controller/lineupController");
+const projectmapController_1 = require("./controller/projectmapController");
 const bot = new discord_js_1.Client({
     intents: [
         discord_js_1.GatewayIntentBits.DirectMessages,
@@ -25,8 +26,12 @@ const bot = new discord_js_1.Client({
 exports.LIST_MAPS = maps_json_1.default.maps.map(mapDAO_1.convertToMapMK);
 exports.ROLES = ["643871029210513419", "643569712353116170"];
 exports.ROLE_YF = "199252384612876289";
+exports.ADMIN_ROLE = "353621406891769866";
+exports.LOGO_YF = "attachment://LaYoshiFamily.png";
 bot.once(discord_js_1.Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
+    (0, projectmapController_1.updateProjectMapMessage)(bot, "YFG", 3, 10, false);
+    (0, projectmapController_1.updateProjectMapMessage)(bot, "YFO", 3, 10, false);
     (0, generalController_1.botLogs)(bot, "Yoshi successfully relloged");
 });
 bot.commands = new discord_js_1.Collection();
@@ -70,6 +75,15 @@ for (const folder of buttonsFolders) {
         }
     }
 }
+bot.on(discord_js_1.Events.GuildMemberAdd, async (member) => {
+    (0, generalController_1.playerAddInGuild)(bot, member);
+});
+bot.on(discord_js_1.Events.GuildMemberRemove, async (member) => {
+    (0, generalController_1.playerRemovedInGuild)(bot, member);
+});
+bot.on(discord_js_1.Events.GuildMemberUpdate, async (oldMember, newMember) => {
+    (0, generalController_1.playerRosterChange)(bot, oldMember, newMember);
+});
 bot.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
     if (interaction.isButton()) {
         console.log(interaction.customId);
@@ -149,11 +163,7 @@ bot.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
     }
 });
 node_cron_1.default.schedule("0 2,3,4 * * *", () => {
-    (0, lineupController_1.resetAllLineups)();
-    console.log("Task executed at", new Date().toLocaleString());
-});
-node_cron_1.default.schedule("* * * * *", () => {
-    (0, lineupController_1.resetAllLineups)();
-    console.log("Task executed at", new Date().toLocaleString());
+    (0, lineupController_1.resetAllLineups)(bot);
+    console.log("Reset executed at", new Date().toLocaleString());
 });
 bot.login(config_1.config.DISCORD_TOKEN);

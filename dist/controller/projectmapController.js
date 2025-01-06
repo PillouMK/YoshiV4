@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProjectMapMessage = exports.rankingMessage = exports.makeEmbedProjectMap = exports.makeProjectMapMobileRankingField = exports.makeProjectMapRankingFields = exports.maxLengthFields = exports.getProjectMapData = exports.projectMap = void 0;
+exports.resfreshProjectMap = exports.updateProjectMapMessage = exports.rankingMessage = exports.makeEmbedProjectMap = exports.makeProjectMapMobileRankingField = exports.makeProjectMapRankingFields = exports.maxLengthFields = exports.getProjectMapData = exports.projectMap = void 0;
 const tslib_1 = require("tslib");
 const generalController_1 = require("../controller/generalController");
 const yfApiController_1 = require("./yfApiController");
@@ -208,9 +208,10 @@ const makeButtonList = (idRoster, isMobile) => {
         .setLabel(labelView)
         .setStyle(discord_js_1.ButtonStyle.Primary));
 };
-const updateProjectMapMessage = async (bot, idRoster, month, iteration, projetMapValid, projetMapNotValid, isMobile) => {
-    const newMsg = (0, exports.rankingMessage)(idRoster, month, iteration, projetMapValid, projetMapNotValid, isMobile);
-    const channelId = settings_json_1.default.projectMap.channel;
+const updateProjectMapMessage = async (bot, idRoster, month, iteration, isMobile) => {
+    const projectMap = await (0, exports.getProjectMapData)(idRoster, 3, 10);
+    const newMsg = (0, exports.rankingMessage)(idRoster, month, iteration, projectMap.projectMapValid, projectMap.projectMapNotValid, isMobile);
+    const channelId = settings_json_1.default.channels.rankings;
     const msgId = settings_json_1.default.projectMap[idRoster];
     try {
         const channel = (await bot.channels.fetch(channelId));
@@ -235,3 +236,5 @@ const updateProjectMapMessage = async (bot, idRoster, month, iteration, projetMa
     }
 };
 exports.updateProjectMapMessage = updateProjectMapMessage;
+const resfreshProjectMap = async (Bot, idRoster) => { };
+exports.resfreshProjectMap = resfreshProjectMap;

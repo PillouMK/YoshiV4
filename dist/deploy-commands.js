@@ -3,15 +3,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const { REST, Routes } = require("discord.js");
 const config_1 = require("./config");
-const fs_1 = require("fs");
+const fs_1 = tslib_1.__importDefault(require("fs"));
 const path_1 = tslib_1.__importDefault(require("path"));
 const commands = [];
-const commandExtensions = [".ts", ".js"];
 const foldersPath = path_1.default.join(__dirname, "commands");
-const commandFolders = (0, fs_1.readdirSync)(foldersPath);
+const commandFolders = fs_1.default.readdirSync(foldersPath);
 for (const folder of commandFolders) {
     const commandsPath = path_1.default.join(foldersPath, folder);
-    const commandFiles = (0, fs_1.readdirSync)(commandsPath).filter((file) => commandExtensions.some((ext) => file.endsWith(ext)));
+    const commandFiles = fs_1.default
+        .readdirSync(commandsPath)
+        .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
     for (const file of commandFiles) {
         const filePath = path_1.default.join(commandsPath, file);
         const command = require(filePath);

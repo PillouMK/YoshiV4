@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeListButtonRanking = exports.makeFields = exports.makeEmbedRanking = exports.timetrialFinalRanking = exports.updateTimetrial = exports.timeToMs = exports.isTimeValid = exports.makeListButton = exports.makeEmbedTimetrial = exports.makeTimetrialFields = exports.makeTimetrialMessage = exports.getTimetrialsDataByMap = void 0;
+exports.makeListButtonRanking = exports.makeFields = exports.makeEmbedRanking = exports.timetrialFinalRanking = exports.updateTimetrial = exports.msToTime = exports.timeToMs = exports.isTimeValid = exports.makeListButton = exports.makeEmbedTimetrial = exports.makeTimetrialFields = exports.emote_string = exports.makeTimetrialMessage = exports.getTimetrialsDataByMap = void 0;
 const discord_js_1 = require("discord.js");
 const yfApiController_1 = require("./yfApiController");
 const generalController_1 = require("./generalController");
@@ -50,11 +50,12 @@ const makeTimetrialMessage = async (idMap, idRoster, isShroomless, user, isMobil
     };
 };
 exports.makeTimetrialMessage = makeTimetrialMessage;
-const emote = (isShroomless) => {
+const emote_string = (isShroomless) => {
     return isShroomless
         ? ` <:no_mushroom_bot:1033130955470295131>`
         : ` <:mushroom_bot:1033128412405047356>`;
 };
+exports.emote_string = emote_string;
 const makeTimetrialFields = (data, user, isShroomless) => {
     let members = "";
     let times = "";
@@ -63,7 +64,7 @@ const makeTimetrialFields = (data, user, isShroomless) => {
     if (data == null) {
         return undefined;
     }
-    const emoteEmbed = emote(isShroomless);
+    const emoteEmbed = (0, exports.emote_string)(isShroomless);
     const indexUser = data.findIndex((x) => x.idPlayer === user.id);
     const maxLength = Math.max(...data.map((el) => el.name.length)) > 10
         ? 10
@@ -106,7 +107,7 @@ const makeTimetrialFields = (data, user, isShroomless) => {
 exports.makeTimetrialFields = makeTimetrialFields;
 const makeEmbedTimetrial = (infoMap, fields, info) => {
     const title = `Classement : ${infoMap.initialGame} ${infoMap.nameMap}`;
-    const emoteEmbed = emote(info.isShroomless);
+    const emoteEmbed = (0, exports.emote_string)(info.isShroomless);
     const colorEmbed = (0, generalController_1.rosterColor)(info.idRoster);
     const isDLC = infoMap.DLC ? "DLC" : "Not DLC";
     const isRetro = infoMap.retro ? "Retro" : "Not retro";
@@ -189,6 +190,21 @@ const timeToMs = (time) => {
     return minToMil + secTomil + milli;
 };
 exports.timeToMs = timeToMs;
+const msToTime = (s, isDiff = false) => {
+    function pad(n, z) {
+        z = z || 2;
+        return ("00" + n).slice(-z);
+    }
+    let ms = s % 1000;
+    s = (s - ms) / 1000;
+    let secs = s % 60;
+    s = (s - secs) / 60;
+    let mins = s % 60;
+    return !isDiff
+        ? pad(mins) + ":" + pad(secs) + "." + pad(ms, 3)
+        : secs + "." + pad(ms, 3);
+};
+exports.msToTime = msToTime;
 const updateTimetrial = async (time, idMap, isShroomless, user, bot) => {
     if (!(0, exports.isTimeValid)(time)) {
         (0, generalController_1.botLogs)(bot, `Error time is not valid : ${time}`);
@@ -255,11 +271,15 @@ const makeEmbedRanking = (classement, isMobile) => {
 exports.makeEmbedRanking = makeEmbedRanking;
 const makeFields = (classement) => {
     const maxLengthPts = classement[0].tt_points.toString().length;
-    const maxLengthName = Math.max(...classement.map((player) => player.name.length));
+    const maxLengthName = Math.max(...classement
+        .filter((player) => player.tt_points > 0)
+        .map((player) => player.name.length)) + 3;
+    console.log("maxLengthName", maxLengthName);
     let fieldMobile = "";
     let fieldPLayer = "";
     let fieldTt_point = "";
     let fieldTt_tops = "";
+    const fieldsMobile = [];
     classement.forEach((player, index) => {
         if (player.tt_points == 0)
             return;
@@ -268,22 +288,31 @@ const makeFields = (classement) => {
         const tt_top1 = (0, generalController_1.addBlank)(player.tt_top1.toString(), 2);
         const tt_top3 = (0, generalController_1.addBlank)(player.tt_top3.toString(), 2);
         const space = index < 9 ? ` ` : ``;
-        if (fieldMobile.length < 980) {
+        if (fieldMobile.length < 900) {
             fieldMobile += `\`${index + 1}${space} : ${name}${tt_points}pts | ${tt_top1} - ${tt_top3}\`\n`;
+        }
+        else {
+            fieldsMobile.push({
+                name: "__Membre:       Points:         Top 1 & Top 3:__",
+                value: fieldMobile,
+                inline: false,
+            });
+            fieldMobile = `\`${index + 1}${space} : ${name}${tt_points}pts | ${tt_top1} - ${tt_top3}\`\n`;
         }
         fieldPLayer += `\`${index + 1}${space} :\` **${name}** \n`;
         fieldTt_point += `\`${tt_points} pts\`\n`;
         fieldTt_tops += `\`${tt_top1}  -  ${tt_top3}\`\n`;
     });
+    fieldsMobile.push({
+        name: "__Membre:       Points:         Top 1 & Top 3:__",
+        value: fieldMobile,
+        inline: false,
+    });
     return {
         members: { name: "__Membre :__", value: fieldPLayer, inline: true },
         points: { name: "__Points :__", value: fieldTt_point, inline: true },
         tops: { name: "__Tops :__", value: fieldTt_tops, inline: true },
-        mobileField: {
-            name: "__Membre:       Points:         Top 1 & Top 3:__",
-            value: fieldMobile,
-            inline: true,
-        },
+        mobileField: fieldsMobile,
     };
 };
 exports.makeFields = makeFields;

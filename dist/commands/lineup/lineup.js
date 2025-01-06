@@ -25,20 +25,22 @@ module.exports = {
         (0, generalController_1.sortByRoleId)(roleList, __1.ROLES[0]);
         const res = await (0, lineupController_1.lineupResponse)(hours, roleList, fetchedMembers);
         await interaction.deferReply();
-        await interaction.editReply({
+        const message = await interaction.editReply({
             embeds: res[0].embed,
             components: [res[0].buttons],
         });
+        (0, lineupController_1.pushTempMessage)(message.id, message.channelId, res[0].hour);
         let index = 0;
         for (const resItem of res) {
             if (index === 0) {
                 index++;
             }
             else {
-                await interaction.channel.send({
+                let msg = await interaction.channel.send({
                     embeds: resItem.embed,
                     components: [resItem.buttons],
                 });
+                (0, lineupController_1.pushTempMessage)(msg.id, msg.channelId, resItem.hour);
             }
         }
     },

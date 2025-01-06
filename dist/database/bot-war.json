@@ -4,7 +4,7 @@
             "team1": {
                 "nameTeam": "YF",
                 "penality": 0,
-                "total": 905,
+                "total": 969,
                 "recapScore": [
                     61,
                     61,
@@ -20,14 +20,15 @@
                     53,
                     58,
                     43,
-                    58,
-                    59
+                    61,
+                    59,
+                    61
                 ]
             },
             "team2": {
                 "nameTeam": "rg",
                 "penality": 0,
-                "total": 407,
+                "total": 425,
                 "recapScore": [
                     21,
                     21,
@@ -43,8 +44,9 @@
                     29,
                     24,
                     39,
-                    24,
-                    23
+                    21,
+                    23,
+                    21
                 ]
             },
             "paramWar": {
@@ -55,14 +57,14 @@
                         "3",
                         "4",
                         "5",
-                        "8"
+                        "6"
                     ],
-                    "map": "bCMw"
+                    "map": "bAD"
                 },
                 "saveStats": false,
                 "isStoppable": false,
-                "race": 16,
-                "totaleDiff": 498,
+                "race": 17,
+                "totaleDiff": 544,
                 "recapWar": [
                     {
                         "map": "bR",
@@ -122,11 +124,15 @@
                     },
                     {
                         "map": "bDC",
-                        "score": 34
+                        "score": 40
                     },
                     {
                         "map": "bCMw",
                         "score": 36
+                    },
+                    {
+                        "map": "bAD",
+                        "score": 40
                     }
                 ]
             }
