@@ -13,7 +13,6 @@ import {
   AttachmentBuilder,
   Message,
   TextChannel,
-  ClientEvents,
   Client,
 } from "discord.js";
 import settings from "../settings.json";
@@ -272,7 +271,6 @@ export const rankingMessage = (
   projetMapNotValid: ProjectMap[],
   isMobile: Boolean
 ): RankingMessage => {
-  console.log("rankingMessage", month);
   const content = messageRecap(idRoster, month, iteration);
   const buttons = makeButtonList(idRoster, isMobile);
   const file: AttachmentBuilder = new AttachmentBuilder(
@@ -293,7 +291,6 @@ export const rankingMessage = (
 };
 
 const messageRecap = (idRoster: string, month: number, iteration: number) => {
-  console.log("messageRecap", month);
   let saut2ligne = ".\n\n\n";
   let endMsg = "Affichage des données valides et non valides";
   return `${saut2ligne}**ProjectMap ${idRoster} : ** données des ${month} derniers mois, données jugées valides à partir de ${iteration} itérations\n${endMsg}`;
@@ -353,5 +350,3 @@ export const updateProjectMapMessage = async (
     }
   }
 };
-
-export const resfreshProjectMap = async (Bot: Client, idRoster: string) => {};

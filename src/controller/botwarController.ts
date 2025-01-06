@@ -1,7 +1,7 @@
 import botWarData from "../database/bot-war.json";
 import { saveJSONToFile } from "../controller/generalController";
-import { getAllMaps, postProjectMap } from "./yfApiController";
-import { findSimilarMaps, responsetoMapIdList } from "./mapController";
+import { postProjectMap } from "./yfApiController";
+import { findSimilarMaps } from "./mapController";
 import { ErrorMessage } from "../model/errorMessage";
 import { ResponseYF } from "../model/responseYF";
 import { updateProjectMapMessage } from "./projectmapController";

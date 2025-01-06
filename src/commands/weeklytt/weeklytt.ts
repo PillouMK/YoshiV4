@@ -1,24 +1,7 @@
-import {
-  AutocompleteInteraction,
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-} from "discord.js";
-import { createWar, raceAdd } from "../../controller/botwarController";
-import { getAllMaps } from "../../controller/yfApiController";
-import { ResponseYF } from "../../model/responseYF";
-import { MapMK } from "../../model/mapDAO";
-import {
-  addBlank,
-  botLogs,
-  filterMapList,
-} from "../../controller/generalController";
-import { LIST_MAPS } from "../..";
-import { updateTimetrial } from "../../controller/timetrialController";
-import {
-  getAllWeeklyMap,
-  getWeeklytt,
-  updateWeeklyTimetrial,
-} from "../../controller/weeklyttController";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { botLogs } from "../../controller/generalController";
+
+import { getWeeklytt } from "../../controller/weeklyttController";
 
 module.exports = {
   data: new SlashCommandBuilder()

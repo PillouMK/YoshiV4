@@ -1,11 +1,9 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { createWar, raceAdd } from "../../controller/botwarController";
 import {
   getProjectMapData,
   rankingMessage,
 } from "../../controller/projectmapController";
 import { botLogs } from "../../controller/generalController";
-import { it } from "node:test";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -49,8 +47,6 @@ module.exports = {
         console.log(e);
       }
     }
-
-    console.log("projectmap", month);
     const msg = rankingMessage(
       idRoster,
       month,

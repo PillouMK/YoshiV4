@@ -1,10 +1,4 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-  TextChannel,
-} from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { timetrialFinalRanking } from "../../controller/timetrialController";
 
 module.exports = {

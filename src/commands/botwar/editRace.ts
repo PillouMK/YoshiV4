@@ -3,12 +3,7 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
-import {
-  createWar,
-  editRace,
-  getNumberOfRace,
-  raceAdd,
-} from "../../controller/botwarController";
+import { editRace, getNumberOfRace } from "../../controller/botwarController";
 import { LIST_MAPS } from "../..";
 import { filterMapList } from "../../controller/generalController";
 

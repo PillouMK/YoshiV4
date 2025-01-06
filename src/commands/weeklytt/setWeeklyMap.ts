@@ -1,23 +1,13 @@
 import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
+  GuildMember,
   SlashCommandBuilder,
 } from "discord.js";
-import { createWar, raceAdd } from "../../controller/botwarController";
-import { getAllMaps } from "../../controller/yfApiController";
-import { ResponseYF } from "../../model/responseYF";
-import { MapMK } from "../../model/mapDAO";
-import {
-  addBlank,
-  botLogs,
-  filterMapList,
-} from "../../controller/generalController";
-import { LIST_MAPS } from "../..";
-import { updateTimetrial } from "../../controller/timetrialController";
-import {
-  getAllWeeklyMap,
-  setWeeklyMap,
-} from "../../controller/weeklyttController";
+import settings from "../../settings.json";
+import { botLogs, filterMapList } from "../../controller/generalController";
+import { ADMIN_ROLE, LIST_MAPS } from "../..";
+import { setWeeklyMap } from "../../controller/weeklyttController";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -74,20 +64,30 @@ module.exports = {
     const bronzeTime: string = interaction.options.getString("bronzetime")!;
     const user = interaction.user;
 
-    botLogs(
-      interaction.client,
-      `${user.username} used /set_weekly_map command`
-    );
+    const member: GuildMember | null = await interaction.client.guilds.cache
+      .get(settings.serverId)!
+      .members.fetch(interaction.user.id);
 
-    const response = setWeeklyMap(
-      interaction.client,
-      idMap,
-      isShroomless,
-      goldTime,
-      silverTime,
-      bronzeTime
-    );
+    if (member.roles.cache.has(ADMIN_ROLE)) {
+      botLogs(
+        interaction.client,
+        `${user.username} used /set_weekly_map command`
+      );
 
-    await interaction.reply(response);
+      const response = setWeeklyMap(
+        interaction.client,
+        idMap,
+        isShroomless,
+        goldTime,
+        silverTime,
+        bronzeTime
+      );
+
+      await interaction.reply(response);
+    } else {
+      await interaction.reply(
+        "Tu n'as pas les permissions pour utiliser cette commande"
+      );
+    }
   },
 };

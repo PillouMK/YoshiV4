@@ -1,18 +1,4 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  ChatInputCommandInteraction,
-  Role,
-  SlashCommandBuilder,
-  User,
-} from "discord.js";
-import {
-  createWar,
-  editRace,
-  raceAdd,
-} from "../../controller/botwarController";
+import { ButtonInteraction, Role, User } from "discord.js";
 import {
   LineUpMessage,
   StatusLineUp,
@@ -53,7 +39,6 @@ module.exports = {
     });
 
     if (interaction.channelId !== "1294743209200844800") {
-      console.log(interaction.channelId);
       await interaction.followUp({
         content: response,
       });

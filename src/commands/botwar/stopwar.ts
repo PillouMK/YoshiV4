@@ -1,6 +1,5 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { stopWar } from "../../controller/botwarController";
-import { updateProjectMapMessage } from "../../controller/projectmapController";
 
 module.exports = {
   data: new SlashCommandBuilder()
