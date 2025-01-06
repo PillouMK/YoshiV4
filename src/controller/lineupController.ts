@@ -1,5 +1,4 @@
 import {
-  Embed,
   EmbedBuilder,
   ButtonBuilder,
   Collection,
@@ -13,13 +12,12 @@ import {
   TextChannel,
 } from "discord.js";
 import { saveJSONToFile, sortByRoleId } from "../controller/generalController";
-import { timeStamp } from "console";
 import * as dayjs from "dayjs";
 import * as timezone from "dayjs/plugin/timezone";
 import * as utc from "dayjs/plugin/utc";
-import { off } from "process";
 import { ROLE_YF, ROLES } from "..";
 import fs from "fs";
+import fc from "../database/fc.json";
 dayjs.extend(timezone.default);
 dayjs.extend(utc.default);
 
@@ -255,15 +253,20 @@ export const addMember = (
   member: User,
   status: StatusLineUp
 ): string => {
+  const nameJson: Record<string, string> = fc.names;
   const _lineUpData = JSON.parse(
     fs.readFileSync(lineupPath, "utf-8")
   ) as LineUpData;
   let lineupByHour = _lineUpData.lineup[parseInt(hour)];
   const index = lineupByHour.findIndex((elt) => elt.userId === member.id);
+  let name = member.username;
+  if (nameJson[member.id] != undefined) {
+    name = nameJson[member.id];
+  }
   if (index === -1) {
     lineupByHour.push({
       userId: member.id,
-      userName: member.username,
+      userName: name,
       status: status,
     });
     saveJSONToFile(_lineUpData, lineupPath);
@@ -274,13 +277,13 @@ export const addMember = (
     if (lineupByHour[index].status !== status) {
       lineupByHour[index].status = status;
       saveJSONToFile(_lineUpData, lineupPath);
-      return `${member.username} bien passé en ${
+      return `${name} bien passé en ${
         StatusLineUp[status]
       } à ${timestampDiscord(getTimestampForHour(hour))}`;
     }
-    return `${member.username} est déjà en ${
-      StatusLineUp[status]
-    } à ${timestampDiscord(getTimestampForHour(hour))}`;
+    return `${name} est déjà en ${StatusLineUp[status]} à ${timestampDiscord(
+      getTimestampForHour(hour)
+    )}`;
   }
 };
 

@@ -1,5 +1,4 @@
 import { ButtonInteraction } from "discord.js";
-
 import { botLogs } from "../../controller/generalController";
 import { timetrialFinalRanking } from "../../controller/timetrialController";
 

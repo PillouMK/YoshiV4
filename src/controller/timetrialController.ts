@@ -6,6 +6,8 @@ import {
   ButtonStyle,
   Client,
   EmbedBuilder,
+  Message,
+  TextChannel,
   User,
 } from "discord.js";
 import {
@@ -21,6 +23,7 @@ import {
   rosterColor,
 } from "./generalController";
 import { Player } from "../model/player";
+import settings from "../settings.json";
 
 type TimetrialData = {
   infoMap: InfoMap;
@@ -447,8 +450,6 @@ export const makeFields = (classement: Player[]): RankingFields => {
         .filter((player) => player.tt_points > 0)
         .map((player) => player.name.length)
     ) + 3;
-
-  console.log("maxLengthName", maxLengthName);
   let fieldMobile: string = "";
   let fieldPLayer: string = "";
   let fieldTt_point: string = "";
@@ -507,4 +508,30 @@ export const makeListButtonRanking = (
       .setStyle(ButtonStyle.Success)
   );
   return row;
+};
+
+export const updateFinalRanking = async (bot: Client) => {
+  const newMsg = await timetrialFinalRanking(bot, false);
+  const channelId = settings.channels.rankings;
+  const msgId = settings.rankingTimetrial.msgId;
+  try {
+    const channel = (await bot.channels.fetch(channelId)) as TextChannel;
+    const message = (await channel.messages.fetch(msgId)) as Message;
+
+    message.edit({
+      content: newMsg.content,
+      components: newMsg.buttons != undefined ? [newMsg.buttons] : [],
+      embeds: newMsg.embed,
+      files: newMsg.file,
+    });
+    const successMessage = `Yoshi successfully updated Final Ranking message`;
+    botLogs(bot, successMessage);
+  } catch (e) {
+    const errorMessage = `Erreur projetMap : ${e}`;
+    try {
+      botLogs(bot, errorMessage);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 };

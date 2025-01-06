@@ -1,10 +1,6 @@
 import {
-  ActionRowBuilder,
   AutocompleteInteraction,
-  ButtonBuilder,
-  ButtonStyle,
   ChatInputCommandInteraction,
-  Role,
   SlashCommandBuilder,
 } from "discord.js";
 
@@ -53,8 +49,6 @@ module.exports = {
       value: choice.idMap,
     }));
 
-    console.log("Choices being sent to autocomplete:", choices);
-
     await interaction.respond(choices);
   },
 
@@ -66,7 +60,6 @@ module.exports = {
       interaction.options.getBoolean("is_mobile") ?? false;
     const isShroomless: boolean =
       interaction.options.getBoolean("no_item") ?? false;
-    console.log("isShroomless", isShroomless);
     const user = interaction.user;
     await interaction.deferReply();
     const message = await makeTimetrialMessage(

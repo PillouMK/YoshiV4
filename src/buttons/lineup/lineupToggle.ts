@@ -1,17 +1,4 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  ChatInputCommandInteraction,
-  Role,
-  SlashCommandBuilder,
-} from "discord.js";
-import {
-  createWar,
-  editRace,
-  raceAdd,
-} from "../../controller/botwarController";
+import { ButtonInteraction, Role } from "discord.js";
 import {
   LineUpMessage,
   lineupResponse,

@@ -4,7 +4,6 @@ import {
   AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Channel,
   Client,
   EmbedBuilder,
   TextChannel,
@@ -25,7 +24,6 @@ import {
 } from "./yfApiController";
 import { addBlank, botLogs, saveJSONToFile } from "./generalController";
 import fs from "fs";
-import weeklyMapData from "../database/weeklyMap.json";
 import settings from "../settings.json";
 import { MapMK } from "../model/mapDAO";
 import { LIST_MAPS, LOGO_YF } from "..";
@@ -86,8 +84,6 @@ export const getAllWeeklyMap = async (): Promise<weeklyMap[]> => {
       silverTime: weeklytt.map.silverTime,
       bronzeTime: weeklytt.map.bronzeTime,
     }));
-
-    console.log(weeklyMaps);
     return weeklyMaps;
   } catch (error) {
     console.error("Error fetching weekly maps:", error);
@@ -277,8 +273,6 @@ export const updateWeeklyTimetrial = async (
     }
   } else {
     let endText = "";
-    console.log("patchTime.data");
-    console.log(patchTime.data);
     if (patchTime.data.newIsBetter) {
       endText += `\nTu as également battu ton record personnel qui était de : ${patchTime.data.timetrial}`;
     }
@@ -333,7 +327,6 @@ export const getWeeklytt = async (
 };
 
 export const makeWeeklyttEmbed = (map: weeklyMap): EmbedBuilder => {
-  console.log("map", map);
   const mapMK: MapMK = LIST_MAPS.find((v) => v.idMap === map.idMap)!;
   const title = `Weekly TT : ${mapMK.initialGame} ${mapMK.nameMap}`;
 

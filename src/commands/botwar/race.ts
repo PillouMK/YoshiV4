@@ -37,8 +37,6 @@ module.exports = {
       value: choice.idMap,
     }));
 
-    console.log("Choices being sent to autocomplete:", choices); // Ajoute ce log
-
     await interaction.respond(choices);
   },
 

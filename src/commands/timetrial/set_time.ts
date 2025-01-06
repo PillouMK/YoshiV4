@@ -3,15 +3,7 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
-import { createWar, raceAdd } from "../../controller/botwarController";
-import { getAllMaps } from "../../controller/yfApiController";
-import { ResponseYF } from "../../model/responseYF";
-import { MapMK } from "../../model/mapDAO";
-import {
-  addBlank,
-  botLogs,
-  filterMapList,
-} from "../../controller/generalController";
+import { botLogs, filterMapList } from "../../controller/generalController";
 import { LIST_MAPS } from "../..";
 import { updateTimetrial } from "../../controller/timetrialController";
 
@@ -46,8 +38,6 @@ module.exports = {
       name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
       value: choice.idMap,
     }));
-
-    console.log("Choices being sent to autocomplete:", choices);
 
     await interaction.respond(choices);
   },

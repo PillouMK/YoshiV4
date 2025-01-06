@@ -5,6 +5,8 @@ import {
   Collection,
   GuildMember,
   PartialGuildMember,
+  REST,
+  Routes,
 } from "discord.js";
 import { config } from "./config";
 import path from "path";
@@ -18,11 +20,9 @@ import {
 } from "./controller/generalController";
 import { MapMK, convertToMapMK } from "./model/mapDAO";
 import mapsJSON from "./database/maps.json";
-import {
-  EditSavedMessages,
-  resetAllLineups,
-} from "./controller/lineupController";
+import { resetAllLineups } from "./controller/lineupController";
 import { updateProjectMapMessage } from "./controller/projectmapController";
+import { updateFinalRanking } from "./controller/timetrialController";
 
 declare module "discord.js" {
   interface Client {
@@ -71,13 +71,11 @@ for (const folder of commandFolders) {
     const command = require(filePath);
     // Set a new item in the Collection with the key as the command name and the value as the exported module
     if ("data" in command && "execute" in command) {
-      console.log("command", command.data.name);
       bot.commands.set(command.data.name, command);
     } else {
       console.log(
         `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
       );
-      console.log("c", command);
     }
   }
 }
@@ -96,7 +94,6 @@ for (const folder of buttonsFolders) {
     const button = require(filePath);
 
     if ("execute" in button) {
-      console.log("button", button.data.name);
       bot.buttons.set(button.data.name, button);
     } else {
       console.log(
@@ -124,7 +121,6 @@ bot.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
 bot.on(Events.InteractionCreate, async (interaction) => {
   // button interactions
   if (interaction.isButton()) {
-    console.log(interaction.customId);
     const buttonName: string = interaction.customId.split("-")[0];
     const args: string[] = interaction.customId.split("-");
     args.shift();
@@ -214,6 +210,11 @@ bot.on(Events.InteractionCreate, async (interaction) => {
 cron.schedule("0 2,3,4 * * *", () => {
   resetAllLineups(bot);
   console.log("Reset executed at", new Date().toLocaleString());
+});
+
+cron.schedule("0 * * * *", () => {
+  updateFinalRanking(bot);
+  console.log("Update executed at", new Date().toLocaleString());
 });
 
 bot.login(config.DISCORD_TOKEN);

@@ -1,8 +1,5 @@
 import axios from "axios";
 import { config } from "../config";
-import { url } from "inspector";
-import { error } from "console";
-import { MapMK } from "src/model/mapDAO";
 import { ResponseYF } from "../model/responseYF";
 import { weeklyMapAPI } from "./weeklyttController";
 

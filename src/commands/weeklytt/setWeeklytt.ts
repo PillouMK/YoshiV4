@@ -3,17 +3,7 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
-import { createWar, raceAdd } from "../../controller/botwarController";
-import { getAllMaps } from "../../controller/yfApiController";
-import { ResponseYF } from "../../model/responseYF";
-import { MapMK } from "../../model/mapDAO";
-import {
-  addBlank,
-  botLogs,
-  filterMapList,
-} from "../../controller/generalController";
-import { LIST_MAPS } from "../..";
-import { updateTimetrial } from "../../controller/timetrialController";
+import { botLogs } from "../../controller/generalController";
 import {
   getAllWeeklyMap,
   updateWeeklyTimetrial,
@@ -55,7 +45,6 @@ module.exports = {
     const idMap: string = interaction.options.getString("map")!.split("-")[0];
     const isShroomless: boolean =
       interaction.options.getString("map")!.split("-")[1] === "1";
-    console.log(interaction.options.getString("map")!.split("-")[1]);
 
     const user = interaction.user;
 

@@ -4,7 +4,6 @@ import settings from "../settings.json";
 import {
   AttachmentBuilder,
   Client,
-  ClientApplication,
   GuildMember,
   PartialGuildMember,
   Role,
