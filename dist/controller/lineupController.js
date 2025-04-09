@@ -169,7 +169,7 @@ const makeButtonList = (hour, isMix) => {
         .setStyle(discord_js_1.ButtonStyle.Danger))
         .addComponents(new discord_js_1.ButtonBuilder()
         .setCustomId(`lineupToggle-${hour.toString()}-${idViewToggle}`)
-        .setEmoji("<:refresh:1053464938380808252>")
+        .setEmoji("<:refresh:1359564875419877669>")
         .setLabel(labelView)
         .setStyle(discord_js_1.ButtonStyle.Secondary));
 };
@@ -189,15 +189,15 @@ const addMember = (hour, member, status) => {
             status: status,
         });
         (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
-        return `${member.username} bien ajouté à ${timestampDiscord(getTimestampForHour(hour))}`;
+        return `${member.username} ajouté en **${StatusLineUp[status]}** à ${timestampDiscord(getTimestampForHour(hour))}`;
     }
     else {
         if (lineupByHour[index].status !== status) {
             lineupByHour[index].status = status;
             (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
-            return `${name} bien passé en ${StatusLineUp[status]} à ${timestampDiscord(getTimestampForHour(hour))}`;
+            return `${name} bien passé en **${StatusLineUp[status]}** à ${timestampDiscord(getTimestampForHour(hour))}`;
         }
-        return `${name} est déjà en ${StatusLineUp[status]} à ${timestampDiscord(getTimestampForHour(hour))}`;
+        return `${name} est déjà en **${StatusLineUp[status]}** à ${timestampDiscord(getTimestampForHour(hour))}`;
     }
 };
 exports.addMember = addMember;

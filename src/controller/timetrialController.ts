@@ -145,8 +145,8 @@ export const makeTimetrialMessage = async (
 
 export const emote_string = (isShroomless: boolean): string => {
   return isShroomless
-    ? ` <:no_mushroom_bot:1033130955470295131>`
-    : ` <:mushroom_bot:1033128412405047356>`;
+    ? ` <:shroomless:1359564972300173322>`
+    : ` <:shrooms:1359564923713228861>`;
 };
 
 export const makeTimetrialFields = (
