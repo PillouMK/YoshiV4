@@ -4,7 +4,7 @@
       "team1": {
         "nameTeam": "YF",
         "penality": 0,
-        "total": 969,
+        "total": 1030,
         "recapScore": [
           61,
           61,
@@ -22,13 +22,14 @@
           43,
           61,
           59,
+          61,
           61
         ]
       },
       "team2": {
         "nameTeam": "rg",
         "penality": 0,
-        "total": 425,
+        "total": 446,
         "recapScore": [
           21,
           21,
@@ -46,6 +47,7 @@
           39,
           21,
           23,
+          21,
           21
         ]
       },
@@ -59,12 +61,12 @@
             "5",
             "6"
           ],
-          "map": "bAD"
+          "map": "rRRd"
         },
         "saveStats": false,
         "isStoppable": false,
-        "race": 17,
-        "totaleDiff": 544,
+        "race": 18,
+        "totaleDiff": 584,
         "recapWar": [
           {
             "map": "bR",
@@ -132,6 +134,10 @@
           },
           {
             "map": "bAD",
+            "score": 40
+          },
+          {
+            "map": "rRRd",
             "score": 40
           }
         ]

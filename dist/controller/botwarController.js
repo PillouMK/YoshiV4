@@ -5,9 +5,9 @@ const tslib_1 = require("tslib");
 const bot_war_json_1 = tslib_1.__importDefault(require("../database/bot-war.json"));
 const generalController_1 = require("../controller/generalController");
 const yfApiController_1 = require("./yfApiController");
-const mapController_1 = require("./mapController");
 const errorMessage_1 = require("../model/errorMessage");
 const projectmapController_1 = require("./projectmapController");
+const __1 = require("..");
 const pointMapping = {
     "1": 15,
     "2": 12,
@@ -29,7 +29,7 @@ const backToLine = "\n";
 const botwarPath = "./src/database/bot-war.json";
 const errorMessage = new errorMessage_1.ErrorMessage();
 const checkIfMapExist = (mapKey, mapList) => {
-    return (Array.from(mapList.keys()).filter((key) => key === mapKey).length === 1);
+    return mapList.findIndex((map) => map.idMap === mapKey) != -1;
 };
 const checkIfSpotsAreValids = (spots) => {
     const validNumbers = new Set(Array.from({ length: 12 }, (_, i) => (i + 1).toString()));
@@ -95,18 +95,8 @@ const getNumberOfRace = (idChannel) => {
     return botwar.channels[idChannel].paramWar.race;
 };
 exports.getNumberOfRace = getNumberOfRace;
-const similarMapMessage = (map, mapIdList) => {
-    const mapSimilarList = (0, mapController_1.findSimilarMaps)(map, mapIdList);
-    let message = `${errorMessage.mapNotValid(map)}\nVoici des maps ressemblante :\n\n`;
-    let count = 0;
-    for (const [key, value] of mapSimilarList.entries()) {
-        if (count >= 5) {
-            break;
-        }
-        message += `**${key} :** ${value}\n`;
-        count++;
-    }
-    return message;
+const similarMapMessage = (map) => {
+    return `${map} n'existe pas`;
 };
 const makeResponseMessage = (war, map, scoreYF, scoreAdv, raceDifference, raceNumber, spots) => {
     const penaYF = war.team1.penality > 0 ? `Pénalité : ${war.team1.penality.toString()}` : "";
@@ -197,6 +187,8 @@ exports.stopWar = stopWar;
 const raceAdd = async (spots, map, idChannel) => {
     if (!checkIfWarExistInChannel(idChannel))
         return errorMessage.noWarInChannel();
+    if (!checkIfMapExist(map, __1.LIST_MAPS))
+        return similarMapMessage(map);
     if (!checkNumberofSpots(spots))
         return errorMessage.spotsLengthOutOfRange(spots);
     if (!checkIfSpotsAreValids(spots))

@@ -1,11 +1,13 @@
 import botWarData from "../database/bot-war.json";
 import { saveJSONToFile } from "../controller/generalController";
-import { postProjectMap } from "./yfApiController";
-import { findSimilarMaps } from "./mapController";
+import { getAllMaps, postProjectMap } from "./yfApiController";
+import { findSimilarMaps, responsetoMapIdList } from "./mapController";
 import { ErrorMessage } from "../model/errorMessage";
 import { ResponseYF } from "../model/responseYF";
 import { updateProjectMapMessage } from "./projectmapController";
 import { Client } from "discord.js";
+import { LIST_MAPS } from "..";
+import { MapMK } from "../model/mapDAO";
 
 // ------------
 // CONSTANTE
@@ -75,13 +77,8 @@ interface BotWarType {
 // ----------------
 
 // Check if the map is valids
-const checkIfMapExist = (
-  mapKey: string,
-  mapList: Map<string, string>
-): boolean => {
-  return (
-    Array.from(mapList.keys()).filter((key) => key === mapKey).length === 1
-  );
+const checkIfMapExist = (mapKey: string, mapList: MapMK[]): boolean => {
+  return mapList.findIndex((map) => map.idMap === mapKey) != -1;
 };
 
 // Check if the spot are valids
@@ -172,21 +169,8 @@ export const getNumberOfRace = (idChannel: string): number => {
   return botwar.channels[idChannel].paramWar.race;
 };
 
-const similarMapMessage = (map: string, mapIdList: Map<string, string>) => {
-  const mapSimilarList: Map<string, string> = findSimilarMaps(map, mapIdList);
-  let message: string = `${errorMessage.mapNotValid(
-    map
-  )}\nVoici des maps ressemblante :\n\n`;
-  let count = 0;
-
-  for (const [key, value] of mapSimilarList.entries()) {
-    if (count >= 5) {
-      break; // Sortir de la boucle après les 10 premiers éléments
-    }
-    message += `**${key} :** ${value}\n`;
-    count++;
-  }
-  return message;
+const similarMapMessage = (map: string) => {
+  return `${map} n'existe pas`;
 };
 
 const makeResponseMessage = (
@@ -324,14 +308,9 @@ export const raceAdd = async (
   map: string,
   idChannel: string
 ): Promise<string> => {
-  // const maps = await getAllMaps();
-  // if (maps.statusCode != 200) return errorMessage.apiCallError(maps.statusCode);
-  // const mapIdList = responsetoMapIdList(maps);
-
   if (!checkIfWarExistInChannel(idChannel))
     return errorMessage.noWarInChannel();
-  // if (!checkIfMapExist(map, mapIdList))
-  //   return similarMapMessage(map, mapIdList);
+  if (!checkIfMapExist(map, LIST_MAPS)) return similarMapMessage(map);
   if (!checkNumberofSpots(spots))
     return errorMessage.spotsLengthOutOfRange(spots);
   if (!checkIfSpotsAreValids(spots)) return errorMessage.spotsNotValids(spots);

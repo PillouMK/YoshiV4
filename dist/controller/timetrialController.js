@@ -54,8 +54,8 @@ const makeTimetrialMessage = async (idMap, idRoster, isShroomless, user, isMobil
 exports.makeTimetrialMessage = makeTimetrialMessage;
 const emote_string = (isShroomless) => {
     return isShroomless
-        ? ` <:no_mushroom_bot:1033130955470295131>`
-        : ` <:mushroom_bot:1033128412405047356>`;
+        ? ` <:shroomless:1359564972300173322>`
+        : ` <:shrooms:1359564923713228861>`;
 };
 exports.emote_string = emote_string;
 const makeTimetrialFields = (data, user, isShroomless) => {
