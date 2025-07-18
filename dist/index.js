@@ -11,7 +11,6 @@ const generalController_1 = require("./controller/generalController");
 const mapDAO_1 = require("./model/mapDAO");
 const maps_json_1 = tslib_1.__importDefault(require("./database/maps.json"));
 const lineupController_1 = require("./controller/lineupController");
-const projectmapController_1 = require("./controller/projectmapController");
 const timetrialController_1 = require("./controller/timetrialController");
 const bot = new discord_js_1.Client({
     intents: [
@@ -32,8 +31,6 @@ exports.ADMIN_ROLE = "353621406891769866";
 exports.LOGO_YF = "attachment://LaYoshiFamily.png";
 bot.once(discord_js_1.Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
-    (0, projectmapController_1.updateProjectMapMessage)(bot, "YFG", 3, 10, false);
-    (0, projectmapController_1.updateProjectMapMessage)(bot, "YFO", 3, 10, false);
     (0, generalController_1.botLogs)(bot, "Yoshi successfully relloged");
 });
 bot.commands = new discord_js_1.Collection();
