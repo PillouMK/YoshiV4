@@ -52,8 +52,8 @@ export const LOGO_YF = "attachment://LaYoshiFamily.png";
 
 bot.once(Events.ClientReady, async (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
-  updateProjectMapMessage(bot, "YFG", 3, 10, false);
-  updateProjectMapMessage(bot, "YFO", 3, 10, false);
+  // updateProjectMapMessage(bot, "YFG", 3, 10, false);
+  // updateProjectMapMessage(bot, "YFO", 3, 10, false);
   botLogs(bot, "Yoshi successfully relloged");
 });
 
