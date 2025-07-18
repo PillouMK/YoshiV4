@@ -15,7 +15,7 @@ import { saveJSONToFile, sortByRoleId } from "../controller/generalController";
 import * as dayjs from "dayjs";
 import * as timezone from "dayjs/plugin/timezone";
 import * as utc from "dayjs/plugin/utc";
-import { ROLE_YF, ROLES } from "..";
+import { ROLE_YF, ROLE_YF_TEST, ROLES } from "..";
 import fs from "fs";
 import fc from "../database/fc.json";
 dayjs.extend(timezone.default);
@@ -366,7 +366,13 @@ export const toggleMessage = (idMsg: string, isMix: boolean) => {
     fs.readFileSync(lineupPath, "utf-8")
   );
 
-  _lineUpData.temp_save.find((elt) => elt.id === idMsg)!.isMix = isMix;
+  const item = _lineUpData.temp_save.find((elt) => elt.id === idMsg);
+  if (!item) {
+    console.warn(`[toggleMessage] Message ID ${idMsg} not found in temp_save.`);
+    return;
+  }
+
+  item.isMix = isMix;
   saveJSONToFile(_lineUpData, lineupPath);
 };
 
@@ -377,7 +383,7 @@ export const EditSavedMessages = async (lineup: LineUp, bot: Client) => {
   const channel = bot.channels.cache.get(lineup.idChannel);
   if (channel!.isTextBased()) {
     const msg = await channel!.messages.fetch(lineup.id);
-    const rolesId: string[] = lineup.isMix ? [ROLE_YF] : ROLES;
+    const rolesId: string[] = lineup.isMix ? [ROLE_YF, ROLE_YF_TEST] : ROLES;
     let roleList: Role[] = [];
     fetchedRoles?.forEach((role) => {
       if (rolesId.includes(role.id)) roleList.push(role);

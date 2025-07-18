@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LOGO_YF = exports.ADMIN_ROLE = exports.ROLE_YF = exports.ROLES = exports.LIST_MAPS = void 0;
+exports.LOGO_YF = exports.ADMIN_ROLE = exports.ROLE_YF_TEST = exports.ROLE_YF = exports.ROLES = exports.LIST_MAPS = void 0;
 const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
 const config_1 = require("./config");
@@ -27,6 +27,7 @@ const bot = new discord_js_1.Client({
 exports.LIST_MAPS = maps_json_1.default.maps.map(mapDAO_1.convertToMapMK);
 exports.ROLES = ["643871029210513419", "643569712353116170"];
 exports.ROLE_YF = "199252384612876289";
+exports.ROLE_YF_TEST = "425783129119260672";
 exports.ADMIN_ROLE = "353621406891769866";
 exports.LOGO_YF = "attachment://LaYoshiFamily.png";
 bot.once(discord_js_1.Events.ClientReady, async (c) => {

@@ -4,7 +4,7 @@ import {
   lineupResponse,
   toggleMessage,
 } from "../../controller/lineupController";
-import { ROLE_YF, ROLES } from "../..";
+import { ROLE_YF, ROLE_YF_TEST, ROLES } from "../..";
 
 module.exports = {
   data: {
@@ -16,7 +16,7 @@ module.exports = {
     const isMix: boolean = args[1] === "mix";
     const fetchedMembers = await interaction.guild?.members.fetch();
     const fetchedRoles = await interaction.guild?.roles.fetch();
-    const rolesId: string[] = isMix ? [ROLE_YF] : ROLES;
+    const rolesId: string[] = isMix ? [ROLE_YF, ROLE_YF_TEST] : ROLES;
 
     let roleList: Role[] = [];
     fetchedRoles?.forEach((role) => {
