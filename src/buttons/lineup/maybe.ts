@@ -6,7 +6,7 @@ import {
   lineupResponse,
   updateLineupsByHour,
 } from "../../controller/lineupController";
-import { ROLE_YF, ROLES } from "../..";
+import { ROLE_YF, ROLE_YF_TEST, ROLES } from "../..";
 import { sortByRoleId } from "../../controller/generalController";
 
 module.exports = {
@@ -21,7 +21,7 @@ module.exports = {
     const response = addMember(hour, member, StatusLineUp.Maybe);
     const fetchedMembers = await interaction.guild?.members.fetch();
     const fetchedRoles = await interaction.guild?.roles.fetch();
-    const rolesId: string[] = isMix ? [ROLE_YF] : ROLES;
+    const rolesId: string[] = isMix ? [ROLE_YF, ROLE_YF_TEST] : ROLES;
     let roleList: Role[] = [];
     fetchedRoles?.forEach((role) => {
       if (rolesId.includes(role.id)) roleList.push(role);

@@ -46,6 +46,7 @@ const bot: Client<boolean> = new Client({
 export const LIST_MAPS: MapMK[] = mapsJSON.maps.map(convertToMapMK);
 export const ROLES = ["643871029210513419", "643569712353116170"];
 export const ROLE_YF = "199252384612876289";
+export const ROLE_YF_TEST = "425783129119260672";
 export const ADMIN_ROLE = "353621406891769866";
 export const LOGO_YF = "attachment://LaYoshiFamily.png";
 

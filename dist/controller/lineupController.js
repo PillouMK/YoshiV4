@@ -258,7 +258,12 @@ const pushTempMessage = (idMsg, idChannel, hour) => {
 exports.pushTempMessage = pushTempMessage;
 const toggleMessage = (idMsg, isMix) => {
     const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
-    _lineUpData.temp_save.find((elt) => elt.id === idMsg).isMix = isMix;
+    const item = _lineUpData.temp_save.find((elt) => elt.id === idMsg);
+    if (!item) {
+        console.warn(`[toggleMessage] Message ID ${idMsg} not found in temp_save.`);
+        return;
+    }
+    item.isMix = isMix;
     (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
 };
 exports.toggleMessage = toggleMessage;
@@ -269,7 +274,7 @@ const EditSavedMessages = async (lineup, bot) => {
     const channel = bot.channels.cache.get(lineup.idChannel);
     if (channel.isTextBased()) {
         const msg = await channel.messages.fetch(lineup.id);
-        const rolesId = lineup.isMix ? [__1.ROLE_YF] : __1.ROLES;
+        const rolesId = lineup.isMix ? [__1.ROLE_YF, __1.ROLE_YF_TEST] : __1.ROLES;
         let roleList = [];
         fetchedRoles?.forEach((role) => {
             if (rolesId.includes(role.id))

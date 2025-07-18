@@ -14,7 +14,7 @@ module.exports = {
         const response = (0, lineupController_1.addMember)(hour, member, lineupController_1.StatusLineUp.Can);
         const fetchedMembers = await interaction.guild?.members.fetch();
         const fetchedRoles = await interaction.guild?.roles.fetch();
-        const rolesId = isMix ? [__1.ROLE_YF] : __1.ROLES;
+        const rolesId = isMix ? [__1.ROLE_YF, __1.ROLE_YF_TEST] : __1.ROLES;
         let roleList = [];
         fetchedRoles?.forEach((role) => {
             if (rolesId.includes(role.id))
