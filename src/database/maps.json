@@ -864,5 +864,255 @@
       "DLC": 0,
       "retro": 0
     }
+  ],
+  "mkworld": [
+    {
+      "id": 1,
+      "name": "DK Pass",
+      "tag": "rDKP",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:45.212Z",
+      "updated_at": "2025-07-24T09:47:45.212Z"
+    },
+    {
+      "id": 2,
+      "name": "Whistlestop Summit",
+      "tag": "WS",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:45.487Z",
+      "updated_at": "2025-07-24T09:47:45.487Z"
+    },
+    {
+      "id": 3,
+      "name": "Toad's Factory",
+      "tag": "rTF",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:45.658Z",
+      "updated_at": "2025-07-24T09:47:45.658Z"
+    },
+    {
+      "id": 4,
+      "name": "Salty Salty Speedway",
+      "tag": "SSS",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:45.831Z",
+      "updated_at": "2025-07-24T09:47:45.831Z"
+    },
+    {
+      "id": 5,
+      "name": "Dandelion Dephts",
+      "tag": "DD",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:46.000Z",
+      "updated_at": "2025-07-24T09:47:46.000Z"
+    },
+    {
+      "id": 6,
+      "name": "Wario Stadium",
+      "tag": "rWS",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:46.175Z",
+      "updated_at": "2025-07-24T09:47:46.175Z"
+    },
+    {
+      "id": 7,
+      "name": "Cheep Cheep Falls",
+      "tag": "CCF",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:46.342Z",
+      "updated_at": "2025-07-24T09:47:46.342Z"
+    },
+    {
+      "id": 8,
+      "name": "Bowser's Castle",
+      "tag": "BC",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:46.521Z",
+      "updated_at": "2025-07-24T09:47:46.521Z"
+    },
+    {
+      "id": 9,
+      "name": "Airship Fortress",
+      "tag": "rAF",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:46.686Z",
+      "updated_at": "2025-07-24T09:47:46.686Z"
+    },
+    {
+      "id": 10,
+      "name": "Great ? Block Ruins",
+      "tag": "GBR",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:46.849Z",
+      "updated_at": "2025-07-24T09:47:46.849Z"
+    },
+    {
+      "id": 11,
+      "name": "Boo Cinema",
+      "tag": "BCi",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:47.014Z",
+      "updated_at": "2025-07-24T09:47:47.014Z"
+    },
+    {
+      "id": 12,
+      "name": "Shy Guy Bazaar",
+      "tag": "rSGB",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:47.174Z",
+      "updated_at": "2025-07-24T09:47:47.174Z"
+    },
+    {
+      "id": 13,
+      "name": "Faraway Oasis",
+      "tag": "FO",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:47.351Z",
+      "updated_at": "2025-07-24T09:47:47.351Z"
+    },
+    {
+      "id": 14,
+      "name": "Acorn Heights",
+      "tag": "AH",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:47.524Z",
+      "updated_at": "2025-07-24T09:47:47.524Z"
+    },
+    {
+      "id": 15,
+      "name": "Dry Bones Burnout",
+      "tag": "DBB",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:47.690Z",
+      "updated_at": "2025-07-24T09:47:47.690Z"
+    },
+    {
+      "id": 16,
+      "name": "Rainbow Road",
+      "tag": "RR",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:47.859Z",
+      "updated_at": "2025-07-24T09:47:47.859Z"
+    },
+    {
+      "id": 17,
+      "name": "Wario Shipyard",
+      "tag": "rWSh",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:48.017Z",
+      "updated_at": "2025-07-24T09:47:48.017Z"
+    },
+    {
+      "id": 18,
+      "name": "Starview Peak",
+      "tag": "SP",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:48.181Z",
+      "updated_at": "2025-07-24T09:47:48.181Z"
+    },
+    {
+      "id": 19,
+      "name": "Mario Bros Circuit",
+      "tag": "MBC",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:48.352Z",
+      "updated_at": "2025-07-24T09:47:48.352Z"
+    },
+    {
+      "id": 20,
+      "name": "Desert Hills",
+      "tag": "rDH",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:48.514Z",
+      "updated_at": "2025-07-24T09:47:48.514Z"
+    },
+    {
+      "id": 21,
+      "name": "Mario Circuit",
+      "tag": "rMC",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:48.674Z",
+      "updated_at": "2025-07-24T09:47:48.674Z"
+    },
+    {
+      "id": 22,
+      "name": "Peach Stadium",
+      "tag": "PS",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:48.833Z",
+      "updated_at": "2025-07-24T09:47:48.833Z"
+    },
+    {
+      "id": 23,
+      "name": "Choco Mountain",
+      "tag": "rCM",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:48.999Z",
+      "updated_at": "2025-07-24T09:47:48.999Z"
+    },
+    {
+      "id": 24,
+      "name": "Moo Moo Meadows",
+      "tag": "rMMM",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:49.172Z",
+      "updated_at": "2025-07-24T09:47:49.172Z"
+    },
+    {
+      "id": 25,
+      "name": "Dino Dino Jungle",
+      "tag": "rDDJ",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:49.349Z",
+      "updated_at": "2025-07-24T09:47:49.349Z"
+    },
+    {
+      "id": 26,
+      "name": "Peach Beach",
+      "tag": "rPB",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:49.516Z",
+      "updated_at": "2025-07-24T09:47:49.516Z"
+    },
+    {
+      "id": 27,
+      "name": "Crown City",
+      "tag": "CC",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:49.708Z",
+      "updated_at": "2025-07-24T09:47:49.708Z"
+    },
+    {
+      "id": 28,
+      "name": "Koopa Troopa Beach",
+      "tag": "rKTB",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:49.872Z",
+      "updated_at": "2025-07-24T09:47:49.872Z"
+    },
+    {
+      "id": 29,
+      "name": "Sky-High Sundae",
+      "tag": "rSHS",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:50.042Z",
+      "updated_at": "2025-07-24T09:47:50.042Z"
+    },
+    {
+      "id": 30,
+      "name": "DK Spaceport",
+      "tag": "DKS",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:50.210Z",
+      "updated_at": "2025-07-24T09:47:50.210Z"
+    },
+    {
+      "id": 31,
+      "name": "Connecting Track",
+      "tag": "CT",
+      "game_id": "MKWORLD",
+      "created_at": "2025-07-24T09:47:50.210Z",
+      "updated_at": "2025-07-24T09:47:50.210Z"
+    }
   ]
 }

@@ -28,25 +28,25 @@
   "save": [
     {
       "hour": "18",
-      "isMix": false,
+      "isMix": true,
       "id": "1317540362377494540",
       "idChannel": "1294743209200844800"
     },
     {
       "hour": "21",
-      "isMix": false,
+      "isMix": true,
       "id": "1317540365296992366",
       "idChannel": "1294743209200844800"
     },
     {
       "hour": "22",
-      "isMix": false,
+      "isMix": true,
       "id": "1317540366299299891",
       "idChannel": "1294743209200844800"
     },
     {
       "hour": "23",
-      "isMix": false,
+      "isMix": true,
       "id": "1317540367477899403",
       "idChannel": "1294743209200844800"
     }

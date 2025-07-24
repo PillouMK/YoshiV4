@@ -6,7 +6,7 @@ import {
 import { raceAdd } from "../../controller/botwarController";
 
 import { filterMapList } from "../../controller/generalController";
-import { LIST_MAPS } from "../..";
+import { LIST_MAPS, LIST_MAPS_MKWORLD } from "../..";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -27,14 +27,15 @@ module.exports = {
     ),
 
   async autocomplete(interaction: AutocompleteInteraction) {
+    console.log("bla");
     const value = interaction.options.getFocused().toLocaleLowerCase();
-    const filtered = filterMapList(LIST_MAPS, value);
+    const filtered = filterMapList(LIST_MAPS_MKWORLD, value);
 
     if (!interaction) return;
 
     const choices = filtered.map((choice) => ({
-      name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
-      value: choice.idMap,
+      name: `${choice.tag} | ${choice.name}`,
+      value: choice.tag.toString(),
     }));
 
     await interaction.respond(choices);

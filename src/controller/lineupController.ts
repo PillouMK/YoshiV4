@@ -366,13 +366,17 @@ export const toggleMessage = (idMsg: string, isMix: boolean) => {
     fs.readFileSync(lineupPath, "utf-8")
   );
 
+  const _item = _lineUpData.save.find((elt) => elt.id === idMsg);
+  if (_item) {
+    _item.isMix = isMix;
+  }
+
   const item = _lineUpData.temp_save.find((elt) => elt.id === idMsg);
-  if (!item) {
-    console.warn(`[toggleMessage] Message ID ${idMsg} not found in temp_save.`);
+  if (item) {
+    item.isMix = isMix;
     return;
   }
 
-  item.isMix = isMix;
   saveJSONToFile(_lineUpData, lineupPath);
 };
 

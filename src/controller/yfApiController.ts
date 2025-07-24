@@ -5,7 +5,9 @@ import { weeklyMapAPI } from "./weeklyttController";
 
 // CONSTANTE
 const API_URL: string = "https://yoshi-family-api.fr/v1";
+const API_V2_URL: string = "https://nest-yf-api-production.up.railway.app";
 const API_KEY: string = config.API_KEY!;
+const API_KEY_V2: string = config.API_KEY_V2!;
 
 // endpoints :
 const mapsEndpoint = "/maps";
@@ -17,6 +19,32 @@ const weeklyEndpoint = "/weekly";
 const header = {
   Accept: "application/json",
   "api-key": API_KEY,
+};
+
+const header_v2 = {
+  Accept: "application/json",
+  "x-api-key": API_KEY_V2,
+};
+
+export const _getAllMaps = async (): Promise<ResponseYF> => {
+  let responseObject: ResponseYF;
+  const maps = await axios
+    .get(`${API_V2_URL}${mapsEndpoint}`, { headers: header_v2 })
+    .then((response) => {
+      responseObject = {
+        statusCode: response.status,
+        data: response.data,
+      };
+      return responseObject;
+    })
+    .catch((error) => {
+      responseObject = {
+        statusCode: error.response.status,
+        data: error.response.data,
+      };
+      return responseObject;
+    });
+  return maps;
 };
 
 export const getAllMaps = async (): Promise<ResponseYF> => {
