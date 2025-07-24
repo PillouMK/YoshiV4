@@ -4,7 +4,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { editRace, getNumberOfRace } from "../../controller/botwarController";
-import { LIST_MAPS } from "../..";
+import { LIST_MAPS, LIST_MAPS_MKWORLD } from "../..";
 import { filterMapList } from "../../controller/generalController";
 
 module.exports = {
@@ -37,11 +37,11 @@ module.exports = {
     const focusedOption = interaction.options.getFocused(true);
 
     if (focusedOption.name === "map") {
-      const filtered = filterMapList(LIST_MAPS, focusedOption.value);
+      const filtered = filterMapList(LIST_MAPS_MKWORLD, focusedOption.value);
       await interaction.respond(
         filtered.map((choice) => ({
-          name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
-          value: choice.idMap,
+          name: `${choice.tag} |${choice.name}`,
+          value: choice.tag,
         }))
       );
     } else if (focusedOption.name === "race") {

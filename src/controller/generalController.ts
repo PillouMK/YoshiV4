@@ -1,5 +1,5 @@
 import fs from "fs";
-import { MapMK } from "src/model/mapDAO";
+import { MapMK, MapMK_V2 } from "src/model/mapDAO";
 import settings from "../settings.json";
 import {
   AttachmentBuilder,
@@ -25,9 +25,9 @@ export const saveJSONToFile = <T>(data: T, filePath: string): void => {
   }
 };
 
-export const filterMapList = (LIST_MAPS: MapMK[], value: string) => {
+export const filterMapList = (LIST_MAPS: MapMK_V2[], value: string) => {
   return LIST_MAPS.filter((map) =>
-    map.idMap.toLocaleLowerCase().includes(value)
+    map.tag.toLocaleLowerCase().includes(value)
   ).slice(0, 25);
 };
 

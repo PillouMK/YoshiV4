@@ -6,8 +6,8 @@ import { ErrorMessage } from "../model/errorMessage";
 import { ResponseYF } from "../model/responseYF";
 import { updateProjectMapMessage } from "./projectmapController";
 import { Client } from "discord.js";
-import { LIST_MAPS } from "..";
-import { MapMK } from "../model/mapDAO";
+import { LIST_MAPS, LIST_MAPS_MKWORLD } from "..";
+import { MapMK, MapMK_V2 } from "../model/mapDAO";
 
 // ------------
 // CONSTANTE
@@ -48,11 +48,11 @@ type Team = {
 };
 
 type ParamWar = {
+  game: string;
   verifDoublon: {
     spots: string[];
     map: string;
   };
-  saveStats: boolean;
   isStoppable: boolean;
   race: number;
   totaleDiff: number;
@@ -77,8 +77,8 @@ interface BotWarType {
 // ----------------
 
 // Check if the map is valids
-const checkIfMapExist = (mapKey: string, mapList: MapMK[]): boolean => {
-  return mapList.findIndex((map) => map.idMap === mapKey) != -1;
+const checkIfMapExist = (mapKey: string, mapList: MapMK_V2[]): boolean => {
+  return mapList.findIndex((map) => map.tag === mapKey) != -1;
 };
 
 // Check if the spot are valids
@@ -225,7 +225,8 @@ const makeResponseMessage = (
 export const createWar = (
   idChannel: string,
   nameTeam1: string,
-  nameTeam2: string
+  nameTeam2: string,
+  game: string
 ): boolean => {
   // Cancel create if war already exist in that channel
   if (checkIfWarExistInChannel(idChannel)) return false;
@@ -246,11 +247,11 @@ export const createWar = (
       recapScore: [],
     },
     paramWar: {
+      game: game,
       verifDoublon: {
         spots: [],
         map: "",
       },
-      saveStats: saveStats,
       isStoppable: false,
       race: 0,
       totaleDiff: 0,
@@ -280,23 +281,14 @@ export const stopWar = async (
       : "Défaite";
   let msg = `Fin du war\n${isWin} : ${result.team1.total.toString()} - ${result.team2.total.toString()} (${result.paramWar.totaleDiff.toString()})`;
 
-  if (
-    getNumberOfRace(idChannel) > 7 &&
-    botwar.channels[idChannel].paramWar.saveStats
-  ) {
-    const sendMapsData = await sendProjectMapData(botwar.channels[idChannel]);
-    if (result.team1.nameTeam === "YFG" || result.team1.nameTeam === "YFO")
-      updateProjectMapMessage(bot, result.team1.nameTeam, 3, 10, false);
-
-    if (sendMapsData) msg += "\nSauvegarde des données effectuées";
-    else
-      msg +=
-        "\nEchec lors de la sauvegarde des données\n" +
-        botwar.channels[idChannel];
+  if (getNumberOfRace(idChannel) > 10) {
+    // todo : send data
+    // const sendMapsData = await sendProjectMapData(botwar.channels[idChannel]);
   } else {
     msg += "\nPas de sauvegardes";
   }
 
+  console.log("war", botwar.channels[idChannel]);
   // Delete war from bot-war.json
   delete botwar.channels[idChannel];
   saveJSONToFile(botwar, botwarPath);
@@ -310,7 +302,7 @@ export const raceAdd = async (
 ): Promise<string> => {
   if (!checkIfWarExistInChannel(idChannel))
     return errorMessage.noWarInChannel();
-  if (!checkIfMapExist(map, LIST_MAPS)) return similarMapMessage(map);
+  if (!checkIfMapExist(map, LIST_MAPS_MKWORLD)) return similarMapMessage(map);
   if (!checkNumberofSpots(spots))
     return errorMessage.spotsLengthOutOfRange(spots);
   if (!checkIfSpotsAreValids(spots)) return errorMessage.spotsNotValids(spots);
@@ -369,12 +361,6 @@ export const editRace = async (
   if (!(getNumberOfRace(idChannel) >= parseInt(race)))
     return errorMessage.raceIsOutOfRange(race);
 
-  // const maps = await getAllMaps();
-  // if (maps.statusCode != 200) return errorMessage.apiCallError(maps.statusCode);
-
-  // const mapIdList = responsetoMapIdList(maps);
-  // if (!checkIfMapExist(map, mapIdList))
-  //   return similarMapMessage(map, mapIdList);
   if (!checkIfSpotsAreValids(spots)) return errorMessage.spotsNotValids(spots);
   if (!checkDuplicateSpots(spots)) return errorMessage.spotDuplicated(spots);
 
@@ -436,7 +422,6 @@ export const changeTagTeam = (tagTeam: string, idChannel: string): string => {
 
   const save: boolean = rosterList.has(tagTeam.toUpperCase());
   botwar.channels[idChannel].team1.nameTeam = tagTeam;
-  botwar.channels[idChannel].paramWar.saveStats = save;
   saveJSONToFile(botwar, botwarPath);
 
   return `Nouveau tag : ${tagTeam}\n${

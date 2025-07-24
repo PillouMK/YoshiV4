@@ -4,54 +4,21 @@
       "team1": {
         "nameTeam": "YF",
         "penality": 0,
-        "total": 1030,
+        "total": 61,
         "recapScore": [
-          61,
-          61,
-          61,
-          37,
-          61,
-          61,
-          61,
-          59,
-          59,
-          58,
-          55,
-          53,
-          58,
-          43,
-          61,
-          59,
-          61,
           61
         ]
       },
       "team2": {
-        "nameTeam": "rg",
+        "nameTeam": "rr",
         "penality": 0,
-        "total": 446,
+        "total": 21,
         "recapScore": [
-          21,
-          21,
-          21,
-          45,
-          21,
-          21,
-          21,
-          23,
-          23,
-          24,
-          27,
-          29,
-          24,
-          39,
-          21,
-          23,
-          21,
           21
         ]
       },
       "paramWar": {
+        "game": "MKWORLD",
         "verifDoublon": {
           "spots": [
             "1",
@@ -61,83 +28,14 @@
             "5",
             "6"
           ],
-          "map": "rRRd"
+          "map": "BC"
         },
-        "saveStats": false,
         "isStoppable": false,
-        "race": 18,
-        "totaleDiff": 584,
+        "race": 1,
+        "totaleDiff": 40,
         "recapWar": [
           {
-            "map": "bR",
-            "score": 40
-          },
-          {
-            "map": "bAD",
-            "score": 40
-          },
-          {
-            "map": "bAD",
-            "score": 40
-          },
-          {
-            "map": "BDD | MK8 Désert Toussec",
-            "score": -8
-          },
-          {
-            "map": "bRR",
-            "score": 40
-          },
-          {
-            "map": "bDC",
-            "score": 40
-          },
-          {
-            "map": "bBR",
-            "score": 40
-          },
-          {
-            "map": "bDC | GCN Paquebot Daisy",
-            "score": 36
-          },
-          {
-            "map": "bBC | SNES Château de Bowser 3",
-            "score": 36
-          },
-          {
-            "map": "bBL",
-            "score": 34
-          },
-          {
-            "map": "bCMw",
-            "score": 28
-          },
-          {
-            "map": "bVV",
-            "score": 24
-          },
-          {
-            "map": "bAD",
-            "score": 34
-          },
-          {
-            "map": "bCMw | WII Supermarché Coco",
-            "score": 4
-          },
-          {
-            "map": "bDC",
-            "score": 40
-          },
-          {
-            "map": "bCMw",
-            "score": 36
-          },
-          {
-            "map": "bAD",
-            "score": 40
-          },
-          {
-            "map": "rRRd",
+            "map": "BC",
             "score": 40
           }
         ]

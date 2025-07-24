@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import settings from "../../settings.json";
 import { botLogs, filterMapList } from "../../controller/generalController";
-import { ADMIN_ROLE, LIST_MAPS } from "../..";
+import { ADMIN_ROLE, LIST_MAPS, LIST_MAPS_MKWORLD } from "../..";
 import { setWeeklyMap } from "../../controller/weeklyttController";
 
 module.exports = {
@@ -44,13 +44,13 @@ module.exports = {
 
   async autocomplete(interaction: AutocompleteInteraction) {
     const value = interaction.options.getFocused().toLocaleLowerCase();
-    const filtered = filterMapList(LIST_MAPS, value);
+    const filtered = filterMapList(LIST_MAPS_MKWORLD, value);
 
     if (!interaction) return;
 
     const choices = filtered.map((choice) => ({
-      name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
-      value: choice.idMap,
+      name: `${choice.tag} | ${choice.name}`,
+      value: choice.id,
     }));
 
     await interaction.respond(choices);

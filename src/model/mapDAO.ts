@@ -17,3 +17,17 @@ export const convertToMapMK = (data: any): MapMK => ({
   DLC: !!data.DLC,
   retro: !!data.retro,
 });
+
+export type MapMK_V2 = {
+  id: string;
+  tag: string;
+  name: string;
+  game_id: string;
+};
+
+export const convertToMapMKWORLD = (data: any): MapMK_V2 => ({
+  id: data.id,
+  tag: data.tag,
+  name: data.name,
+  game_id: data.game_id,
+});

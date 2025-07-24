@@ -18,11 +18,17 @@ import {
   playerRemovedInGuild,
   playerRosterChange,
 } from "./controller/generalController";
-import { MapMK, convertToMapMK } from "./model/mapDAO";
+import {
+  MapMK,
+  MapMK_V2,
+  convertToMapMK,
+  convertToMapMKWORLD,
+} from "./model/mapDAO";
 import mapsJSON from "./database/maps.json";
 import { resetAllLineups } from "./controller/lineupController";
 import { updateProjectMapMessage } from "./controller/projectmapController";
 import { updateFinalRanking } from "./controller/timetrialController";
+import { _getAllMaps } from "./controller/yfApiController";
 
 declare module "discord.js" {
   interface Client {
@@ -44,6 +50,8 @@ const bot: Client<boolean> = new Client({
 });
 
 export const LIST_MAPS: MapMK[] = mapsJSON.maps.map(convertToMapMK);
+export const LIST_MAPS_MKWORLD: MapMK_V2[] =
+  mapsJSON.mkworld.map(convertToMapMKWORLD);
 export const ROLES = ["643871029210513419", "643569712353116170"];
 export const ROLE_YF = "199252384612876289";
 export const ROLE_YF_TEST = "425783129119260672";
@@ -54,6 +62,7 @@ bot.once(Events.ClientReady, async (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
   // updateProjectMapMessage(bot, "YFG", 3, 10, false);
   // updateProjectMapMessage(bot, "YFO", 3, 10, false);
+  console.log(LIST_MAPS_MKWORLD);
   botLogs(bot, "Yoshi successfully relloged");
 });
 
@@ -120,8 +129,9 @@ bot.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
 });
 
 bot.on(Events.InteractionCreate, async (interaction) => {
-  // button interactions
+  if (interaction.user.id !== "450353797450039336") return;
   if (interaction.isButton()) {
+    // button interactions
     const buttonName: string = interaction.customId.split("-")[0];
     const args: string[] = interaction.customId.split("-");
     args.shift();
