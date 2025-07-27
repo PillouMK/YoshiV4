@@ -1,13 +1,14 @@
 import botWarData from "../database/bot-war.json";
-import { saveJSONToFile } from "../controller/generalController";
-import { getAllMaps, postProjectMap } from "./yfApiController";
-import { findSimilarMaps, responsetoMapIdList } from "./mapController";
+import { botLogs, saveJSONToFile } from "../controller/generalController";
 import { ErrorMessage } from "../model/errorMessage";
-import { ResponseYF } from "../model/responseYF";
-import { updateProjectMapMessage } from "./projectmapController";
 import { Client } from "discord.js";
-import { LIST_MAPS, LIST_MAPS_MKWORLD } from "..";
-import { MapMK, MapMK_V2 } from "../model/mapDAO";
+import { LIST_MAPS_MKWORLD } from "..";
+import { MapMK_V2 } from "../model/map.dto";
+import { _completeMatch, _createMatch } from "./yfApiController";
+import { MatchComplete, MatchCreate } from "../model/match.dto";
+import { globalData } from "../global";
+import { MapStatsCreate } from "../model/map-stats.dto";
+import { ResponseAPI } from "../model/responseYF";
 
 // ------------
 // CONSTANTE
@@ -48,6 +49,7 @@ type Team = {
 };
 
 type ParamWar = {
+  match_id: number;
   game: string;
   verifDoublon: {
     spots: string[];
@@ -56,7 +58,7 @@ type ParamWar = {
   isStoppable: boolean;
   race: number;
   totaleDiff: number;
-  recapWar: ScoreMap[];
+  recapWar: MapStatsCreate[];
 };
 
 type WarObjectType = {
@@ -147,7 +149,7 @@ const sendProjectMapData = async (results: WarObjectType): Promise<boolean> => {
   const resultArray: { idMap: string; scoreMap: number }[] = [];
 
   results.paramWar.recapWar.forEach((item) => {
-    resultArray.push({ idMap: item.map, scoreMap: item.score });
+    resultArray.push({ idMap: item.map_tag, scoreMap: item.score });
   });
 
   const apiObject = {
@@ -156,9 +158,10 @@ const sendProjectMapData = async (results: WarObjectType): Promise<boolean> => {
     idRoster: results.team1.nameTeam,
   };
 
-  const apiCall: ResponseYF = await postProjectMap(apiObject);
+  // const apiCall: ResponseYF = await postProjectMap(apiObject);
 
-  return apiCall.statusCode === 201;
+  //return apiCall.statusCode === 201;
+  return true;
 };
 
 const checkIfRaceIsValidNumber = (race: string): boolean => {
@@ -212,7 +215,7 @@ const makeResponseMessage = (
     } ${war.team1.recapScore[index].toString()} - ${war.team2.recapScore[
       index
     ].toString()} ${war.team2.nameTeam} (${item.score.toString()}) sur ${
-      item.map
+      item.map_tag
     }${backToLine}`;
   });
   const endRecap: string = `${embedMsg}${backToLine}Récapitulatif des courses :${backToLine}${recapAllMaps}${backToLine}${embedMsg}`;
@@ -222,45 +225,62 @@ const makeResponseMessage = (
 
 // Slash Commands methods :
 
-export const createWar = (
+export const createWar = async (
+  bot: Client,
+  team_id: string,
   idChannel: string,
   nameTeam1: string,
   nameTeam2: string,
   game: string
-): boolean => {
+): Promise<boolean> => {
   // Cancel create if war already exist in that channel
   if (checkIfWarExistInChannel(idChannel)) return false;
 
-  const saveStats: boolean = rosterList.has(nameTeam1.toUpperCase());
+  const roster = globalData.getRoster(team_id, nameTeam1);
 
-  const warObject: WarObjectType = {
-    team1: {
-      nameTeam: nameTeam1,
-      penality: 0,
-      total: 0,
-      recapScore: [],
-    },
-    team2: {
-      nameTeam: nameTeam2,
-      penality: 0,
-      total: 0,
-      recapScore: [],
-    },
-    paramWar: {
-      game: game,
-      verifDoublon: {
-        spots: [],
-        map: "",
-      },
-      isStoppable: false,
-      race: 0,
-      totaleDiff: 0,
-      recapWar: [] as ScoreMap[],
-    },
+  const match: MatchCreate = {
+    game_id: game,
+    team_id: team_id,
+    opponent: nameTeam2,
+    roster_id: roster?.id,
   };
-  botwar.channels[idChannel] = warObject;
-  saveJSONToFile(botwar, botwarPath);
-  return true;
+  const createWar = await _createMatch(match);
+
+  if (createWar.statusCode == 201) {
+    const warObject: WarObjectType = {
+      team1: {
+        nameTeam: nameTeam1,
+        penality: 0,
+        total: 0,
+        recapScore: [],
+      },
+      team2: {
+        nameTeam: nameTeam2,
+        penality: 0,
+        total: 0,
+        recapScore: [],
+      },
+      paramWar: {
+        match_id: createWar.data.id,
+        game: game,
+        verifDoublon: {
+          spots: [],
+          map: "",
+        },
+        isStoppable: false,
+        race: 0,
+        totaleDiff: 0,
+        recapWar: [] as MapStatsCreate[],
+      },
+    };
+    botwar.channels[idChannel] = warObject;
+    saveJSONToFile(botwar, botwarPath);
+    return true;
+  } else {
+    botLogs(bot, "Match créé :" + createWar.data.id.toString());
+    console.error(createWar.statusCode, createWar.data);
+    return false;
+  }
 };
 
 export const stopWar = async (
@@ -271,7 +291,7 @@ export const stopWar = async (
   if (!checkIfWarExistInChannel(idChannel))
     return errorMessage.noWarInChannel();
   if (!isForced && getNumberOfRace(idChannel) < 12)
-    return "le war n'a pas atteint 12 courses, fait !stopwar -f ou ajoute l'option force avec /stopwar pour forcer l'arrêt";
+    return "le war n'a pas atteint 12 courses, ajoute l'option force avec /stopwar pour forcer l'arrêt";
   const result = getWarResults(idChannel);
   const isWin =
     result.paramWar.totaleDiff > 0
@@ -279,20 +299,47 @@ export const stopWar = async (
       : result.paramWar.totaleDiff == 0
       ? "Egalité"
       : "Défaite";
-  let msg = `Fin du war\n${isWin} : ${result.team1.total.toString()} - ${result.team2.total.toString()} (${result.paramWar.totaleDiff.toString()})`;
+  let msg = `Fin du war\n${isWin} : ${result.team1.total.toString()} - ${result.team2.total.toString()} (${result.paramWar.totaleDiff.toString()})\n${
+    getNumberOfRace(idChannel) < 10 ? "Match annulé" : ""
+  }`;
 
-  if (getNumberOfRace(idChannel) > 10) {
-    // todo : send data
-    // const sendMapsData = await sendProjectMapData(botwar.channels[idChannel]);
+  const map_stats: MapStatsCreate[] = result.paramWar.recapWar;
+
+  const matchComplete: MatchComplete = {
+    is_canceled: getNumberOfRace(idChannel) < 10,
+    score_team: result.team1.total,
+    score_opponent: result.team2.total,
+    pena_team: result.team1.penality,
+    pena_opponent: result.team2.penality,
+    score_total: result.paramWar.totaleDiff,
+    maps: map_stats,
+  };
+  console.log("matchComplete", matchComplete);
+
+  const completeMatch: ResponseAPI<any> = await _completeMatch(
+    matchComplete,
+    result.paramWar.match_id.toString()
+  );
+  if (completeMatch.statusCode == 201) {
+    let match_id = `\nIdentifiant du match : \`${result.paramWar.match_id}\``;
+    botLogs(
+      bot,
+      `War ended : ${result.team1.total.toString()} - ${result.team2.total.toString()} (${result.paramWar.totaleDiff.toString()})${match_id}`
+    );
+    botLogs(bot, `API - CompleteMatch success`);
+    delete botwar.channels[idChannel];
+    saveJSONToFile(botwar, botwarPath);
+    return msg + match_id;
   } else {
-    msg += "\nPas de sauvegardes";
+    console.log("error:", completeMatch.statusCode);
+    console.log("error:", completeMatch.data);
+    botLogs(bot, `API - CompleteMatch fail`);
+    botLogs(
+      bot,
+      `${completeMatch.statusCode} - ${completeMatch.data.toString()}`
+    );
+    return "Erreur lors de la commande, stopwar canceled";
   }
-
-  console.log("war", botwar.channels[idChannel]);
-  // Delete war from bot-war.json
-  delete botwar.channels[idChannel];
-  saveJSONToFile(botwar, botwarPath);
-  return msg;
 };
 
 export const raceAdd = async (
@@ -333,7 +380,7 @@ export const raceAdd = async (
   paramWar.race++;
   paramWar.verifDoublon.map = map;
   paramWar.verifDoublon.spots = spots;
-  paramWar.recapWar.push({ map: map, score: raceDifference });
+  paramWar.recapWar.push({ map_tag: map, score: raceDifference });
   paramWar.totaleDiff += raceDifference;
   saveJSONToFile(botwar, botwarPath);
 
@@ -385,7 +432,7 @@ export const editRace = async (
     paramWar.totaleDiff -
     paramWar.recapWar[raceAsNumber - 1].score +
     raceDifference;
-  paramWar.recapWar[raceAsNumber - 1] = { map: map, score: raceDifference };
+  paramWar.recapWar[raceAsNumber - 1] = { map_tag: map, score: raceDifference };
   saveJSONToFile(botwar, botwarPath);
 
   return makeResponseMessage(

@@ -11,6 +11,7 @@ import {
   User,
 } from "discord.js";
 import {
+  _upsertTimetrial,
   getAllPlayers,
   getTimetrialsByMap,
   patchTimetrial,
@@ -24,6 +25,8 @@ import {
 } from "./generalController";
 import { Player } from "../model/player";
 import settings from "../settings.json";
+import { TimetrialCreated, TimetrialUpsert } from "../model/timetrial.dto";
+import { ResponseAPI } from "../model/responseYF";
 
 type TimetrialData = {
   infoMap: InfoMap;
@@ -348,9 +351,10 @@ export const msToTime = (s: number, isDiff = false) => {
 
 export const updateTimetrial = async (
   time: string,
-  idMap: string,
+  map_tag: string,
   isShroomless: boolean,
   user: User,
+  game_id: string,
   bot: Client
 ): Promise<string> => {
   if (!isTimeValid(time)) {
@@ -358,37 +362,30 @@ export const updateTimetrial = async (
     return `${time} n'est pas un temps valide`;
   }
   const timeInMs = timeToMs(time);
-
-  const patchTime = await patchTimetrial(
-    user.id,
-    idMap,
-    timeInMs,
-    isShroomless
-  );
+  const upsert: TimetrialUpsert = {
+    game_id: game_id,
+    is_shroomless: isShroomless,
+    map_tag: map_tag,
+    time: timeInMs,
+    user_id: user.id,
+  };
+  const updateTime: ResponseAPI<any> = await _upsertTimetrial(upsert);
   const response = isShroomless ? `en shroomless` : `avec items`;
-  if (patchTime.statusCode != 200) {
-    const postTime = await postTimetrial(
-      user.id,
-      idMap,
-      timeInMs,
-      isShroomless
-    );
-    if (postTime.statusCode != 201) {
-      botLogs(bot, `Error when adding time : ${postTime.data.toString()}`);
-      return `Erreur : ${postTime.data.toString()}`;
-    } else {
-      botLogs(
-        bot,
-        `${user.username} successfully added time (${idMap}, ${time}, ${isShroomless})`
-      );
-      return `Nouveau temps : ${time} ${response}`;
-    }
-  } else {
+  if (updateTime.statusCode == 201) {
+    const res = updateTime as ResponseAPI<TimetrialCreated>;
     botLogs(
       bot,
-      `${user.username} successfully updated time (${idMap}, ${time}, ${isShroomless})`
+      `${user.username} successfully updated time (${map_tag}, ${time}, ${isShroomless})`
     );
-    return `Nouveau temps : ${patchTime.data.newTime} (${patchTime.data.diff}s) ${response}\nTon ancien temps était : ${patchTime.data.oldTime}`;
+    const delta = res.data.delta ? `(${msToTime(res.data.delta, true)}s)` : "";
+    const old_time = res.data.old_time
+      ? `Ton ancien temps était : ${msToTime(res.data.old_time)}`
+      : ``;
+    return `Nouveau temps sur ${map_tag} pour ${
+      res.data.user.name
+    } : ${msToTime(res.data.new_time)} ${delta}${response}\n${old_time}`;
+  } else {
+    return `Erreur lors de la commande : ${updateTime.data.message}`;
   }
 };
 

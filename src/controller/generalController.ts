@@ -1,5 +1,5 @@
 import fs from "fs";
-import { MapMK, MapMK_V2 } from "src/model/mapDAO";
+import { MapMK, MapMK_V2 } from "src/model/map.dto";
 import settings from "../settings.json";
 import {
   AttachmentBuilder,
@@ -8,8 +8,10 @@ import {
   PartialGuildMember,
   Role,
   TextChannel,
+  User,
 } from "discord.js";
 import { getPlayerById, patchPlayer, postPlayer } from "./yfApiController";
+import { MatchOpponent, MatchPreview, MatchUser } from "../model/match.dto";
 
 export const saveJSONToFile = <T>(data: T, filePath: string): void => {
   try {
@@ -226,3 +228,86 @@ export const playerRosterChange = async (
     await handleRoleChange(roleId, false);
   }
 };
+
+// Match
+
+export function generateMatchPreviewText(users: User[]): string {
+  const lines = users.map((user) => `${user.username} - ${user.id} - SCORE +`);
+  const opponentLines = Array(6).fill("joueurX - FLAG - SCORE +");
+  return [...lines, "|", ...opponentLines].join("\n");
+}
+
+export function parseMatchPreviewText(
+  input: string,
+  title?: string | null,
+  theme?: string | null
+): MatchPreview | string {
+  const own_team: MatchUser[] = [];
+  const opponent_team: MatchOpponent[] = [];
+
+  const [table, table2] = input.trim().replace(/\s/g, "").split("|");
+
+  const own_team_table = table.split("+");
+  const opponent_team_table = table2.split("+");
+
+  for (const elt of own_team_table) {
+    if (elt === "") continue;
+    const [name, id, score] = elt.split("-");
+    const nb_race = checkNumberOfRaces(name);
+    const _score = Number(score);
+    if (isNaN(_score)) {
+      return `${score} n'est pas un nombre`;
+    }
+    if (nb_race) {
+      own_team.push({
+        score: _score,
+        user_id: id,
+        number_race: nb_race,
+      });
+    } else {
+      own_team.push({
+        score: _score,
+        user_id: id,
+      });
+    }
+  }
+
+  for (const elt of opponent_team_table) {
+    if (elt === "") continue;
+    const [name, flag, score] = elt.split("-");
+    const nb_race = checkNumberOfRaces(name);
+    const _score = Number(score);
+    if (isNaN(_score)) {
+      return `${score} n'est pas un nombre`;
+    }
+    if (nb_race) {
+      opponent_team.push({
+        name: name,
+        score: _score,
+        number_race: nb_race,
+        ...(flag !== "FLAG" && { flag }),
+      });
+    } else {
+      opponent_team.push({
+        name: name,
+        score: _score,
+        ...(flag !== "FLAG" && { flag }),
+      });
+    }
+  }
+
+  return {
+    own_team,
+    opponent_team,
+    ...(title && { title }),
+    ...(theme && { theme }),
+  };
+}
+
+function checkNumberOfRaces(text: string): number | undefined {
+  const match = text.match(/\((\d+)\)$/);
+  if (match) {
+    return Number(match[1]);
+  }
+  return undefined;
+}

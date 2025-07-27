@@ -23,17 +23,20 @@ import {
   MapMK_V2,
   convertToMapMK,
   convertToMapMKWORLD,
-} from "./model/mapDAO";
+} from "./model/map.dto";
 import mapsJSON from "./database/maps.json";
 import { resetAllLineups } from "./controller/lineupController";
 import { updateProjectMapMessage } from "./controller/projectmapController";
 import { updateFinalRanking } from "./controller/timetrialController";
 import { _getAllMaps } from "./controller/yfApiController";
+import { Roster } from "./model/roster.dto";
+import { globalData } from "./global";
 
 declare module "discord.js" {
   interface Client {
     commands: Collection<string, any>;
     buttons: Collection<string, any>;
+    select_menus: Collection<string, any>;
   }
 }
 
@@ -60,10 +63,8 @@ export const LOGO_YF = "attachment://LaYoshiFamily.png";
 
 bot.once(Events.ClientReady, async (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
-  // updateProjectMapMessage(bot, "YFG", 3, 10, false);
-  // updateProjectMapMessage(bot, "YFO", 3, 10, false);
-  console.log(LIST_MAPS_MKWORLD);
   botLogs(bot, "Yoshi successfully relloged");
+  await globalData.init();
 });
 
 bot.commands = new Collection();
@@ -113,6 +114,30 @@ for (const folder of buttonsFolders) {
   }
 }
 
+bot.select_menus = new Collection();
+const foldersPath3 = path.join(__dirname, "select_menus");
+const selectMenusFolders = fs.readdirSync(foldersPath3);
+
+for (const folder of selectMenusFolders) {
+  const selectMenuPath = path.join(foldersPath3, folder);
+  const selectMenuFiles = fs
+    .readdirSync(selectMenuPath)
+    .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
+
+  for (const file of selectMenuFiles) {
+    const filePath = path.join(selectMenuPath, file);
+    const selectMenu = require(filePath);
+
+    if ("execute" in selectMenu) {
+      bot.select_menus.set(selectMenu.data.name, selectMenu);
+    } else {
+      console.log(
+        `[WARNING] The selectMenu at ${filePath} is missing a required "data" or "execute" property.`
+      );
+    }
+  }
+}
+
 bot.on(Events.GuildMemberAdd, async (member: GuildMember) => {
   playerAddInGuild(bot, member);
 });
@@ -129,7 +154,11 @@ bot.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
 });
 
 bot.on(Events.InteractionCreate, async (interaction) => {
-  if (interaction.user.id !== "450353797450039336") return;
+  if (
+    interaction.user.id !== "450353797450039336" &&
+    interaction.user.id !== "133978257006526464"
+  )
+    return;
   if (interaction.isButton()) {
     // button interactions
     const buttonName: string = interaction.customId.split("-")[0];
@@ -159,6 +188,43 @@ bot.on(Events.InteractionCreate, async (interaction) => {
       } else {
         await interaction.reply({
           content: "There was an error while executing the button!",
+          ephemeral: true,
+        });
+      }
+    }
+    return;
+  }
+
+  if (interaction.isAnySelectMenu()) {
+    const selectName: string = interaction.customId.split("-")[0];
+    const args: string[] = interaction.customId.split("-");
+    args.shift();
+
+    const selectMenu = interaction.client.select_menus.get(selectName);
+
+    if (!selectMenu) {
+      console.error(
+        `No selectMenu interaction matching ${selectName} was found.`
+      );
+      await interaction.reply({
+        content: `No selectMenu interaction matching ${selectName} was found.`,
+        ephemeral: true,
+      });
+      return;
+    }
+
+    try {
+      await selectMenu.execute(interaction, args);
+    } catch (error) {
+      console.error(error);
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({
+          content: "There was an error while executing the select menu!",
+          ephemeral: true,
+        });
+      } else {
+        await interaction.reply({
+          content: "There was an error while executing the select menu!",
           ephemeral: true,
         });
       }
