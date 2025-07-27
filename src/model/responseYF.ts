@@ -1,4 +1,4 @@
-export type ResponseYF = {
-    statusCode: number,
-    data: any
-}
+export type ResponseAPI<T> = {
+  statusCode: number;
+  data: T;
+};

@@ -1,7 +1,19 @@
 import axios from "axios";
 import { config } from "../config";
-import { ResponseYF } from "../model/responseYF";
+import { ResponseAPI } from "../model/responseYF";
 import { weeklyMapAPI } from "./weeklyttController";
+import {
+  MatchComplete,
+  MatchCreate,
+  MatchCreated,
+  MatchPreview,
+  MatchPublish,
+} from "../model/match.dto";
+import { Team } from "../model/team.dto";
+import { MapMK_V2 } from "../model/map.dto";
+import { Game } from "../model/game.dto";
+import { UserCreate } from "../model/user.dto";
+import { TimetrialUpsert } from "../model/timetrial.dto";
 
 // CONSTANTE
 const API_URL: string = "https://yoshi-family-api.fr/v1";
@@ -10,12 +22,19 @@ const API_KEY: string = config.API_KEY!;
 const API_KEY_V2: string = config.API_KEY_V2!;
 
 // endpoints :
-const mapsEndpoint = "/maps";
-const timetrialEndpoint = "/timetrial";
-const playerEndpoint = "/player";
-const projectMapEndpoint = "/projectmap";
-const weeklyEndpoint = "/weekly";
-
+const endpoint = {
+  users: "/users",
+  maps: "/maps",
+  teams: "/teams",
+  rosters: "/rosters",
+  timetrials: "/timetrials",
+  games: "/games",
+  map_stats: "/map-stats",
+  matchs: "/matchs",
+  match_users: "/match-users",
+  timetrial: "/timetrial",
+  weekly: "/weekly",
+};
 const header = {
   Accept: "application/json",
   "api-key": API_KEY,
@@ -26,103 +45,199 @@ const header_v2 = {
   "x-api-key": API_KEY_V2,
 };
 
-export const _getAllMaps = async (): Promise<ResponseYF> => {
-  let responseObject: ResponseYF;
-  const maps = await axios
-    .get(`${API_V2_URL}${mapsEndpoint}`, { headers: header_v2 })
-    .then((response) => {
-      responseObject = {
-        statusCode: response.status,
-        data: response.data,
-      };
-      return responseObject;
-    })
-    .catch((error) => {
-      responseObject = {
-        statusCode: error.response.status,
-        data: error.response.data,
-      };
-      return responseObject;
-    });
-  return maps;
-};
-
-export const getAllMaps = async (): Promise<ResponseYF> => {
-  let responseObject: ResponseYF;
-  const maps = await axios
-    .get(`${API_URL}${mapsEndpoint}`, { headers: header })
-    .then((response) => {
-      responseObject = {
-        statusCode: response.status,
-        data: response.data,
-      };
-      return responseObject;
-    })
-    .catch((error) => {
-      responseObject = {
-        statusCode: error.response.status,
-        data: error.response.data,
-      };
-      return responseObject;
-    });
-  return maps;
-};
-
-export const postProjectMap = async (projectMapPostObject: any) => {
-  let responseObject: ResponseYF;
-  const projectMap = await axios
-    .post(`${API_URL}${projectMapEndpoint}`, projectMapPostObject, {
-      headers: header,
-    })
-    .then((response) => {
-      responseObject = {
-        statusCode: response.status,
-        data: response.data,
-      };
-      return responseObject;
-    })
-    .catch((error) => {
-      responseObject = {
-        statusCode: error.response.status,
-        data: error.response.data,
-      };
-      return responseObject;
-    });
-  return projectMap;
-};
-
-export const getProjectMap = async (
-  idRoster: string,
-  month: number,
-  iteration: number
-) => {
-  let responseObject: ResponseYF;
-
-  const projectMap = await axios
-    .get(`${API_URL}${projectMapEndpoint}/${idRoster}`, {
-      headers: header,
-      params: {
-        month: month,
-        iteration: iteration,
-      },
-    })
-    .then((response) => {
-      responseObject = {
-        statusCode: response.status,
-        data: response.data,
-      };
-      return responseObject;
-    })
-    .catch((error) => {
-      responseObject = {
-        statusCode: error.response.status,
-        data: error.response.data,
-      };
-      return responseObject;
+const postToApi = async <T>(
+  endpoint: string,
+  body: any
+): Promise<ResponseAPI<T>> => {
+  try {
+    const response = await axios.post<T>(`${API_V2_URL}${endpoint}`, body, {
+      headers: header_v2,
     });
 
-  return projectMap;
+    return {
+      statusCode: response.status,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      statusCode: error.response?.status || 500,
+      data: error.response?.data || { message: "Unexpected error" },
+    };
+  }
 };
+
+// Matchs API V2
+
+// initialize match
+export const _createMatch = (
+  createMatch: MatchCreate
+): Promise<ResponseAPI<MatchCreated>> =>
+  postToApi(endpoint.matchs, {
+    opponent: createMatch.opponent,
+    team_id: createMatch.team_id,
+    roster_id: createMatch.roster_id ?? null,
+    game_id: createMatch.game_id,
+  });
+
+// complete result of match
+export const _completeMatch = (
+  completeMatch: MatchComplete,
+  match_id: string
+): Promise<ResponseAPI<any>> =>
+  postToApi(`${endpoint.matchs}/${match_id}/complete`, completeMatch);
+
+// preview table of match
+export const _previewMatch = (
+  previewMatch: MatchPreview,
+  match_id: string
+): Promise<ResponseAPI<any>> =>
+  postToApi(`${endpoint.matchs}/${match_id}/preview`, previewMatch);
+
+// preview table of match
+export const _publishMatch = async (
+  publishMatch: MatchPublish,
+  match_id: string
+): Promise<ResponseAPI<any>> => {
+  return postToApi(`${endpoint.matchs}/${match_id}/publish`, publishMatch);
+};
+
+// *****************************
+// Team
+export const _getAllTeams = async (): Promise<ResponseAPI<Team[]>> => {
+  try {
+    const response = await axios.get<Team[]>(`${API_V2_URL}${endpoint.teams}`, {
+      headers: header_v2,
+    });
+
+    return {
+      statusCode: response.status,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      statusCode: error.response?.status || 500,
+      data: [],
+    };
+  }
+};
+
+// *****************************
+// Maps
+export const _getAllMaps = async (
+  game_id: string
+): Promise<ResponseAPI<MapMK_V2[]>> => {
+  try {
+    const response = await axios.get<MapMK_V2[]>(
+      `${API_V2_URL}${endpoint.maps}/${game_id}`,
+      { headers: header_v2 }
+    );
+
+    return {
+      statusCode: response.status,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      statusCode: error.response?.status || 500,
+      data: [],
+    };
+  }
+};
+
+// *****************************
+// Game
+export const _getAllGame = async (): Promise<ResponseAPI<Game[]>> => {
+  try {
+    const response = await axios.get<Game[]>(`${API_V2_URL}${endpoint.games}`, {
+      headers: header_v2,
+    });
+
+    return {
+      statusCode: response.status,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      statusCode: error.response?.status || 500,
+      data: [],
+    };
+  }
+};
+
+// Users
+
+// users create
+export const _createUsersBulk = (
+  createUsers: UserCreate[]
+): Promise<ResponseAPI<any>> =>
+  postToApi(`${endpoint.users}/bulk`, {
+    users: createUsers,
+  });
+
+// Timetrial
+
+// Timetrial upsert
+// complete result of match
+export const _upsertTimetrial = (
+  upsertTimetrial: TimetrialUpsert
+): Promise<ResponseAPI<any>> =>
+  postToApi(`${endpoint.timetrials}`, upsertTimetrial);
+
+// export const postProjectMap = async (projectMapPostObject: any) => {
+//   let responseObject: ResponseYF;
+//   const projectMap = await axios
+//     .post(`${API_URL}${projectMapEndpoint}`, projectMapPostObject, {
+//       headers: header,
+//     })
+//     .then((response) => {
+//       responseObject = {
+//         statusCode: response.status,
+//         data: response.data,
+//       };
+//       return responseObject;
+//     })
+//     .catch((error) => {
+//       responseObject = {
+//         statusCode: error.response.status,
+//         data: error.response.data,
+//       };
+//       return responseObject;
+//     });
+//   return projectMap;
+// };
+
+// export const getProjectMap = async (
+//   idRoster: string,
+//   month: number,
+//   iteration: number
+// ) => {
+//   let responseObject: ResponseYF;
+
+//   const projectMap = await axios
+//     .get(`${API_URL}${projectMapEndpoint}/${idRoster}`, {
+//       headers: header,
+//       params: {
+//         month: month,
+//         iteration: iteration,
+//       },
+//     })
+//     .then((response) => {
+//       responseObject = {
+//         statusCode: response.status,
+//         data: response.data,
+//       };
+//       return responseObject;
+//     })
+//     .catch((error) => {
+//       responseObject = {
+//         statusCode: error.response.status,
+//         data: error.response.data,
+//       };
+//       return responseObject;
+//     });
+
+//   return projectMap;
+// };
 
 export const getTimetrialsByMap = async (
   idMap: string,
@@ -130,7 +245,7 @@ export const getTimetrialsByMap = async (
 ) => {
   let responseObject;
   const timetrials = await axios
-    .get(`${API_URL}${timetrialEndpoint}/${idMap}`, {
+    .get(`${API_URL}${endpoint.timetrial}/${idMap}`, {
       headers: header,
       params: {
         idRoster: idRoster,
@@ -228,7 +343,7 @@ export const patchTimetrial = async (
 export const getAllPlayers = async () => {
   let responseObject;
   const player = await axios
-    .get(`${API_URL}${playerEndpoint}`, { headers: header })
+    .get(`${API_URL}${"/players"}`, { headers: header })
     .then((response) => {
       responseObject = {
         statusCode: response.status,
@@ -249,7 +364,7 @@ export const getAllPlayers = async () => {
 export const getPlayerById = async (idPlayer: string) => {
   let responseObject;
   const player = await axios
-    .get(`${API_URL}${playerEndpoint}/${idPlayer}`, { headers: header })
+    .get(`${API_URL}${"/players"}/${idPlayer}`, { headers: header })
     .then((response) => {
       responseObject = {
         statusCode: response.status,
@@ -275,7 +390,7 @@ export const postPlayer = async (
   let responseObject;
   const player = await axios
     .post(
-      `${API_URL}${playerEndpoint}`,
+      `${API_URL}${"/players"}`,
       {
         idPlayer: idPlayer,
         name: name,
@@ -310,7 +425,7 @@ export const patchPlayer = async (
   if (name != undefined) body.name = name;
   if (idRoster != undefined) body.idRoster = idRoster;
   const player = await axios
-    .patch(`${API_URL}${playerEndpoint}/${idPlayer}`, body, { headers: header })
+    .patch(`${API_URL}${"/players"}/${idPlayer}`, body, { headers: header })
     .then((response) => {
       responseObject = {
         statusCode: response.status,
@@ -337,7 +452,7 @@ export const postWeeklyTT = async (
   let responseObject;
   const postWeeklyTimetrial = await axios
     .post(
-      `${API_URL}${weeklyEndpoint}`,
+      `${API_URL}${endpoint.weekly}`,
       {
         idMap: idMap,
         idPlayer: idPlayer,
@@ -374,7 +489,7 @@ export const patchWeeklyTT = async (
   let responseObject;
   const patchWeeklyTimetrial = await axios
     .patch(
-      `${API_URL}${weeklyEndpoint}/${idMap}/${idPlayer}/${isShroomless}`,
+      `${API_URL}${endpoint.weekly}/${idMap}/${idPlayer}/${isShroomless}`,
       {
         time: time,
       },
@@ -402,7 +517,7 @@ export const patchWeeklyTT = async (
 export const getWeeklyTT = async () => {
   let responseObject;
   const weeklytt = await axios
-    .get(`${API_URL}${weeklyEndpoint}`, {
+    .get(`${API_URL}${endpoint.weekly}`, {
       headers: header,
     })
     .then((response) => {
@@ -426,7 +541,7 @@ export const postMapWeekly = async (weeklyMapArray: weeklyMapAPI[]) => {
   let responseObject;
   const postMap = await axios
     .post(
-      `${API_URL}${mapsEndpoint}/weekly`,
+      `${API_URL}${endpoint.maps}/weekly`,
       {
         weekly_maps: weeklyMapArray,
       },

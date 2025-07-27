@@ -25,7 +25,7 @@ import {
 import { addBlank, botLogs, saveJSONToFile } from "./generalController";
 import fs from "fs";
 import settings from "../settings.json";
-import { MapMK } from "../model/mapDAO";
+import { MapMK } from "../model/map.dto";
 import { LIST_MAPS, LOGO_YF } from "..";
 
 const weeklyDataPath: string = "./src/database/weeklyMap.json";

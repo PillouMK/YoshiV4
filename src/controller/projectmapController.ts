@@ -3,7 +3,6 @@ import {
   addBlank,
   botLogs,
 } from "../controller/generalController";
-import { getProjectMap } from "./yfApiController";
 import {
   EmbedBuilder,
   ButtonBuilder,
@@ -60,16 +59,16 @@ export const getProjectMapData = async (
   month: number,
   iteration: number
 ): Promise<ProjectMapData | undefined> => {
-  const response = await getProjectMap(idRoster, month, iteration);
+  //const response = await getProjectMap(idRoster, month, iteration);
 
-  if (response.statusCode !== 200) {
+  if (true) {
     return undefined;
   }
-  const data: ProjectMapData = {
-    projectMapValid: response.data.projectMapValid,
-    projectMapNotValid: response.data.projectMapNotValid,
-  };
-  return data;
+  // const data: ProjectMapData = {
+  //   projectMapValid: response.data.projectMapValid,
+  //   projectMapNotValid: response.data.projectMapNotValid,
+  // };
+  // return data;
 };
 
 export const maxLengthFields = (projectMap: ProjectMap[]): MaxLengthField => {

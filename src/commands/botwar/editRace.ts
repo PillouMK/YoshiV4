@@ -6,6 +6,7 @@ import {
 import { editRace, getNumberOfRace } from "../../controller/botwarController";
 import { LIST_MAPS, LIST_MAPS_MKWORLD } from "../..";
 import { filterMapList } from "../../controller/generalController";
+import { globalData } from "../../global";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -37,11 +38,14 @@ module.exports = {
     const focusedOption = interaction.options.getFocused(true);
 
     if (focusedOption.name === "map") {
-      const filtered = filterMapList(LIST_MAPS_MKWORLD, focusedOption.value);
+      const filtered = filterMapList(
+        globalData.getAllMaps(),
+        focusedOption.value
+      );
       await interaction.respond(
         filtered.map((choice) => ({
-          name: `${choice.tag} |${choice.name}`,
-          value: choice.tag,
+          name: `${choice.tag} | ${choice.name}`,
+          value: choice.tag.toString(),
         }))
       );
     } else if (focusedOption.name === "race") {

@@ -23,6 +23,8 @@ export type MapMK_V2 = {
   tag: string;
   name: string;
   game_id: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export const convertToMapMKWORLD = (data: any): MapMK_V2 => ({
@@ -30,4 +32,6 @@ export const convertToMapMKWORLD = (data: any): MapMK_V2 => ({
   tag: data.tag,
   name: data.name,
   game_id: data.game_id,
+  created_at: data.created_at,
+  updated_at: data.updated_at,
 });
