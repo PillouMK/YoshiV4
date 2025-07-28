@@ -382,7 +382,7 @@ export const updateTimetrial = async (
       ? `Ton ancien temps était : ${msToTime(res.data.old_time)}`
       : ``;
     return `Nouveau temps sur ${map_tag} pour ${
-      res.data.user.name
+      res.data.timetrial.user.name
     } : ${msToTime(res.data.new_time)} ${delta}${response}\n${old_time}`;
   } else {
     return `Erreur lors de la commande : ${updateTime.data.message}`;
