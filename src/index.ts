@@ -154,11 +154,11 @@ bot.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
 });
 
 bot.on(Events.InteractionCreate, async (interaction) => {
-  if (
-    interaction.user.id !== "450353797450039336" &&
-    interaction.user.id !== "133978257006526464"
-  )
-    return;
+  // if (
+  //   interaction.user.id !== "450353797450039336" &&
+  //   interaction.user.id !== "133978257006526464"
+  // )
+  //   return;
   if (interaction.isButton()) {
     // button interactions
     const buttonName: string = interaction.customId.split("-")[0];

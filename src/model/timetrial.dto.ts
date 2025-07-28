@@ -21,6 +21,6 @@ export type TimetrialCreated = {
     is_shroomless: boolean;
     time: number;
     map_id: number;
+    user: User;
   };
-  user: User;
 };
