@@ -1,22 +1,11 @@
+import { AttachmentBuilder, ButtonInteraction, TextChannel } from "discord.js";
+
 import {
-  AttachmentBuilder,
-  ButtonInteraction,
-  Client,
-  Role,
-  TextChannel,
-  User,
-} from "discord.js";
-import {
-  LineUpMessage,
-  StatusLineUp,
-  addMember,
-  lineupResponse,
-  updateLineupsByHour,
-} from "../../controller/lineupController";
-import { ROLE_YF, ROLE_YF_TEST, ROLES } from "../..";
-import { sortByRoleId } from "../../controller/generalController";
-import { _publishMatch } from "../../controller/yfApiController";
-import { MatchPreview, MatchPublish } from "../../model/match.dto";
+  _getAllMatchsPublished,
+  _getMatch,
+  _publishMatch,
+} from "../../controller/yfApiController";
+import { MatchPublish } from "../../model/match.dto";
 import { globalData } from "../../global";
 import axios from "axios";
 
@@ -27,7 +16,10 @@ module.exports = {
 
   async execute(interaction: ButtonInteraction, args: string[]) {
     const id: string = args[0];
+    const team_id = interaction.guildId!;
     const matchData = globalData.getFullMatchPreview(id);
+    const matchCount = await _getAllMatchsPublished(team_id);
+    const match = await _getMatch(id, team_id);
     console.log("url:", matchData?.table_url);
 
     await interaction.deferReply();
@@ -36,11 +28,18 @@ module.exports = {
       components: [],
     });
 
+    if (matchData == null) {
+      interaction.editReply({
+        content: "j'ai perdu les données locales du match",
+      });
+      return;
+    }
+
     const channel = (await interaction.client.channels.fetch(
       "459663694381711360"
     )) as TextChannel;
 
-    const response = await axios.get(matchData?.table_url!, {
+    const response = await axios.get(matchData.table_url!, {
       responseType: "arraybuffer",
     });
 
@@ -49,16 +48,16 @@ module.exports = {
     const file = new AttachmentBuilder(buffer, { name: "image.png" });
 
     const msg = await channel.send({
-      content: "Match : n°" + id,
+      content: `IT ${matchCount.data.length + 1} | ${match.data.opponent}`,
       files: [file],
     });
 
     const matchPublish: MatchPublish = {
       message_id: msg.id,
-      own_team: matchData?.data.own_team!,
-      table_url: matchData?.table_url!,
+      own_team: matchData.data.own_team!,
+      table_url: matchData.table_url!,
     };
-    const publishMatch = await _publishMatch(matchPublish, id);
+    const publishMatch = await _publishMatch(matchPublish, id, team_id);
     if (publishMatch.statusCode == 201) {
       await interaction.editReply({
         content: "Match posté !",

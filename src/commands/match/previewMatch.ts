@@ -1,9 +1,4 @@
-import {
-  ActionRowBuilder,
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-  UserSelectMenuBuilder,
-} from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { parseMatchPreviewText } from "../../controller/generalController";
 import { _previewMatch } from "../../controller/yfApiController";
 import { makeTableButtonList } from "../../controller/matchController";
@@ -43,6 +38,7 @@ module.exports = {
   async execute(interaction: ChatInputCommandInteraction) {
     const text: string = interaction.options.getString("text")!;
     const id: string = interaction.options.getString("id")!;
+    const team_id: string = interaction.guildId!;
     const title: string | null = interaction.options.getString("title");
     const theme: string | null = interaction.options.getString("theme");
     const table = parseMatchPreviewText(text, title, theme);
@@ -62,7 +58,7 @@ module.exports = {
         return;
       }
     } else {
-      const preview_url = await _previewMatch(table, id);
+      const preview_url = await _previewMatch(table, id, team_id);
 
       if (preview_url.statusCode === 201) {
         globalData.addMatchPreview(id, table, preview_url.data.imageUrl);

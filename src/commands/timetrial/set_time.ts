@@ -4,9 +4,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { botLogs, filterMapList } from "../../controller/generalController";
-import { LIST_MAPS, LIST_MAPS_MKWORLD } from "../..";
 import { updateTimetrial } from "../../controller/timetrialController";
-import { Team } from "../../model/team.dto";
 import { globalData } from "../../global";
 import { Game } from "../../model/game.dto";
 
@@ -76,8 +74,7 @@ module.exports = {
     const isShroomless: boolean =
       interaction.options.getBoolean("no_item") ?? false;
     const user = interaction.user;
-    const selectedGameId: string =
-      interaction.options.getString("game") ?? "MKWORLD";
+    const game_id: string = interaction.options.getString("game") ?? "MKWORLD";
 
     botLogs(interaction.client, `${user.username} used /set_tt command`);
     const response = await updateTimetrial(
@@ -85,7 +82,7 @@ module.exports = {
       map_tag[0],
       isShroomless,
       user,
-      selectedGameId,
+      game_id,
       interaction.client
     );
 

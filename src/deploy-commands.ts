@@ -1,22 +1,18 @@
 const { REST, Routes } = require("discord.js");
 import { config } from "./config";
-import fs, { readdirSync } from "fs";
+import fs from "fs";
 import path from "path";
 
 const commands = [];
-// Grab all the command files from the commands directory you created earlier
-
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
-  // Grab all the command files from the commands directory you created earlier
   const commandsPath = path.join(foldersPath, folder);
   const commandFiles = fs
     .readdirSync(commandsPath)
     .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
 
-  // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
   for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
     const command = require(filePath);
@@ -31,27 +27,33 @@ for (const folder of commandFolders) {
   }
 }
 
-// Construct and prepare an instance of the REST module
 const rest = new REST().setToken(config.DISCORD_TOKEN);
+const MODE = process.env.NODE_ENV || "dev";
 
-// and deploy your commands!
 (async () => {
   try {
     console.log(
-      `Started refreshing ${commands.length} application (/) commands.`
+      `Started refreshing ${commands.length} application (/) commands in ${MODE} mode.`
     );
 
-    // The put method is used to fully refresh all commands in the guild with the current set
-    const data = await rest.put(
-      Routes.applicationGuildCommands(config.CLIENT_ID, config.GUILD_ID),
-      { body: commands }
-    );
+    if (MODE === "dev") {
+      await rest.put(
+        Routes.applicationGuildCommands(config.CLIENT_ID, config.GUILD_ID),
+        { body: commands }
+      );
+      console.log(`⚡ Dev mode → Commands updated in guild ${config.GUILD_ID}`);
+    } else {
+      await rest.put(Routes.applicationCommands(config.CLIENT_ID), {
+        body: commands,
+      });
+      console.log(`🌍 Prod mode → Global commands updated`);
+      console.log(
+        "⚠️ Attention: cela peut prendre jusqu'à 1h avant d'être visible."
+      );
+    }
 
-    console.log(
-      `Successfully reloaded ${data.length} application (/) commands.`
-    );
+    console.log(`✅ Successfully reloaded ${commands.length} commands.`);
   } catch (error) {
-    // And of course, make sure you catch and log any errors!
-    console.error(error);
+    console.error("❌ Error deploying commands:", error);
   }
 })();

@@ -1,5 +1,5 @@
 import fs from "fs";
-import { MapMK, MapMK_V2 } from "src/model/map.dto";
+import { MapMK_V2 } from "src/model/map.dto";
 import settings from "../settings.json";
 import {
   AttachmentBuilder,
@@ -10,7 +10,6 @@ import {
   TextChannel,
   User,
 } from "discord.js";
-import { getPlayerById, patchPlayer, postPlayer } from "./yfApiController";
 import { MatchOpponent, MatchPreview, MatchUser } from "../model/match.dto";
 
 export const saveJSONToFile = <T>(data: T, filePath: string): void => {
@@ -78,6 +77,13 @@ export const YOSHI_FAMILY_LOGO = new AttachmentBuilder(
   "./image/LaYoshiFamily.png"
 );
 
+export const MK_MINIA_ATTACHMENT = (
+  game_id: string,
+  map_tag: string
+): AttachmentBuilder => {
+  return new AttachmentBuilder(`./image/${game_id}/${map_tag}.png`);
+};
+
 const getCurrentDateTimeString = (): string => {
   const now = new Date();
 
@@ -109,52 +115,12 @@ export const botLogs = async (bot: Client, message: string) => {
   }
 };
 
-export const playerAddInGuild = async (bot: Client, member: GuildMember) => {
-  if (member.guild.id === "135721923568074753") {
-    let player = await getPlayerById(member.user.id);
-    if (player.statusCode === 404) {
-      let addPlayer = await postPlayer(
-        member.user.id,
-        member.user.username,
-        "NR"
-      );
-      if (addPlayer.statusCode === 201) {
-        botLogs(bot, `${member.user.username} a rejoins le serveur`);
-        console.log(`${member.user.username} bien ajouté`);
-      } else if (addPlayer.statusCode === 404) {
-        botLogs(bot, `Erreur ajout pour : ${addPlayer.data}`);
-        console.log("fail ajout :", addPlayer.data);
-      } else {
-        botLogs(bot, `Erreur API ajout pour : ${addPlayer.data}`);
-        console.log(`Problème API lors de l'ajout de ${member.user.username}`);
-      }
-    } else if (player.statusCode === 200) {
-      botLogs(bot, `${member.user.username} est revenu sur le serveur`);
-      console.log(`${member.user.username} existe déjà`);
-    }
-  } else {
-    console.log("wrong server");
-  }
-};
+export const playerAddInGuild = async (bot: Client, member: GuildMember) => {};
 
 export const playerRemovedInGuild = async (
   bot: Client,
   member: GuildMember | PartialGuildMember
-) => {
-  if (member.guild.id === "135721923568074753") {
-    botLogs(bot, `${member.user.username} a quitté le serveur`);
-    let playerRemoved = await patchPlayer(member.id, undefined, "NR");
-    if (playerRemoved.statusCode === 200) {
-      botLogs(bot, `${member.user.username} role mise à jour: NR`);
-      console.log(`${member.user.username} bien update`);
-    } else {
-      botLogs(bot, `${member.user.username} erreur lors de l'update du rôle`);
-      console.log("erreur update", playerRemoved.data);
-    }
-  } else {
-    console.log("wrong server");
-  }
-};
+) => {};
 
 const galaxy_id = "643871029210513419";
 const odyssey_id = "643569712353116170";
@@ -175,48 +141,7 @@ export const playerRosterChange = async (
   // Rôles supprimés
   const removedRoles = [...oldRoles].filter((id) => !newRoles.has(id));
 
-  const handleRoleChange = async (roleId: string, isAdded: boolean) => {
-    if (roleId === galaxy_id || roleId === odyssey_id) {
-      const idRoster = roleId === galaxy_id ? "YFG" : "YFO";
-
-      if (isAdded) {
-        // Rôle ajouté
-        const result = await patchPlayer(
-          newMember.user.id,
-          newMember.user.username,
-          idRoster
-        );
-        if (result.statusCode === 200) {
-          console.log(`${newMember.user.username} est désormais ${idRoster}`);
-        } else {
-          console.error("Échec de la modification :", result.data);
-        }
-      } else {
-        // Rôle supprimé
-        const hasOppositeRole =
-          roleId === galaxy_id
-            ? newRoles.has(odyssey_id)
-            : newRoles.has(galaxy_id);
-
-        const newRoster = hasOppositeRole
-          ? roleId === galaxy_id
-            ? "YFO"
-            : "YFG"
-          : "NR";
-
-        const result = await patchPlayer(
-          newMember.user.id,
-          newMember.user.username,
-          newRoster
-        );
-        if (result.statusCode === 200) {
-          console.log(`${newMember.user.username} est désormais ${newRoster}`);
-        } else {
-          console.error("Échec de la modification :", result.data);
-        }
-      }
-    }
-  };
+  const handleRoleChange = async (roleId: string, isAdded: boolean) => {};
 
   // Traiter les rôles ajoutés
   for (const roleId of addedRoles) {
@@ -311,3 +236,7 @@ function checkNumberOfRaces(text: string): number | undefined {
   }
   return undefined;
 }
+
+export const makeMessageLink = (team_id: string, msg_id: string): string => {
+  return `https://discord.com/channels/${team_id}/${msg_id}`;
+};

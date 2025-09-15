@@ -3,11 +3,14 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
-import { raceAdd } from "../../controller/botwarController";
+import { BotWarType, raceAdd } from "../../controller/botwarController";
 
-import { filterMapList } from "../../controller/generalController";
-import { LIST_MAPS, LIST_MAPS_MKWORLD } from "../..";
+import {
+  filterMapList,
+  saveJSONToFile,
+} from "../../controller/generalController";
 import { globalData } from "../../global";
+import botWarData from "../../database/bot-war.json";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -42,13 +45,18 @@ module.exports = {
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
+    const botwar: BotWarType = botWarData as BotWarType;
+    const botwarPath: string = "./src/database/bot-war.json";
     const spots: string[] = interaction.options.getString("spots")!.split(" ");
     const map: string[] = interaction.options.getString("map")!.split(" ");
     const idChannel: string = interaction.channelId;
     const newRace = await raceAdd(spots, map[0], idChannel);
+    const war = botwar.channels[idChannel];
 
     try {
-      await interaction.reply(newRace);
+      const msg = await interaction.reply(newRace);
+      war.paramWar.last_message_id = `${interaction.channelId}/${msg.id}`;
+      saveJSONToFile(botwar, botwarPath);
     } catch (e: any) {
       console.log(e.requestBody.requestBody);
     }

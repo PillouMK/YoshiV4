@@ -10,6 +10,26 @@ export type MatchCreated = {
   status: string;
   coef: number;
   message_result_id: string | null;
+  last_message_id: string | null;
+  table_url: string | null;
+  roster_id: string | null;
+  team_id: string;
+  game_id: string;
+  created_at: Date;
+  updated_at: Date;
+};
+
+export type Match = {
+  id: number;
+  opponent: string;
+  score_team: number;
+  score_opponent: number;
+  pena_team: number;
+  pena_opponent: number;
+  status: string;
+  coef: number;
+  message_result_id: string | null;
+  last_message_id: string | null;
   table_url: string | null;
   roster_id: string | null;
   team_id: string;
@@ -33,6 +53,7 @@ export type MatchComplete = {
   score_total: number;
   is_canceled: boolean;
   maps: MapStatsCreate[];
+  last_message_id: string;
 };
 
 export type MatchPreview = {
@@ -59,4 +80,9 @@ export type MatchOpponent = {
   score: number;
   flag?: string;
   number_race?: number;
+};
+
+export type MatchUpdate = {
+  id: number;
+  result_message_id: string;
 };

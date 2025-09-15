@@ -10,14 +10,9 @@ import {
   TextChannel,
   User,
 } from "discord.js";
+import { _getTimetrialsByMap, _upsertTimetrial } from "./yfApiController";
 import {
-  _upsertTimetrial,
-  getAllPlayers,
-  getTimetrialsByMap,
-  patchTimetrial,
-  postTimetrial,
-} from "./yfApiController";
-import {
+  MK_MINIA_ATTACHMENT,
   YOSHI_FAMILY_LOGO,
   addBlank,
   botLogs,
@@ -25,38 +20,16 @@ import {
 } from "./generalController";
 import { Player } from "../model/player";
 import settings from "../settings.json";
-import { TimetrialCreated, TimetrialUpsert } from "../model/timetrial.dto";
+import {
+  Timetrial,
+  TimetrialCreated,
+  TimetrialRanking,
+  TimetrialUpsert,
+} from "../model/timetrial.dto";
 import { ResponseAPI } from "../model/responseYF";
-
-type TimetrialData = {
-  infoMap: InfoMap;
-  timetrials: {
-    arrayShroom: Timetrial[];
-    arrayShroomless: Timetrial[];
-  };
-};
-
-type InfoMap = {
-  idMap: string;
-  nameMap: string;
-  minia: string;
-  initialGame: string;
-  DLC: boolean;
-  retro: boolean;
-};
-
-export type Timetrial = {
-  idPlayer: string;
-  name: string;
-  date: string;
-  rosterName: string;
-  idRoster?: string;
-  difference?: string;
-  duration: string;
-};
+import { MapMK_V2 } from "../model/map.dto";
 
 type InfoTimetrial = {
-  idRoster: string;
   isShroomless: boolean;
   isMobile: boolean;
   isEmpty: boolean;
@@ -85,64 +58,45 @@ export type TimetrialMessage = {
 };
 
 const terminaison = ["st", "nd", "rd", "th"];
-const testTime = /[\d]{1}[\:|\.][\d]{2}[\.|\:][\d]{3}/;
-
-export const getTimetrialsDataByMap = async (
-  idMap: string,
-  idRoster: string | undefined
-): Promise<TimetrialData | undefined> => {
-  const response = await getTimetrialsByMap(idMap, idRoster);
-  if (response.statusCode !== 200) {
-    return undefined;
-  }
-  const data: TimetrialData = {
-    infoMap: response.data.infoMap,
-    timetrials: {
-      arrayShroom: response.data.timetrials.arrayShroom,
-      arrayShroomless: response.data.timetrials.arrayShroomless,
-    },
-  };
-  return data;
-};
+const testTime = /\d[:.]\d{2}[.:]\d{3}/;
 
 export const makeTimetrialMessage = async (
-  idMap: string,
-  idRoster: string | undefined,
+  map_tag: string,
+  game_id: string,
+  team_id: string,
   isShroomless: boolean,
   user: User,
   isMobile: boolean
 ): Promise<TimetrialMessage> => {
-  const data = await getTimetrialsDataByMap(idMap, idRoster);
-  if (data == undefined) {
+  const timetrials: ResponseAPI<TimetrialRanking> = await _getTimetrialsByMap(
+    map_tag,
+    game_id,
+    team_id
+  );
+  if (timetrials.statusCode != 200) {
     return {
       content: "Une erreur est survenue",
     };
   }
+  const timetrialsArray = isShroomless
+    ? timetrials.data.shroomless
+    : timetrials.data.noShroomless;
 
   const info: InfoTimetrial = {
     date: new Date(),
-    idRoster: idRoster ?? "YF",
-    isEmpty: isShroomless
-      ? data.timetrials.arrayShroomless == null
-      : data.timetrials.arrayShroom == null,
+    isEmpty: !(timetrialsArray.length > 0),
     isMobile: isMobile,
     isShroomless: isShroomless,
   };
-  const times = !isShroomless
-    ? data.timetrials.arrayShroom
-    : data.timetrials.arrayShroomless;
+  const times = timetrialsArray;
   const fields = makeTimetrialFields(times, user, isShroomless);
-  const embed = makeEmbedTimetrial(data.infoMap, fields, info);
-  const buttons = makeListButton(
-    isShroomless,
-    isMobile,
-    idRoster ?? "YF",
-    idMap
-  );
+  const embed = makeEmbedTimetrial(timetrials.data.map, fields, info);
+  const buttons = makeListButton(isShroomless, isMobile, map_tag, game_id);
   return {
     content: `Dernier edit initié par ${user.username}`,
     embed: [embed],
     buttons: buttons,
+    file: [MK_MINIA_ATTACHMENT(game_id, map_tag)],
   };
 };
 
@@ -161,52 +115,58 @@ export const makeTimetrialFields = (
   let times: string = "";
   let diffs: string = "";
   let mobileField: string = "";
-  if (data == null) {
+  if (data.length == 0) {
     return undefined;
   }
   const emoteEmbed = emote_string(isShroomless);
-  const indexUser = data.findIndex((x) => x.idPlayer === user.id);
+  const indexUser = data.findIndex((x) => x.user_id === user.id);
   const maxLength =
-    Math.max(...data.map((el) => el.name.length)) > 10
+    Math.max(...data.map((el) => el.user.name!.length)) > 10
       ? 10
-      : Math.max(...data.map((el) => el.name.length));
+      : Math.max(...data.map((el) => el.user.name!.length));
   data.forEach((timetrial, index) => {
     if (index < 10) {
-      let place = index + 1 < 4 ? terminaison[index] : terminaison[3];
+      const place = index + 1 < 4 ? terminaison[index] : terminaison[3];
       let placement =
         index < 9 ? `\`${index + 1}${place}.\`` : `\`${index + 1}${place}\``;
-      members += `${placement} : **${timetrial.name}**\n`;
-      times += `\`${timetrial.duration}\`\n`;
-      diffs += `\`(${timetrial.difference})\`\n`;
+      members += `${placement} : **${timetrial.user.name}**\n`;
+      times += `\`${msToTime(timetrial.time)}\`\n`;
+      diffs += `\`(${msToTime(timetrial.time - data[0].time, true)})\`\n`;
 
       // mobile field
       placement = index < 9 ? `${index + 1}${place} ` : `${index + 1}${place}`;
       mobileField += `\`${placement} ${addBlank(
-        timetrial.name.slice(0, 10),
+        timetrial.user.name!.slice(0, 10),
         maxLength,
         true
-      )} ${timetrial.duration} (${timetrial.difference})\` \n`;
+      )} ${msToTime(timetrial.time)} (${msToTime(
+        timetrial.time - data[0].time,
+        true
+      )})\` \n`;
     }
   });
   if (indexUser != -1 && indexUser >= 10) {
-    let element = data[indexUser];
-    let place = terminaison[3];
+    const element = data[indexUser];
+    const place = terminaison[3];
     let placement =
       indexUser < 9
         ? `\`${indexUser + 1}${place}.\``
         : `\`${indexUser + 1}${place}\``;
-    members += `${placement} : **${element.name}**\n`;
-    times += `\`${element.duration}\`\n`;
-    diffs += `\`(${element.difference})\`\n`;
+    members += `${placement} : **${element.user.name!}**\n`;
+    times += `\`${msToTime(element.time)}\`\n`;
+    diffs += `\`(${msToTime(element.time - data[0].time, true)})\`\n`;
 
     // mobile field
     placement =
       indexUser < 9 ? `${indexUser + 1}${place} ` : `${indexUser + 1}${place}`;
     mobileField += `\`${placement} ${addBlank(
-      element.name.slice(0, 10),
+      element.user.name!.slice(0, 10),
       maxLength,
       true
-    )} ${element.duration} (${element.difference})\` \n`;
+    )} ${msToTime(element.time)} (${msToTime(
+      element.time - data[0].time,
+      true
+    )})\` \n`;
   }
   return {
     members: { name: "__Membre :__", value: members, inline: true },
@@ -221,38 +181,34 @@ export const makeTimetrialFields = (
 };
 
 export const makeEmbedTimetrial = (
-  infoMap: InfoMap,
+  infoMap: MapMK_V2,
   fields: TimetrialFields | undefined,
   info: InfoTimetrial
 ): EmbedBuilder => {
-  const title = `Classement : ${infoMap.initialGame} ${infoMap.nameMap}`;
+  const title = `Classement : ${infoMap.tag} ${infoMap.name}`;
   const emoteEmbed: string = emote_string(info.isShroomless);
-  const colorEmbed = rosterColor(info.idRoster);
-  const isDLC = infoMap.DLC ? "DLC" : "Not DLC";
-  const isRetro = infoMap.retro ? "Retro" : "Not retro";
+  const colorEmbed = 0x2ecc71;
   const quoteShroomless = info.isShroomless ? "shroomless" : "items";
-  const quoteRoster =
-    info.idRoster != undefined ? `pour le roster ${info.idRoster}` : "";
-  let classementEmbed = new EmbedBuilder()
+  const classementEmbed = new EmbedBuilder()
     .setColor(colorEmbed)
-    .setFooter({ text: `${infoMap.idMap} - ${isDLC} - ${isRetro}` })
+    .setFooter({ text: `${infoMap.game_id} - ${infoMap.tag}` })
     .setTimestamp(info.date);
   if (info.isEmpty) {
     return classementEmbed
       .setColor(0xec1c24)
       .setTitle(`${title} ${emoteEmbed}`)
-      .setFooter({ text: `${infoMap.idMap} - ${isDLC} - ${isRetro}` })
-      .setThumbnail(infoMap.minia)
+      .setFooter({ text: `${infoMap.game_id} - ${infoMap.tag}` })
+      .setThumbnail(`attachment://${infoMap.tag}.png`)
       .addFields({
         name: "__Erreur:__",
-        value: `Il n'y a pas de temps sur ${infoMap.nameMap} en ${quoteShroomless} ${quoteRoster}`,
+        value: `Il n'y a pas de temps sur ${infoMap.name} en ${quoteShroomless}`,
         inline: true,
       });
   }
   if (!info.isMobile) {
     return classementEmbed
       .setTitle(`${emoteEmbed} ${title}`)
-      .setThumbnail(infoMap.minia)
+      .setThumbnail(`attachment://${infoMap.tag}.png`)
       .addFields(fields!.members)
       .addFields(fields!.time)
       .addFields(fields!.diff)
@@ -260,8 +216,8 @@ export const makeEmbedTimetrial = (
   } else {
     return classementEmbed
       .setColor(colorEmbed)
-      .setFooter({ text: `${infoMap.idMap} - ${isDLC} - ${isRetro}` })
-      .setAuthor({ name: title, iconURL: infoMap.minia })
+      .setFooter({ text: `${infoMap.game_id} - ${infoMap.tag}` })
+      .setAuthor({ name: title, iconURL: `attachment://${infoMap.tag}.png` })
       .addFields(fields!.mobileField);
   }
 };
@@ -269,8 +225,8 @@ export const makeEmbedTimetrial = (
 export const makeListButton = (
   isShroomless: boolean,
   isMobile: boolean,
-  idRoster: string,
-  idMap: string
+  map_tag: string,
+  game_id: string
 ): ActionRowBuilder<ButtonBuilder> => {
   const viewLabel = isMobile ? "PC" : "Mobile";
   const emoji = isMobile ? "💻" : "📱";
@@ -279,37 +235,16 @@ export const makeListButton = (
   const row = new ActionRowBuilder<ButtonBuilder>()
     .addComponents(
       new ButtonBuilder()
-        .setCustomId(`timetrial-YF-${idMap}-${isShroomless}-${isMobile}`)
-        .setLabel("Yoshi")
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(idRoster == "YF")
-    )
-    .addComponents(
-      new ButtonBuilder()
-        .setCustomId(`timetrial-YFG-${idMap}-${isShroomless}-${isMobile}`)
-        .setLabel("Galaxy")
-        .setStyle(ButtonStyle.Success)
-        .setDisabled(idRoster == "YFG")
-    )
-    .addComponents(
-      new ButtonBuilder()
-        .setCustomId(`timetrial-YFO-${idMap}-${isShroomless}-${isMobile}`)
-        .setLabel("Odyssey")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(idRoster == "YFO")
-    )
-    .addComponents(
-      new ButtonBuilder()
         .setCustomId(
-          `timetrial-${idRoster}-${idMap}-${!isShroomless}-${isMobile}`
+          `timetrial-${map_tag}-${game_id}-${!isShroomless}-${isMobile}`
         )
         .setLabel(itemLabel)
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Success)
     )
     .addComponents(
       new ButtonBuilder()
         .setCustomId(
-          `timetrial-${idRoster}-${idMap}-${isShroomless}-${!isMobile}`
+          `timetrial-${map_tag}-${game_id}-${isShroomless}-${!isMobile}`
         )
         .setLabel(viewLabel)
         .setEmoji(emoji)
@@ -317,36 +252,6 @@ export const makeListButton = (
     );
 
   return row;
-};
-
-export const isTimeValid = (time: string): boolean => {
-  return testTime.test(time) || time.length === 8;
-};
-
-export const timeToMs = (time: string): number => {
-  // transform x:xx.xxx into millisecond
-  let milli: number = parseInt(time.slice(5), 10);
-  let minToMil: number = parseInt(time.slice(0, 1), 10) * 60000;
-  let secTomil: number = parseInt(time.slice(2, 4), 10) * 1000;
-  return minToMil + secTomil + milli;
-};
-
-export const msToTime = (s: number, isDiff = false) => {
-  // Pad to 2 or 3 digits, default is 2
-  function pad(n: number, z?: number) {
-    z = z || 2;
-    return ("00" + n).slice(-z);
-  }
-
-  let ms = s % 1000;
-  s = (s - ms) / 1000;
-  let secs = s % 60;
-  s = (s - secs) / 60;
-  let mins = s % 60;
-
-  return !isDiff
-    ? pad(mins) + ":" + pad(secs) + "." + pad(ms, 3)
-    : secs + "." + pad(ms, 3);
 };
 
 export const updateTimetrial = async (
@@ -389,35 +294,44 @@ export const updateTimetrial = async (
   }
 };
 
-// Timetrial Final Ranking
-
-export const timetrialFinalRanking = async (
-  bot: Client,
-  isMobile: boolean
-): Promise<TimetrialMessage> => {
-  const classement = await getAllPlayers();
-  if (classement.statusCode != 200) {
-    botLogs(bot, `Error when getAllPlayers - ${classement.data}`);
-    return {
-      content: "Erreur lors de la récupération des joueurs",
-    };
-  }
-  const embed = makeEmbedRanking(classement.data, isMobile);
-  const buttons = makeListButtonRanking(isMobile);
-  return {
-    content: "",
-    embed: [embed],
-    buttons: buttons,
-    file: [YOSHI_FAMILY_LOGO],
-  };
+export const isTimeValid = (time: string): boolean => {
+  return testTime.test(time) || time.length === 8;
 };
+
+export const timeToMs = (time: string): number => {
+  // transform x:xx.xxx into millisecond
+  const milli: number = parseInt(time.slice(5), 10);
+  const minToMil: number = parseInt(time.slice(0, 1), 10) * 60000;
+  const secTomil: number = parseInt(time.slice(2, 4), 10) * 1000;
+  return minToMil + secTomil + milli;
+};
+
+export const msToTime = (s: number, isDiff = false) => {
+  // Pad to 2 or 3 digits, default is 2
+  function pad(n: number, z?: number) {
+    z = z || 2;
+    return ("00" + n).slice(-z);
+  }
+
+  const ms = s % 1000;
+  s = (s - ms) / 1000;
+  const secs = s % 60;
+  s = (s - secs) / 60;
+  const mins = s % 60;
+
+  return !isDiff
+    ? pad(mins) + ":" + pad(secs) + "." + pad(ms, 3)
+    : secs + "." + pad(ms, 3);
+};
+
+// Timetrial Final Ranking
 
 export const makeEmbedRanking = (
   classement: Player[],
   isMobile: boolean
 ): EmbedBuilder => {
   const fields = makeFields(classement);
-  let rankingEmbed = new EmbedBuilder()
+  const rankingEmbed = new EmbedBuilder()
     .setColor(rosterColor(""))
     .setFooter({ text: "1er = 10 pts, 2nd = 9 pts, [...] 10ème = 1 pts" })
     .setTimestamp(Date.now());
@@ -492,43 +406,4 @@ export const makeFields = (classement: Player[]): RankingFields => {
     tops: { name: "__Tops :__", value: fieldTt_tops, inline: true },
     mobileField: fieldsMobile,
   };
-};
-
-export const makeListButtonRanking = (
-  isMobile: boolean
-): ActionRowBuilder<ButtonBuilder> => {
-  const labelView = isMobile ? "Vue PC" : "Vue Mobile";
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`ranking-${!isMobile}`)
-      .setLabel(labelView)
-      .setStyle(ButtonStyle.Success)
-  );
-  return row;
-};
-
-export const updateFinalRanking = async (bot: Client) => {
-  const newMsg = await timetrialFinalRanking(bot, false);
-  const channelId = settings.channels.rankings;
-  const msgId = settings.rankingTimetrial.msgId;
-  try {
-    const channel = (await bot.channels.fetch(channelId)) as TextChannel;
-    const message = (await channel.messages.fetch(msgId)) as Message;
-
-    message.edit({
-      content: newMsg.content,
-      components: newMsg.buttons != undefined ? [newMsg.buttons] : [],
-      embeds: newMsg.embed,
-      files: newMsg.file,
-    });
-    const successMessage = `Yoshi successfully updated Final Ranking message`;
-    botLogs(bot, successMessage);
-  } catch (e) {
-    const errorMessage = `Erreur projetMap : ${e}`;
-    try {
-      botLogs(bot, errorMessage);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 };

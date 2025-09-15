@@ -1,14 +1,11 @@
-import {
-  StringSelectMenuInteraction,
-  UserSelectMenuInteraction,
-} from "discord.js";
+import { UserSelectMenuInteraction } from "discord.js";
 import { generateMatchPreviewText } from "../../controller/generalController";
 
 module.exports = {
   data: {
     name: "lineup_war",
   },
-  async execute(interaction: UserSelectMenuInteraction, args: string[]) {
+  async execute(interaction: UserSelectMenuInteraction) {
     const selectedUsers = Array.from(interaction.users.values());
     console.log(selectedUsers);
     const generated_text = generateMatchPreviewText(selectedUsers);

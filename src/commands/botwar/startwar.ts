@@ -4,16 +4,9 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { createWar } from "../../controller/botwarController";
-import { filterMapList } from "../../controller/generalController";
 import { globalData } from "../../global";
 import { Team } from "../../model/team.dto";
 import { Game } from "../../model/game.dto";
-
-const optionChoices = [
-  { name: "YF", value: "YF" },
-  { name: "YFG", value: "YFG" },
-  { name: "YFO", value: "YFO" },
-];
 
 module.exports = {
   data: new SlashCommandBuilder()

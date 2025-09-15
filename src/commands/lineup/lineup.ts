@@ -24,10 +24,10 @@ module.exports = {
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     const hours: string = interaction.options.getString("horaire")!;
-    let fetchedMembers = await interaction.guild?.members.fetch();
-    let fetchedRoles = await interaction.guild?.roles.fetch();
+    const fetchedMembers = await interaction.guild?.members.fetch();
+    const fetchedRoles = await interaction.guild?.roles.fetch();
     const rostersRolesId: string[] = ROLES;
-    let roleList: Role[] = [];
+    const roleList: Role[] = [];
     fetchedRoles?.forEach((role) => {
       if (rostersRolesId.includes(role.id)) roleList.push(role);
     });
@@ -49,7 +49,7 @@ module.exports = {
       if (index === 0) {
         index++;
       } else {
-        let msg = await (interaction.channel as TextChannel).send({
+        const msg = await (interaction.channel as TextChannel).send({
           embeds: resItem.embed,
           components: [resItem.buttons],
         });

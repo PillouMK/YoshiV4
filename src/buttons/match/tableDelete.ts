@@ -1,6 +1,4 @@
 import { ButtonInteraction } from "discord.js";
-
-import { _publishMatch } from "../../controller/yfApiController";
 import { globalData } from "../../global";
 
 module.exports = {
@@ -10,7 +8,9 @@ module.exports = {
 
   async execute(interaction: ButtonInteraction, args: string[]) {
     const id: string = args[0];
-    const matchData = globalData.deleteMatchPreview(id);
+    globalData.deleteMatchPreview(id);
+
+    await interaction.message.delete();
 
     await interaction.reply({
       content: "Tableau annulé",

@@ -28,7 +28,7 @@ const pointMapping: { [key: string]: number } = {
   "11": 2,
   "12": 1,
 };
-const rosterList: Set<String> = new Set<string>(["YFG", "YFO"]);
+const rosterList: Set<string> = new Set<string>(["YFG", "YFO"]);
 const botwar: BotWarType = botWarData as BotWarType;
 const embedMsg = "```";
 const backToLine = "\n";
@@ -39,7 +39,6 @@ const errorMessage = new ErrorMessage();
 // ------------
 // TYPE : -----
 // ------------
-type ScoreMap = { map: string; score: number };
 
 type Team = {
   nameTeam: string;
@@ -49,6 +48,7 @@ type Team = {
 };
 
 type ParamWar = {
+  last_message_id: string;
   match_id: number;
   game: string;
   verifDoublon: {
@@ -67,7 +67,7 @@ type WarObjectType = {
   paramWar: ParamWar;
 };
 
-interface BotWarType {
+export interface BotWarType {
   channels: {
     [idChannel: string]: WarObjectType;
   };
@@ -132,7 +132,7 @@ const areRacesEquals = (
 // Botwar - Conversion des places en points
 const placeToPoint = (spots: string[]): number => {
   let totalYF: number = 0;
-  for (let value of spots) {
+  for (const value of spots) {
     if (pointMapping[value]) {
       totalYF += pointMapping[value];
     }
@@ -142,26 +142,6 @@ const placeToPoint = (spots: string[]): number => {
 
 const getWarResults = (idChannel: string): WarObjectType => {
   return botwar.channels[idChannel];
-};
-
-const sendProjectMapData = async (results: WarObjectType): Promise<boolean> => {
-  // Set data :
-  const resultArray: { idMap: string; scoreMap: number }[] = [];
-
-  results.paramWar.recapWar.forEach((item) => {
-    resultArray.push({ idMap: item.map_tag, scoreMap: item.score });
-  });
-
-  const apiObject = {
-    scoresMaps: resultArray,
-    scoreMatch: results.paramWar.totaleDiff,
-    idRoster: results.team1.nameTeam,
-  };
-
-  // const apiCall: ResponseYF = await postProjectMap(apiObject);
-
-  //return apiCall.statusCode === 201;
-  return true;
 };
 
 const checkIfRaceIsValidNumber = (race: string): boolean => {
@@ -261,6 +241,7 @@ export const createWar = async (
         recapScore: [],
       },
       paramWar: {
+        last_message_id: "",
         match_id: createWar.data.id,
         game: game,
         verifDoublon: {
@@ -286,6 +267,7 @@ export const createWar = async (
 export const stopWar = async (
   bot: Client,
   idChannel: string,
+  team_id: string,
   isForced: boolean = false
 ): Promise<string> => {
   if (!checkIfWarExistInChannel(idChannel))
@@ -299,7 +281,7 @@ export const stopWar = async (
       : result.paramWar.totaleDiff == 0
       ? "Egalité"
       : "Défaite";
-  let msg = `Fin du war\n${isWin} : ${result.team1.total.toString()} - ${result.team2.total.toString()} (${result.paramWar.totaleDiff.toString()})\n${
+  const msg = `Fin du war\n${isWin} : ${result.team1.total.toString()} - ${result.team2.total.toString()} (${result.paramWar.totaleDiff.toString()})\n${
     getNumberOfRace(idChannel) < 10 ? "Match annulé" : ""
   }`;
 
@@ -313,15 +295,17 @@ export const stopWar = async (
     pena_opponent: result.team2.penality,
     score_total: result.paramWar.totaleDiff,
     maps: map_stats,
+    last_message_id: result.paramWar.last_message_id,
   };
   console.log("matchComplete", matchComplete);
 
   const completeMatch: ResponseAPI<any> = await _completeMatch(
     matchComplete,
-    result.paramWar.match_id.toString()
+    result.paramWar.match_id.toString(),
+    team_id
   );
   if (completeMatch.statusCode == 201) {
-    let match_id = `\nIdentifiant du match : \`${result.paramWar.match_id}\``;
+    const match_id = `\nIdentifiant du match : \`${result.paramWar.match_id}\``;
     botLogs(
       bot,
       `War ended : ${result.team1.total.toString()} - ${result.team2.total.toString()} (${result.paramWar.totaleDiff.toString()})${match_id}`

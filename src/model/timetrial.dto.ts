@@ -1,4 +1,5 @@
-import { User, UserCreate } from "./user.dto";
+import { MapMK_V2 } from "./map.dto";
+import { User } from "./user.dto";
 
 export type TimetrialUpsert = {
   user_id: string;
@@ -23,4 +24,21 @@ export type TimetrialCreated = {
     map_id: number;
     user: User;
   };
+};
+
+export type Timetrial = {
+  id: number;
+  time: number;
+  is_shroomless: boolean;
+  user_id: string;
+  map_id: string;
+  created_at: Date;
+  updated_at: Date;
+  user: Partial<User>;
+};
+
+export type TimetrialRanking = {
+  map: MapMK_V2;
+  shroomless: Timetrial[];
+  noShroomless: Timetrial[];
 };

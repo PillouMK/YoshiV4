@@ -57,7 +57,7 @@ const lineupPath: string = "./src/database/lineup.json";
 
 export const convertValidsHoursToNumberArray = (hours: string): number[] => {
   const hoursToArray: string[] = hours.split(" ");
-  let validsHours: number[] = [];
+  const validsHours: number[] = [];
   hoursToArray.forEach((hour) => {
     if (/^(0[0-9]|1[0-9]|2[0-3])$/.test(hour)) {
       validsHours.push(Number(hour));
@@ -71,9 +71,9 @@ const sortByRoster = async (
   lineup: LineUpItem[],
   listMembers: Collection<string, GuildMember>
 ): Promise<LineUpItem[]> => {
-  let lineUpByRoster: LineUpItem[] = [];
+  const lineUpByRoster: LineUpItem[] = [];
   lineup.forEach((element) => {
-    let member = listMembers.find((member) => member.id === element.userId);
+    const member = listMembers.find((member) => member.id === element.userId);
     if (member?.roles.cache.find((role) => role.id === idRoster)) {
       lineUpByRoster.push(element);
     }
@@ -85,9 +85,9 @@ const makeLineupFields = (
   lineUpByRoster: LineUpItem[],
   role: Role
 ): APIEmbedField => {
-  let field: APIEmbedField = { name: "", inline: false, value: "" };
-  let lineupCan: string[] = [];
-  let lineupMaybe: string[] = [];
+  const field: APIEmbedField = { name: "", inline: false, value: "" };
+  const lineupCan: string[] = [];
+  const lineupMaybe: string[] = [];
 
   lineUpByRoster.forEach((elt: LineUpItem) => {
     if (elt.status == 0) lineupCan.push(elt.userName);
@@ -108,8 +108,8 @@ const makeLineupFields = (
 };
 
 const makeSubFields = (lineUp: LineUpItem[]): APIEmbedField => {
-  let field: APIEmbedField = { name: "", inline: false, value: "" };
-  let lineupSub: string[] = [];
+  const field: APIEmbedField = { name: "", inline: false, value: "" };
+  const lineupSub: string[] = [];
 
   lineUp.forEach((elt: LineUpItem) => {
     if (elt.status == 2) lineupSub.push(elt.userName);
@@ -126,8 +126,8 @@ const makeSubFields = (lineUp: LineUpItem[]): APIEmbedField => {
 };
 
 const makeCantFields = (lineUp: LineUpItem[]): APIEmbedField => {
-  let field: APIEmbedField = { name: "", inline: false, value: "" };
-  let lineupCant: string[] = [];
+  const field: APIEmbedField = { name: "", inline: false, value: "" };
+  const lineupCant: string[] = [];
 
   lineUp.forEach((elt: LineUpItem) => {
     if (elt.status == 3) lineupCant.push(elt.userName);
@@ -150,13 +150,13 @@ export const lineupResponse = async (
 ): Promise<LineUpMessage[]> => {
   const hourArray: number[] = convertValidsHoursToNumberArray(hours);
   const isMix: boolean = roles.length === 1;
-  let response: LineUpMessage[] = [];
-  for (let hour of hourArray) {
+  const response: LineUpMessage[] = [];
+  for (const hour of hourArray) {
     const _lineUpData = JSON.parse(
       fs.readFileSync(lineupPath, "utf-8")
     ) as LineUpData;
     const lineUpByHour = _lineUpData.lineup[hour];
-    let embed = makeEmbedLineup(hour.toString(), isMix);
+    const embed = makeEmbedLineup(hour.toString(), isMix);
 
     for (const role of roles) {
       const sortedData = await sortByRoster(role.id, lineUpByHour, listMembers);
@@ -180,7 +180,7 @@ export const lineupResponse = async (
 
 function getTimestampForHour(hour: string): string {
   const offsetWithFrance = getTimezoneOffsetInHours("Europe/Paris");
-  let now = new Date(Date.now());
+  const now = new Date(Date.now());
   now.setHours(parseInt(hour) + offsetWithFrance, 0, 0, 0);
   return (now.valueOf() / 1000).toString();
 }
@@ -257,7 +257,7 @@ export const addMember = (
   const _lineUpData = JSON.parse(
     fs.readFileSync(lineupPath, "utf-8")
   ) as LineUpData;
-  let lineupByHour = _lineUpData.lineup[parseInt(hour)];
+  const lineupByHour = _lineUpData.lineup[parseInt(hour)];
   const index = lineupByHour.findIndex((elt) => elt.userId === member.id);
   let name = member.username;
   if (nameJson[member.id] != undefined) {
@@ -291,7 +291,7 @@ export const resetAllLineups = async (bot: Client) => {
   const _lineUpData: LineUpData = JSON.parse(
     fs.readFileSync(lineupPath, "utf-8")
   );
-  for (let msg of _lineUpData.temp_save) {
+  for (const msg of _lineUpData.temp_save) {
     deleteLineupMsgById(msg.id, msg.idChannel, bot);
   }
   _lineUpData.temp_save = [];
@@ -334,11 +334,11 @@ export const updateLineupsByHour = async (bot: Client, hour: string) => {
   const lineupTempMsg = _lineUpData.temp_save.filter(
     (elt) => elt.hour === hour
   );
-  for (let lineup of lineupTempMsg) {
+  for (const lineup of lineupTempMsg) {
     EditSavedMessages(lineup, bot);
   }
   const lineupSavedMsg = _lineUpData.save.filter((elt) => elt.hour === hour);
-  for (let lineup of lineupSavedMsg) {
+  for (const lineup of lineupSavedMsg) {
     EditSavedMessages(lineup, bot);
   }
 };
@@ -388,7 +388,7 @@ export const EditSavedMessages = async (lineup: LineUp, bot: Client) => {
   if (channel!.isTextBased()) {
     const msg = await channel!.messages.fetch(lineup.id);
     const rolesId: string[] = lineup.isMix ? [ROLE_YF, ROLE_YF_TEST] : ROLES;
-    let roleList: Role[] = [];
+    const roleList: Role[] = [];
     fetchedRoles?.forEach((role) => {
       if (rolesId.includes(role.id)) roleList.push(role);
     });

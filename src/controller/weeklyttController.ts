@@ -13,20 +13,14 @@ import {
   isTimeValid,
   msToTime,
   timeToMs,
-  Timetrial,
   emote_string,
 } from "./timetrialController";
-import {
-  getWeeklyTT,
-  patchWeeklyTT,
-  postMapWeekly,
-  postWeeklyTT,
-} from "./yfApiController";
 import { addBlank, botLogs, saveJSONToFile } from "./generalController";
 import fs from "fs";
 import settings from "../settings.json";
 import { MapMK } from "../model/map.dto";
 import { LIST_MAPS, LOGO_YF } from "..";
+import { Timetrial } from "../model/timetrial.dto";
 
 const weeklyDataPath: string = "./src/database/weeklyMap.json";
 
@@ -72,25 +66,6 @@ type WeeklyMessage = {
   buttons?: ActionRowBuilder<ButtonBuilder>;
 };
 
-export const getAllWeeklyMap = async (): Promise<weeklyMap[]> => {
-  try {
-    const maps = await getWeeklyTT();
-    const weeklyttArray: Weeklytt[] = maps.data.arrayResponse;
-
-    const weeklyMaps: weeklyMap[] = weeklyttArray.map((weeklytt) => ({
-      idMap: weeklytt.map.idMap,
-      isShroomless: weeklytt.map.isShroomless,
-      goldTime: weeklytt.map.goldTime,
-      silverTime: weeklytt.map.silverTime,
-      bronzeTime: weeklytt.map.bronzeTime,
-    }));
-    return weeklyMaps;
-  } catch (error) {
-    console.error("Error fetching weekly maps:", error);
-    throw new Error("Unable to fetch weekly maps.");
-  }
-};
-
 export const setWeeklyMap = (
   bot: Client,
   idMap: string,
@@ -108,7 +83,7 @@ export const setWeeklyMap = (
     { label: "bronze", value: bronzeTime },
   ];
 
-  for (let weeklyMap of _weeklyMapData) {
+  for (const weeklyMap of _weeklyMapData) {
     if (weeklyMap.idMap === idMap && weeklyMap.isShroomless === isShroomless) {
       const errorMessage = `${idMap} ${
         isShroomless ? "No item" : "Item"
@@ -153,32 +128,6 @@ export const setWeeklyMap = (
   return `${idMap} en ${isShroomless ? "No item" : "Item"} bien enregistré`;
 };
 
-export const sendWeeklyMap = async (bot: Client): Promise<string> => {
-  const _weeklyMapData = JSON.parse(
-    fs.readFileSync(weeklyDataPath, "utf-8")
-  ) as weeklyMap[];
-  let weeklyMapToSend: weeklyMapAPI[] = [];
-  for (let map of _weeklyMapData) {
-    weeklyMapToSend.push({
-      idMap: map.idMap,
-      isShroomless: map.isShroomless,
-      goldTime: map.goldTime,
-      silverTime: map.silverTime,
-      bronzeTime: map.bronzeTime,
-      isObligatory: true,
-      roster: "YFG",
-    });
-  }
-  let post = await postMapWeekly(weeklyMapToSend);
-  if (post.statusCode === 201) {
-    sendWeeklyAnnounce(bot);
-    return "Nouvelle maps envoyées !";
-  } else {
-    botLogs(bot, `Error when /send_weekly : ${post.statusCode} : ${post.data}`);
-    return `Une erreur est survenue : ${post.data}`;
-  }
-};
-
 const sendWeeklyAnnounce = (bot: Client) => {
   const channel: TextChannel = bot.channels.cache.get(
     settings.channels.announcement
@@ -203,14 +152,14 @@ const makeEmbedWeeklyMap = (length: number) => {
 const makeWeeklyMapEmbedFields = (
   _weeklyMapData: weeklyMap[]
 ): APIEmbedField[] => {
-  let fields: APIEmbedField[] = [];
+  const fields: APIEmbedField[] = [];
   _weeklyMapData.forEach((element, index) => {
     const emoteIsShroomless = element.isShroomless
       ? "<:no_mushroom_bot:1033130955470295131>"
       : "<:mushroom_bot:1033128412405047356>";
 
-    let title = `${element.idMap} : ${emoteIsShroomless}`;
-    let textFloor = `:first_place:\`Gold   : ${msToTime(
+    const title = `${element.idMap} : ${emoteIsShroomless}`;
+    const textFloor = `:first_place:\`Gold   : ${msToTime(
       element.goldTime
     )}\`\n:second_place:\`Silver : ${msToTime(
       element.silverTime
@@ -229,7 +178,7 @@ export const makeEmbedWeeklyAnnounce = (): WeeklyAnnouncement => {
   const file: AttachmentBuilder = new AttachmentBuilder(
     "./image/LaYoshiFamily.png"
   );
-  let embed = makeEmbedWeeklyMap(_weeklyMapData.length);
+  const embed = makeEmbedWeeklyMap(_weeklyMapData.length);
   const fields = makeWeeklyMapEmbedFields(_weeklyMapData);
   embed.addFields(fields);
 
@@ -238,92 +187,6 @@ export const makeEmbedWeeklyAnnounce = (): WeeklyAnnouncement => {
     file: file,
     content: "<@&199252384612876289> TT de la semaine :",
   };
-};
-
-export const updateWeeklyTimetrial = async (
-  time: string,
-  idMap: string,
-  isShroomless: boolean,
-  user: User,
-  bot: Client
-): Promise<string> => {
-  if (!isTimeValid(time)) {
-    botLogs(bot, `Error time is not valid : ${time}`);
-    return `${time} n'est pas un temps valide`;
-  }
-  const timeInMs = timeToMs(time);
-
-  const patchTime = await patchWeeklyTT(user.id, idMap, timeInMs, isShroomless);
-  const response = isShroomless ? `en shroomless` : `avec items`;
-  if (patchTime.statusCode == 404) {
-    const postTime = await postWeeklyTT(user.id, idMap, timeInMs, isShroomless);
-    if (postTime.statusCode != 201) {
-      botLogs(bot, `Error when adding time : ${postTime.data.toString()}`);
-      return `Erreur : ${postTime.data.toString()}`;
-    } else {
-      let endText = "";
-      if (postTime.data.ttExist && postTime.data.newIsBetter) {
-        endText = `Tu as battu ton record qui était de ${postTime.data.timetrial}: C'est enregistré !`;
-      }
-      botLogs(
-        bot,
-        `${user.username} successfully added time (${idMap}, ${time}, ${isShroomless})`
-      );
-      return `Nouveau temps weekly : ${time} ${response}${endText}`;
-    }
-  } else {
-    let endText = "";
-    if (patchTime.data.newIsBetter) {
-      endText += `\nTu as également battu ton record personnel qui était de : ${patchTime.data.timetrial}`;
-    }
-    botLogs(
-      bot,
-      `${user.username} successfully updated time (${idMap}, ${time}, ${isShroomless})`
-    );
-    return `Nouveau temps weekly : ${patchTime.data.newWeekly} (${patchTime.data.diff}s) ${response}\nTon ancien temps était : ${patchTime.data.oldWeekly}${endText}`;
-  }
-};
-
-export const getWeeklytt = async (
-  bot: Client,
-  idMap?: string,
-  isShroomless?: boolean
-): Promise<WeeklyMessage> => {
-  const req = await getWeeklyTT();
-  if (req.statusCode === 200) {
-    const weeklytt: Weeklytt[] = req.data.arrayResponse;
-    let weeklyttByMap: Weeklytt;
-    if (idMap != undefined) {
-      weeklyttByMap = weeklytt.find(
-        (v) => v.map.idMap === idMap && isShroomless == v.map.isShroomless
-      )!;
-    } else {
-      weeklyttByMap = weeklytt[0];
-    }
-    const currentMap = `${weeklyttByMap.map.idMap}-${weeklyttByMap.map.isShroomless}`;
-    let listMap: weeklyMap[] = weeklytt.map((elt) => elt.map);
-    let embed = makeWeeklyttEmbed(weeklyttByMap.map);
-    const fields: APIEmbedField[] = makeWeeklyttFields(weeklyttByMap);
-    const buttons: ActionRowBuilder<ButtonBuilder> = makeListButton(
-      listMap,
-      currentMap
-    );
-    embed.addFields(fields);
-    return {
-      content: "",
-      embed: [embed],
-      buttons: buttons,
-    };
-  } else {
-    botLogs(
-      bot,
-      `Erreur lors de la récupération des données : ${req.statusCode} - ${req.data}`
-    );
-    return {
-      content: `Erreur lors de la récupération des données : ${req.statusCode} - ${req.data}`,
-      embed: [],
-    };
-  }
 };
 
 export const makeWeeklyttEmbed = (map: weeklyMap): EmbedBuilder => {
@@ -360,24 +223,24 @@ export const makeWeeklyttFields = (weeklytt: Weeklytt): APIEmbedField[] => {
     },
   ];
   let index = 0;
-  let fieldGold: Timetrial[] = weeklytt.weeklyTimetrial.goldArray;
-  let fieldSilver: Timetrial[] = weeklytt.weeklyTimetrial.silverArray;
-  let fieldBronze: Timetrial[] = weeklytt.weeklyTimetrial.bronzeArray;
-  let fieldOut: Timetrial[] = weeklytt.weeklyTimetrial.outArray;
-  let arrayFields = [fieldGold, fieldSilver, fieldBronze, fieldOut];
-  for (let element of arrayFields) {
+  const fieldGold: Timetrial[] = weeklytt.weeklyTimetrial.goldArray;
+  const fieldSilver: Timetrial[] = weeklytt.weeklyTimetrial.silverArray;
+  const fieldBronze: Timetrial[] = weeklytt.weeklyTimetrial.bronzeArray;
+  const fieldOut: Timetrial[] = weeklytt.weeklyTimetrial.outArray;
+  const arrayFields = [fieldGold, fieldSilver, fieldBronze, fieldOut];
+  for (const element of arrayFields) {
     const maxLength = element.length
-      ? Math.max(...element.map((el) => el.name.length))
+      ? Math.max(...element.map((el) => el.user.name!.length))
       : 0;
     let valueField: string = "";
     element.forEach((elt) => {
-      const name = addBlank(elt.name, maxLength, true);
-      valueField += `\`${name} : ${elt.duration}\`\n`;
+      const name = addBlank(elt.user.name!, maxLength, true);
+      valueField += `\`${name} : ${msToTime(elt.time)}\`\n`;
     });
     if (valueField == "") {
       valueField = "\u200b";
     }
-    let field: APIEmbedField = {
+    const field: APIEmbedField = {
       name: `${arrayFloor[index].nameFloor} : ${arrayFloor[index].timeFloor}`,
       value: valueField,
       inline: true,
@@ -408,7 +271,7 @@ export const makeListButton = (
   ];
   const row = new ActionRowBuilder<ButtonBuilder>();
   let index = 0;
-  for (let weeklyMap of listMap) {
+  for (const weeklyMap of listMap) {
     const shroomless = weeklyMap.isShroomless ? "ni" : "item";
     row.addComponents(
       new ButtonBuilder()

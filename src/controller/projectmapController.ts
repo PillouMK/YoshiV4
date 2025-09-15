@@ -1,8 +1,4 @@
-import {
-  rosterColor,
-  addBlank,
-  botLogs,
-} from "../controller/generalController";
+import { addBlank } from "../controller/generalController";
 import {
   EmbedBuilder,
   ButtonBuilder,
@@ -10,11 +6,11 @@ import {
   ActionRowBuilder,
   ButtonStyle,
   AttachmentBuilder,
-  Message,
-  TextChannel,
-  Client,
 } from "discord.js";
-import settings from "../settings.json";
+import { GetMapStats, MapStats } from "../model/map-stats.dto";
+import { globalData } from "../global";
+import { Team } from "../model/team.dto";
+import { Roster } from "../model/roster.dto";
 
 export interface ProjectMapData {
   projectMapValid: ProjectMap[];
@@ -52,47 +48,30 @@ type ProjectMapValues = {
   [key: string]: ProjectMapData | undefined;
 };
 
-export let projectMap: ProjectMapValues = {};
+export const projectMap: ProjectMapValues = {};
 
-export const getProjectMapData = async (
-  idRoster: string,
-  month: number,
-  iteration: number
-): Promise<ProjectMapData | undefined> => {
-  //const response = await getProjectMap(idRoster, month, iteration);
-
-  if (true) {
-    return undefined;
-  }
-  // const data: ProjectMapData = {
-  //   projectMapValid: response.data.projectMapValid,
-  //   projectMapNotValid: response.data.projectMapNotValid,
-  // };
-  // return data;
-};
-
-export const maxLengthFields = (projectMap: ProjectMap[]): MaxLengthField => {
-  if (projectMap == undefined) {
+export const maxLengthFields = (mapStats: MapStats[]): MaxLengthField => {
+  if (mapStats.length == 0) {
     return {
       idMap: 0,
       iteration: 0,
       score: 0,
     };
   }
-  let maxLength: MaxLengthField = {
+  const maxLength: MaxLengthField = {
     idMap: Math.max(
-      ...projectMap.map((elt) => {
-        return elt.idMap.toString().length;
+      ...mapStats.map((elt) => {
+        return elt.tag.toString().length;
       })
     ),
     iteration: Math.max(
-      ...projectMap.map((elt) => {
+      ...mapStats.map((elt) => {
         return elt.iteration.toString().length;
       })
     ),
     score: Math.max(
-      ...projectMap.map((elt) => {
-        return elt.score.toString().length;
+      ...mapStats.map((elt) => {
+        return elt.weighted_average.toString().length;
       })
     ),
   };
@@ -100,32 +79,32 @@ export const maxLengthFields = (projectMap: ProjectMap[]): MaxLengthField => {
 };
 
 export const makeProjectMapRankingFields = (
-  projectMap: ProjectMap[]
+  map_stats: MapStats[]
 ): RankingField[] => {
-  let rankingFields: RankingField[] = [];
+  const rankingFields: RankingField[] = [];
   let idMapField: string = "";
   let scoreField: string = "";
   let iterationField: string = "";
-  let maxLength: MaxLengthField = maxLengthFields(projectMap);
-  if (projectMap == undefined) {
-  }
-  projectMap.forEach((element: ProjectMap, index: number) => {
-    let space = index < 9 ? ` ` : "";
-    idMapField += `\`${index + 1}${space} : \` **${element.idMap}** \n`;
+  const maxLength: MaxLengthField = maxLengthFields(map_stats);
+  map_stats.forEach((map: MapStats, index: number) => {
+    const space = index < 9 ? ` ` : "";
+    idMapField += `\`${index + 1}${space} : \` **${map.tag}** \n`;
     scoreField += `\`${addBlank(
-      element.score.toString(),
+      map.weighted_average.toString(),
       maxLength.score
     )} pts\`\n`;
+    const win_rate = map.win_rate * 100;
     iterationField += `\`${addBlank(
-      element.iteration.toString(),
+      map.iteration.toString(),
       maxLength.iteration
-    )}\`\n`;
+    )} - ${addBlank(`${win_rate.toString()}%`, 4)}\`\n`;
+
     if (idMapField.length > 1000) {
       rankingFields.push({
         map: { name: `__Map :__`, value: idMapField, inline: true },
         score: { name: `__Score :__`, value: scoreField, inline: true },
         iteration: {
-          name: `__Iteration :__`,
+          name: `__Iteration / Winrate :__`,
           value: iterationField,
           inline: true,
         },
@@ -140,7 +119,7 @@ export const makeProjectMapRankingFields = (
       map: { name: `__Map :__`, value: idMapField, inline: true },
       score: { name: `__Score :__`, value: scoreField, inline: true },
       iteration: {
-        name: `__Iteration :__`,
+        name: `__Iteration / Winrate :__`,
         value: iterationField,
         inline: true,
       },
@@ -150,23 +129,28 @@ export const makeProjectMapRankingFields = (
 };
 
 export const makeProjectMapMobileRankingField = (
-  projectMap: ProjectMap[]
+  map_stats: MapStats[]
 ): APIEmbedField[] => {
-  let maxLength: MaxLengthField = maxLengthFields(projectMap);
-  let rankingField: APIEmbedField[] = [];
+  const maxLength: MaxLengthField = maxLengthFields(map_stats);
+  const rankingField: APIEmbedField[] = [];
   let field: string = "";
-  projectMap.forEach((element: ProjectMap, index: number) => {
-    let space = index < 9 ? ` ` : "";
-    let idMap: string = addBlank(element.idMap, maxLength.idMap);
-    let score: string = addBlank(element.score.toString(), maxLength.idMap);
-    let iteration: string = addBlank(
-      element.iteration.toString(),
+  map_stats.forEach((map: MapStats, index: number) => {
+    const space = index < 9 ? ` ` : "";
+    const win_rate = map.win_rate * 100;
+    const idMap: string = addBlank(map.tag, maxLength.idMap);
+    const score: string = addBlank(
+      map.weighted_average.toString(),
       maxLength.idMap
     );
+    const iteration: string = addBlank(
+      map.iteration.toString(),
+      maxLength.idMap
+    );
+    const win_rate_s = addBlank(`${win_rate.toString()}%`, 4);
 
     if (field.length > 1000) {
       rankingField.push({
-        name: "__Map :     Score :     Iteration :__",
+        name: "__Map:     Score:     Iteration/Winrate:__",
         value: field,
         inline: false,
       });
@@ -174,11 +158,11 @@ export const makeProjectMapMobileRankingField = (
     }
     field += `\`${
       index + 1
-    }${space} : ${idMap} | ${score} pts | ${iteration}\`\n`;
+    }${space} : ${idMap} | ${score} pts | ${iteration} - ${win_rate_s}\`\n`;
   });
   if (field.length > 0) {
     rankingField.push({
-      name: "__Map :     Score :     Iteration :__",
+      name: "__Map:     Score:     Iteration/Winrate:__",
       value: field,
       inline: false,
     });
@@ -187,56 +171,48 @@ export const makeProjectMapMobileRankingField = (
 };
 
 export const makeEmbedProjectMap = (
-  idRoster: string,
-  projetMapValid: ProjectMap[],
-  projetMapNotValid: ProjectMap[],
-  isMobile: Boolean
+  map_stats: GetMapStats,
+  isMobile: boolean,
+  team: Team,
+  roster: Roster | undefined
 ): EmbedBuilder => {
-  let rankingEmbed = new EmbedBuilder()
-    .setColor(rosterColor(idRoster))
+  const rankingEmbed = new EmbedBuilder()
+    .setColor(0x2ecc71)
     .setThumbnail("attachment://LaYoshiFamily.png")
-    .setTitle(`----------------- ProjectMap ${idRoster} -----------------`)
+    .setTitle(`---------------- Stats : ${team.name} ----------------`)
     .setTimestamp(Date.now())
-    .setFooter({ text: `project Map ${idRoster}` });
+    .setFooter({
+      text: `project Map ${team.name} ${roster ? roster.name : ""}`,
+    });
   if (!isMobile) {
-    if (projetMapValid == undefined) {
+    if (map_stats.stats.length == 0) {
       rankingEmbed.addFields({
         name: `__**Données valides :**__`,
         value: `Aucune données valides`,
         inline: false,
       });
     } else {
-      const rankingFieldsValid = makeProjectMapRankingFields(projetMapValid);
+      const rankingFields = makeProjectMapRankingFields(map_stats.stats);
       rankingEmbed.addFields({
         name: `.`,
         value: `__**Données valides :**__`,
         inline: false,
       });
-      rankingFieldsValid.forEach((element) => {
+      rankingFields.forEach((element) => {
         rankingEmbed.addFields(element.map, element.score, element.iteration);
       });
     }
-
-    const rankingFieldsNotValid =
-      makeProjectMapRankingFields(projetMapNotValid);
-    rankingEmbed.addFields({
-      name: `.`,
-      value: `__**Données non-valides :**__`,
-      inline: false,
-    });
-    rankingFieldsNotValid.forEach((element) => {
-      rankingEmbed.addFields(element.map, element.score, element.iteration);
-    });
   } else {
-    if (projetMapValid == undefined) {
+    if (map_stats.stats.length == 0) {
       rankingEmbed.addFields({
         name: `__**Données valides :**__`,
         value: `Aucune données valides`,
         inline: false,
       });
     } else {
-      const rankingFieldsValid =
-        makeProjectMapMobileRankingField(projetMapValid);
+      const rankingFieldsValid = makeProjectMapMobileRankingField(
+        map_stats.stats
+      );
       rankingEmbed.addFields({
         name: `.`,
         value: `__**Données valides :**__`,
@@ -246,41 +222,26 @@ export const makeEmbedProjectMap = (
         rankingEmbed.addFields(element);
       });
     }
-
-    const rankingFieldsNotValid =
-      makeProjectMapMobileRankingField(projetMapNotValid);
-
-    rankingEmbed.addFields({
-      name: `.`,
-      value: `__**Données non-valides :**__`,
-      inline: false,
-    });
-    rankingFieldsNotValid.forEach((element) => {
-      rankingEmbed.addFields(element);
-    });
   }
   return rankingEmbed;
 };
 
 export const rankingMessage = (
-  idRoster: string,
-  month: number,
-  iteration: number,
-  projetMapValid: ProjectMap[],
-  projetMapNotValid: ProjectMap[],
-  isMobile: Boolean
+  map_stats: GetMapStats,
+  isMobile: boolean,
+  team_id: string,
+  roster_tag: string | undefined,
+  month: number | undefined
 ): RankingMessage => {
-  const content = messageRecap(idRoster, month, iteration);
-  const buttons = makeButtonList(idRoster, isMobile);
+  const team = globalData.getTeam(team_id)!;
+  const roster = globalData.getRoster(team_id, roster_tag ?? "") ?? undefined;
+  const content = messageRecap(team, month, roster);
+  const buttons = makeButtonList(roster_tag, isMobile);
   const file: AttachmentBuilder = new AttachmentBuilder(
-    "./image/LaYoshiFamily.png"
+    "./image/LaYoshiFamily.png",
+    { description: "Team logo" }
   );
-  const embed = makeEmbedProjectMap(
-    idRoster,
-    projetMapValid,
-    projetMapNotValid,
-    isMobile
-  );
+  const embed = makeEmbedProjectMap(map_stats, isMobile, team, roster);
   return {
     embed: [embed],
     buttons: buttons,
@@ -289,63 +250,67 @@ export const rankingMessage = (
   };
 };
 
-const messageRecap = (idRoster: string, month: number, iteration: number) => {
-  let saut2ligne = ".\n\n\n";
-  let endMsg = "Affichage des données valides et non valides";
-  return `${saut2ligne}**ProjectMap ${idRoster} : ** données des ${month} derniers mois, données jugées valides à partir de ${iteration} itérations\n${endMsg}`;
+const messageRecap = (
+  team: Team,
+  month: number | undefined,
+  roster: Roster | undefined
+) => {
+  return `**ProjectMap ${team.name} ${roster ? `- ${roster.name}**` : `**`} : ${
+    month ? `** données des ${month} derniers mois` : ``
+  }\n`;
 };
 
 const makeButtonList = (
-  idRoster: string,
-  isMobile: Boolean
+  roster_tag: string | undefined,
+  isMobile: boolean
 ): ActionRowBuilder<ButtonBuilder> => {
   const labelView: string = isMobile ? "Vue PC" : "Vue Mobile";
   const idView = isMobile ? "pc" : "mobile";
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
-      .setCustomId(`projectmap-${idView}-${idRoster}`)
+      .setCustomId(`projectmap-${idView}-${roster_tag ?? ""}`)
       .setLabel(labelView)
       .setStyle(ButtonStyle.Primary)
   );
 };
 
-export const updateProjectMapMessage = async (
-  bot: Client,
-  idRoster: string,
-  month: number,
-  iteration: number,
-  isMobile: Boolean
-) => {
-  const projectMap = await getProjectMapData(idRoster, 3, 10);
+// export const updateProjectMapMessage = async (
+//   bot: Client,
+//   idRoster: string,
+//   month: number,
+//   iteration: number,
+//   isMobile: Boolean
+// ) => {
+//   const projectMap = await getProjectMapData(idRoster, 3, 10);
 
-  const newMsg = rankingMessage(
-    idRoster,
-    month,
-    iteration,
-    projectMap!.projectMapValid,
-    projectMap!.projectMapNotValid,
-    isMobile
-  );
-  const channelId = settings.channels.rankings;
-  const msgId = (settings.projectMap as any)[idRoster];
-  try {
-    const channel = (await bot.channels.fetch(channelId)) as TextChannel;
-    const message = (await channel.messages.fetch(msgId)) as Message;
+//   const newMsg = rankingMessage(
+//     idRoster,
+//     month,
+//     iteration,
+//     projectMap!.projectMapValid,
+//     projectMap!.projectMapNotValid,
+//     isMobile
+//   );
+//   const channelId = settings.channels.rankings;
+//   const msgId = (settings.projectMap as any)[idRoster];
+//   try {
+//     const channel = (await bot.channels.fetch(channelId)) as TextChannel;
+//     const message = (await channel.messages.fetch(msgId)) as Message;
 
-    message.edit({
-      content: newMsg.content,
-      components: [newMsg.buttons],
-      embeds: newMsg.embed,
-      files: [newMsg.file],
-    });
-    const successMessage = `Yoshi successfully updated ProjectMap ${idRoster} message`;
-    botLogs(bot, successMessage);
-  } catch (e) {
-    const errorMessage = `Erreur projetMap : ${e}`;
-    try {
-      botLogs(bot, errorMessage);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-};
+//     message.edit({
+//       content: newMsg.content,
+//       components: [newMsg.buttons],
+//       embeds: newMsg.embed,
+//       files: [newMsg.file],
+//     });
+//     const successMessage = `Yoshi successfully updated ProjectMap ${idRoster} message`;
+//     botLogs(bot, successMessage);
+//   } catch (e) {
+//     const errorMessage = `Erreur projetMap : ${e}`;
+//     try {
+//       botLogs(bot, errorMessage);
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }
+// };

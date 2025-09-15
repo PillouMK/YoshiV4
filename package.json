@@ -12,17 +12,26 @@
     "typescript": "^5.7.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.33.0",
     "@types/node": "^20.4.9",
     "@types/node-cron": "^3.0.11",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "eslint": "^9.33.0",
+    "globals": "^16.3.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.40.0"
   },
   "scripts": {
     "dev": "ts-node src/index.ts",
-    "deploy": "ts-node src/deploy-commands.ts",
+    "deploy:dev": "ts-node src/deploy-commands.ts",
+    "deploy:prod": "NODE_ENV=prod ts-node src/deploy-commands.ts",
     "compile": "npx tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "lint": "eslint . --ext .ts,.js --fix",
+    "depcheck": "npx dependency-check ./package.json ./src/**/*.ts --ignore-module '@nestjs/cli,@nestjs/schematics,@swc/cli,@swc/core,ts-node,typescript,tsconfig-paths,eslint,eslint-plugin-prettier,eslint-config-prettier,husky,@commitlint/cli,@commitlint/config-conventional,semantic-release,@semantic-release/git,@semantic-release/github,@semantic-release/changelog,dotenv-cli,@types/*' --no-dev --missing"
   },
   "nodeVersion": "20.11.1"
 }

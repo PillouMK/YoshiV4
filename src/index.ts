@@ -5,8 +5,6 @@ import {
   Collection,
   GuildMember,
   PartialGuildMember,
-  REST,
-  Routes,
 } from "discord.js";
 import { config } from "./config";
 import path from "path";
@@ -26,11 +24,8 @@ import {
 } from "./model/map.dto";
 import mapsJSON from "./database/maps.json";
 import { resetAllLineups } from "./controller/lineupController";
-import { updateProjectMapMessage } from "./controller/projectmapController";
-import { updateFinalRanking } from "./controller/timetrialController";
-import { _getAllMaps } from "./controller/yfApiController";
-import { Roster } from "./model/roster.dto";
 import { globalData } from "./global";
+import { recallMissingMatches } from "./controller/matchController";
 
 declare module "discord.js" {
   interface Client {
@@ -290,8 +285,15 @@ cron.schedule("0 2,3,4 * * *", () => {
 });
 
 cron.schedule("0 * * * *", () => {
-  updateFinalRanking(bot);
   console.log("Update executed at", new Date().toLocaleString());
 });
 
 bot.login(config.DISCORD_TOKEN);
+
+cron.schedule("0 20 * * *", () => {
+  const teams = globalData.getAllTeams();
+  for (const t of teams) {
+    recallMissingMatches(bot, t.id, t.result_channel_id);
+    console.log("Recall made for ", t.name);
+  }
+});

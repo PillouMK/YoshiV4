@@ -16,8 +16,14 @@ module.exports = {
   async execute(interaction: ChatInputCommandInteraction) {
     const idChannel: string = interaction.channelId;
     const isForce: boolean = interaction.options.getBoolean("force") ?? false;
+    const team_id = interaction.guildId!;
 
-    const stopTheWar = await stopWar(interaction.client, idChannel, isForce);
+    const stopTheWar = await stopWar(
+      interaction.client,
+      idChannel,
+      team_id,
+      isForce
+    );
     await interaction.reply(stopTheWar);
   },
 };

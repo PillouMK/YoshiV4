@@ -1,69 +1,110 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import {
-  getProjectMapData,
-  rankingMessage,
-} from "../../controller/projectmapController";
+  AutocompleteInteraction,
+  ChatInputCommandInteraction,
+  SlashCommandBuilder,
+} from "discord.js";
+import { rankingMessage } from "../../controller/projectmapController";
 import { botLogs } from "../../controller/generalController";
+import { globalData } from "../../global";
+import { Game } from "../../model/game.dto";
+import { Team } from "../../model/team.dto";
+import { _getAllMapStats } from "../../controller/yfApiController";
+import { GetMapStats, MapStatsParam } from "../../model/map-stats.dto";
+import { ResponseAPI } from "../../model/responseYF";
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("project_map")
     .setDescription("Stats des maps YF par roster")
-    .addStringOption((option) =>
-      option
-        .setName("roster")
-        .setDescription("Team YF")
-        .setRequired(true)
-        .addChoices(
-          { name: "YFG", value: "YFG" },
-          { name: "YFO", value: "YFO" }
-        )
-    )
     .addIntegerOption((option) =>
       option
         .setName("month")
         .setDescription("Nombre de mois max des données")
-        .setRequired(true)
+        .setRequired(false)
     )
-    .addIntegerOption((option) =>
+    .addStringOption((option) =>
       option
-        .setName("iterations")
-        .setDescription("Nombre de données minimum pour la validité d'une map")
-        .setRequired(true)
+        .setName("roster")
+        .setDescription("Choose a roster")
+        .setRequired(false)
+        .setAutocomplete(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("game")
+        .setDescription("Jeu")
+        .setRequired(false)
+        .setAutocomplete(true)
     ),
-  async execute(interaction: ChatInputCommandInteraction) {
-    const idRoster = interaction.options.getString("roster")!;
-    const month = interaction.options.getInteger("month")!;
-    const iteration = interaction.options.getInteger("iterations")!;
+  async autocomplete(interaction: AutocompleteInteraction) {
+    if (!interaction) return;
+    const focusedOption = interaction.options.getFocused(true);
+    if (focusedOption.name === "roster") {
+      const team: Team | undefined = globalData.getTeam(
+        interaction.guildId ?? ""
+      );
 
-    const projectMap = await getProjectMapData(idRoster, month, iteration);
-    if (projectMap == undefined) {
+      if (team?.rosters == undefined) return;
+
+      const choices = [
+        {
+          name: `${team.tag} | ${team.name}`,
+          value: team.tag,
+        },
+        ...team.rosters.map((choice) => ({
+          name: `${choice.tag} | ${choice.name}`,
+          value: choice.tag.toString(),
+        })),
+      ];
+
+      await interaction.respond(choices);
+    } else if (focusedOption.name === "game") {
+      const games: Game[] = globalData.getAllGames();
+
+      const choices = games.map((choice) => ({
+        name: `${choice.id} | ${choice.name}`,
+        value: choice.id.toString(),
+      }));
+
+      await interaction.respond(choices);
+    }
+  },
+  async execute(interaction: ChatInputCommandInteraction) {
+    const roster_tag = interaction.options.getString("roster")?.split(" ")[0];
+    const month = interaction.options.getInteger("month");
+    const team_id: string = interaction.guildId!;
+    const game = interaction.options.getString("game") ?? "MKWORLD";
+    const dto: MapStatsParam = {
+      game_id: game,
+      team_id: team_id,
+      months: month ?? null,
+      roster_tag: roster_tag ?? null,
+    };
+
+    const projectMap: ResponseAPI<GetMapStats> = await _getAllMapStats(dto);
+    if (projectMap.statusCode != 200) {
       try {
         await interaction.reply("Erreur lors de la récupération des données");
-        const log = `${interaction.user.username} a utilisé /project_map (roster: ${idRoster}, month: ${month}, iteration: ${iteration}). ECHEC`;
-        botLogs(interaction.client, log);
+        botLogs(interaction.client, projectMap.data.toString());
         return;
       } catch (e) {
         console.log(e);
       }
     }
     const msg = rankingMessage(
-      idRoster,
-      month,
-      iteration,
-      projectMap!.projectMapValid,
-      projectMap!.projectMapNotValid,
-      false
+      projectMap.data,
+      false,
+      team_id,
+      roster_tag,
+      month ?? undefined
     );
-    const log = `${interaction.user.username} a utilisé /project_map (roster: ${idRoster}, month: ${month}, iteration: ${iteration}). Réussite de la commande`;
     try {
       await interaction.reply({
         content: msg.content,
-        components: [msg.buttons],
+        // components: [msg.buttons],
         embeds: msg.embed,
         files: [msg.file],
       });
-      botLogs(interaction.client, log);
     } catch (e) {
       console.log(e);
     }

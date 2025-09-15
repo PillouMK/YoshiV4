@@ -3,10 +3,17 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
-import { editRace, getNumberOfRace } from "../../controller/botwarController";
-import { LIST_MAPS, LIST_MAPS_MKWORLD } from "../..";
-import { filterMapList } from "../../controller/generalController";
+import {
+  BotWarType,
+  editRace,
+  getNumberOfRace,
+} from "../../controller/botwarController";
+import {
+  filterMapList,
+  saveJSONToFile,
+} from "../../controller/generalController";
 import { globalData } from "../../global";
+import botWarData from "../../database/bot-war.json";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -49,8 +56,8 @@ module.exports = {
         }))
       );
     } else if (focusedOption.name === "race") {
-      let races = getNumberOfRace(channelId);
-      let choices: number[] = [];
+      const races = getNumberOfRace(channelId);
+      const choices: number[] = [];
       for (let i = 1; i <= races; i++) {
         choices.push(i);
       }
@@ -68,13 +75,22 @@ module.exports = {
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
+    const botwar: BotWarType = botWarData as BotWarType;
+    const botwarPath: string = "./src/database/bot-war.json";
     const spots: string[] = interaction.options.getString("spots")!.split(" ");
     const map: string[] = interaction.options.getString("map")!.split(" ");
-    const channelId: string = interaction.channelId;
+    const idChannel: string = interaction.channelId;
     const race: number =
-      interaction.options.getInteger("race") ?? getNumberOfRace(channelId);
-    const newRace = await editRace(spots, map[0], channelId, race.toString());
+      interaction.options.getInteger("race") ?? getNumberOfRace(idChannel);
+    const newRace = await editRace(spots, map[0], idChannel, race.toString());
+    const war = botwar.channels[idChannel];
 
-    await interaction.reply(newRace);
+    try {
+      const msg = await interaction.reply(newRace);
+      war.paramWar.last_message_id = `${interaction.channelId}/${msg.id}`;
+      saveJSONToFile(botwar, botwarPath);
+    } catch (e: any) {
+      console.log(e.requestBody.requestBody);
+    }
   },
 };
