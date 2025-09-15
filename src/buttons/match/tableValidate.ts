@@ -20,7 +20,7 @@ module.exports = {
     const matchData = globalData.getFullMatchPreview(id);
     const matchCount = await _getAllMatchsPublished(team_id);
     const match = await _getMatch(id, team_id);
-    console.log("url:", matchData?.table_url);
+    const channel_result_id = globalData.getTeam(team_id)?.result_channel_id;
 
     await interaction.deferReply();
 
@@ -36,7 +36,7 @@ module.exports = {
     }
 
     const channel = (await interaction.client.channels.fetch(
-      "459663694381711360"
+      channel_result_id!
     )) as TextChannel;
 
     const response = await axios.get(matchData.table_url!, {
