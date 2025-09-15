@@ -14,10 +14,10 @@ module.exports = {
         .setRequired(true)),
     async execute(interaction) {
         const hours = interaction.options.getString("horaire");
-        let fetchedMembers = await interaction.guild?.members.fetch();
-        let fetchedRoles = await interaction.guild?.roles.fetch();
+        const fetchedMembers = await interaction.guild?.members.fetch();
+        const fetchedRoles = await interaction.guild?.roles.fetch();
         const rostersRolesId = __1.ROLES;
-        let roleList = [];
+        const roleList = [];
         fetchedRoles?.forEach((role) => {
             if (rostersRolesId.includes(role.id))
                 roleList.push(role);
@@ -36,7 +36,7 @@ module.exports = {
                 index++;
             }
             else {
-                let msg = await interaction.channel.send({
+                const msg = await interaction.channel.send({
                     embeds: resItem.embed,
                     components: [resItem.buttons],
                 });

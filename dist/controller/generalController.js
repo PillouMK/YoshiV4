@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.playerRosterChange = exports.playerRemovedInGuild = exports.playerAddInGuild = exports.botLogs = exports.YOSHI_FAMILY_LOGO = exports.addBlank = exports.rosterColor = exports.sortByRoleId = exports.filterMapList = exports.saveJSONToFile = void 0;
+exports.makeMessageLink = exports.playerRosterChange = exports.playerRemovedInGuild = exports.playerAddInGuild = exports.botLogs = exports.MK_MINIA_ATTACHMENT = exports.YOSHI_FAMILY_LOGO = exports.addBlank = exports.rosterColor = exports.sortByRoleId = exports.filterMapList = exports.saveJSONToFile = void 0;
+exports.generateMatchPreviewText = generateMatchPreviewText;
+exports.parseMatchPreviewText = parseMatchPreviewText;
 const tslib_1 = require("tslib");
 const fs_1 = tslib_1.__importDefault(require("fs"));
 const settings_json_1 = tslib_1.__importDefault(require("../settings.json"));
 const discord_js_1 = require("discord.js");
-const yfApiController_1 = require("./yfApiController");
 const saveJSONToFile = (data, filePath) => {
     try {
         const jsonData = JSON.stringify(data, null, 2);
@@ -18,7 +19,7 @@ const saveJSONToFile = (data, filePath) => {
 };
 exports.saveJSONToFile = saveJSONToFile;
 const filterMapList = (LIST_MAPS, value) => {
-    return LIST_MAPS.filter((map) => map.idMap.toLocaleLowerCase().includes(value)).slice(0, 25);
+    return LIST_MAPS.filter((map) => map.tag.toLocaleLowerCase().includes(value)).slice(0, 25);
 };
 exports.filterMapList = filterMapList;
 const sortByRoleId = (roleList, roleId) => {
@@ -61,6 +62,10 @@ const addBlank = (string, number, isAfter = false) => {
 };
 exports.addBlank = addBlank;
 exports.YOSHI_FAMILY_LOGO = new discord_js_1.AttachmentBuilder("./image/LaYoshiFamily.png");
+const MK_MINIA_ATTACHMENT = (game_id, map_tag) => {
+    return new discord_js_1.AttachmentBuilder(`./image/${game_id}/${map_tag}.png`);
+};
+exports.MK_MINIA_ATTACHMENT = MK_MINIA_ATTACHMENT;
 const getCurrentDateTimeString = () => {
     const now = new Date();
     const year = now.getFullYear();
@@ -83,51 +88,9 @@ const botLogs = async (bot, message) => {
     }
 };
 exports.botLogs = botLogs;
-const playerAddInGuild = async (bot, member) => {
-    if (member.guild.id === "135721923568074753") {
-        let player = await (0, yfApiController_1.getPlayerById)(member.user.id);
-        if (player.statusCode === 404) {
-            let addPlayer = await (0, yfApiController_1.postPlayer)(member.user.id, member.user.username, "NR");
-            if (addPlayer.statusCode === 201) {
-                (0, exports.botLogs)(bot, `${member.user.username} a rejoins le serveur`);
-                console.log(`${member.user.username} bien ajouté`);
-            }
-            else if (addPlayer.statusCode === 404) {
-                (0, exports.botLogs)(bot, `Erreur ajout pour : ${addPlayer.data}`);
-                console.log("fail ajout :", addPlayer.data);
-            }
-            else {
-                (0, exports.botLogs)(bot, `Erreur API ajout pour : ${addPlayer.data}`);
-                console.log(`Problème API lors de l'ajout de ${member.user.username}`);
-            }
-        }
-        else if (player.statusCode === 200) {
-            (0, exports.botLogs)(bot, `${member.user.username} est revenu sur le serveur`);
-            console.log(`${member.user.username} existe déjà`);
-        }
-    }
-    else {
-        console.log("wrong server");
-    }
-};
+const playerAddInGuild = async (bot, member) => { };
 exports.playerAddInGuild = playerAddInGuild;
-const playerRemovedInGuild = async (bot, member) => {
-    if (member.guild.id === "135721923568074753") {
-        (0, exports.botLogs)(bot, `${member.user.username} a quitté le serveur`);
-        let playerRemoved = await (0, yfApiController_1.patchPlayer)(member.id, undefined, "NR");
-        if (playerRemoved.statusCode === 200) {
-            (0, exports.botLogs)(bot, `${member.user.username} role mise à jour: NR`);
-            console.log(`${member.user.username} bien update`);
-        }
-        else {
-            (0, exports.botLogs)(bot, `${member.user.username} erreur lors de l'update du rôle`);
-            console.log("erreur update", playerRemoved.data);
-        }
-    }
-    else {
-        console.log("wrong server");
-    }
-};
+const playerRemovedInGuild = async (bot, member) => { };
 exports.playerRemovedInGuild = playerRemovedInGuild;
 const galaxy_id = "643871029210513419";
 const odyssey_id = "643569712353116170";
@@ -137,37 +100,7 @@ const playerRosterChange = async (bot, oldMember, newMember) => {
     const newRoles = new Set(newMember.roles.cache.keys());
     const addedRoles = [...newRoles].filter((id) => !oldRoles.has(id));
     const removedRoles = [...oldRoles].filter((id) => !newRoles.has(id));
-    const handleRoleChange = async (roleId, isAdded) => {
-        if (roleId === galaxy_id || roleId === odyssey_id) {
-            const idRoster = roleId === galaxy_id ? "YFG" : "YFO";
-            if (isAdded) {
-                const result = await (0, yfApiController_1.patchPlayer)(newMember.user.id, newMember.user.username, idRoster);
-                if (result.statusCode === 200) {
-                    console.log(`${newMember.user.username} est désormais ${idRoster}`);
-                }
-                else {
-                    console.error("Échec de la modification :", result.data);
-                }
-            }
-            else {
-                const hasOppositeRole = roleId === galaxy_id
-                    ? newRoles.has(odyssey_id)
-                    : newRoles.has(galaxy_id);
-                const newRoster = hasOppositeRole
-                    ? roleId === galaxy_id
-                        ? "YFO"
-                        : "YFG"
-                    : "NR";
-                const result = await (0, yfApiController_1.patchPlayer)(newMember.user.id, newMember.user.username, newRoster);
-                if (result.statusCode === 200) {
-                    console.log(`${newMember.user.username} est désormais ${newRoster}`);
-                }
-                else {
-                    console.error("Échec de la modification :", result.data);
-                }
-            }
-        }
-    };
+    const handleRoleChange = async (roleId, isAdded) => { };
     for (const roleId of addedRoles) {
         await handleRoleChange(roleId, true);
     }
@@ -176,3 +109,80 @@ const playerRosterChange = async (bot, oldMember, newMember) => {
     }
 };
 exports.playerRosterChange = playerRosterChange;
+function generateMatchPreviewText(users) {
+    const lines = users.map((user) => `${user.username} - ${user.id} - SCORE +`);
+    const opponentLines = Array(6).fill("joueurX - FLAG - SCORE +");
+    return [...lines, "|", ...opponentLines].join("\n");
+}
+function parseMatchPreviewText(input, title, theme) {
+    const own_team = [];
+    const opponent_team = [];
+    const [table, table2] = input.trim().replace(/\s/g, "").split("|");
+    const own_team_table = table.split("+");
+    const opponent_team_table = table2.split("+");
+    for (const elt of own_team_table) {
+        if (elt === "")
+            continue;
+        const [name, id, score] = elt.split("-");
+        const nb_race = checkNumberOfRaces(name);
+        const _score = Number(score);
+        if (isNaN(_score)) {
+            return `${score} n'est pas un nombre`;
+        }
+        if (nb_race) {
+            own_team.push({
+                score: _score,
+                user_id: id,
+                number_race: nb_race,
+            });
+        }
+        else {
+            own_team.push({
+                score: _score,
+                user_id: id,
+            });
+        }
+    }
+    for (const elt of opponent_team_table) {
+        if (elt === "")
+            continue;
+        const [name, flag, score] = elt.split("-");
+        const nb_race = checkNumberOfRaces(name);
+        const _score = Number(score);
+        if (isNaN(_score)) {
+            return `${score} n'est pas un nombre`;
+        }
+        if (nb_race) {
+            opponent_team.push({
+                name: name,
+                score: _score,
+                number_race: nb_race,
+                ...(flag !== "FLAG" && { flag }),
+            });
+        }
+        else {
+            opponent_team.push({
+                name: name,
+                score: _score,
+                ...(flag !== "FLAG" && { flag }),
+            });
+        }
+    }
+    return {
+        own_team,
+        opponent_team,
+        ...(title && { title }),
+        ...(theme && { theme }),
+    };
+}
+function checkNumberOfRaces(text) {
+    const match = text.match(/\((\d+)\)$/);
+    if (match) {
+        return Number(match[1]);
+    }
+    return undefined;
+}
+const makeMessageLink = (team_id, msg_id) => {
+    return `https://discord.com/channels/${team_id}/${msg_id}`;
+};
+exports.makeMessageLink = makeMessageLink;

@@ -1,54 +1,36 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateFinalRanking = exports.makeListButtonRanking = exports.makeFields = exports.makeEmbedRanking = exports.timetrialFinalRanking = exports.updateTimetrial = exports.msToTime = exports.timeToMs = exports.isTimeValid = exports.makeListButton = exports.makeEmbedTimetrial = exports.makeTimetrialFields = exports.emote_string = exports.makeTimetrialMessage = exports.getTimetrialsDataByMap = void 0;
-const tslib_1 = require("tslib");
+exports.makeFields = exports.makeEmbedRanking = exports.msToTime = exports.timeToMs = exports.isTimeValid = exports.updateTimetrial = exports.makeListButton = exports.makeEmbedTimetrial = exports.makeTimetrialFields = exports.emote_string = exports.makeTimetrialMessage = void 0;
 const discord_js_1 = require("discord.js");
 const yfApiController_1 = require("./yfApiController");
 const generalController_1 = require("./generalController");
-const settings_json_1 = tslib_1.__importDefault(require("../settings.json"));
 const terminaison = ["st", "nd", "rd", "th"];
-const testTime = /[\d]{1}[\:|\.][\d]{2}[\.|\:][\d]{3}/;
-const getTimetrialsDataByMap = async (idMap, idRoster) => {
-    const response = await (0, yfApiController_1.getTimetrialsByMap)(idMap, idRoster);
-    if (response.statusCode !== 200) {
-        return undefined;
-    }
-    const data = {
-        infoMap: response.data.infoMap,
-        timetrials: {
-            arrayShroom: response.data.timetrials.arrayShroom,
-            arrayShroomless: response.data.timetrials.arrayShroomless,
-        },
-    };
-    return data;
-};
-exports.getTimetrialsDataByMap = getTimetrialsDataByMap;
-const makeTimetrialMessage = async (idMap, idRoster, isShroomless, user, isMobile) => {
-    const data = await (0, exports.getTimetrialsDataByMap)(idMap, idRoster);
-    if (data == undefined) {
+const testTime = /\d[:.]\d{2}[.:]\d{3}/;
+const makeTimetrialMessage = async (map_tag, game_id, team_id, isShroomless, user, isMobile) => {
+    const timetrials = await (0, yfApiController_1._getTimetrialsByMap)(map_tag, game_id, team_id);
+    if (timetrials.statusCode != 200) {
         return {
             content: "Une erreur est survenue",
         };
     }
+    const timetrialsArray = isShroomless
+        ? timetrials.data.shroomless
+        : timetrials.data.noShroomless;
     const info = {
         date: new Date(),
-        idRoster: idRoster ?? "YF",
-        isEmpty: isShroomless
-            ? data.timetrials.arrayShroomless == null
-            : data.timetrials.arrayShroom == null,
+        isEmpty: !(timetrialsArray.length > 0),
         isMobile: isMobile,
         isShroomless: isShroomless,
     };
-    const times = !isShroomless
-        ? data.timetrials.arrayShroom
-        : data.timetrials.arrayShroomless;
+    const times = timetrialsArray;
     const fields = (0, exports.makeTimetrialFields)(times, user, isShroomless);
-    const embed = (0, exports.makeEmbedTimetrial)(data.infoMap, fields, info);
-    const buttons = (0, exports.makeListButton)(isShroomless, isMobile, idRoster ?? "YF", idMap);
+    const embed = (0, exports.makeEmbedTimetrial)(timetrials.data.map, fields, info);
+    const buttons = (0, exports.makeListButton)(isShroomless, isMobile, map_tag, game_id);
     return {
         content: `Dernier edit initié par ${user.username}`,
         embed: [embed],
         buttons: buttons,
+        file: [(0, generalController_1.MK_MINIA_ATTACHMENT)(game_id, map_tag)],
     };
 };
 exports.makeTimetrialMessage = makeTimetrialMessage;
@@ -63,37 +45,37 @@ const makeTimetrialFields = (data, user, isShroomless) => {
     let times = "";
     let diffs = "";
     let mobileField = "";
-    if (data == null) {
+    if (data.length == 0) {
         return undefined;
     }
     const emoteEmbed = (0, exports.emote_string)(isShroomless);
-    const indexUser = data.findIndex((x) => x.idPlayer === user.id);
-    const maxLength = Math.max(...data.map((el) => el.name.length)) > 10
+    const indexUser = data.findIndex((x) => x.user_id === user.id);
+    const maxLength = Math.max(...data.map((el) => el.user.name.length)) > 10
         ? 10
-        : Math.max(...data.map((el) => el.name.length));
+        : Math.max(...data.map((el) => el.user.name.length));
     data.forEach((timetrial, index) => {
         if (index < 10) {
-            let place = index + 1 < 4 ? terminaison[index] : terminaison[3];
+            const place = index + 1 < 4 ? terminaison[index] : terminaison[3];
             let placement = index < 9 ? `\`${index + 1}${place}.\`` : `\`${index + 1}${place}\``;
-            members += `${placement} : **${timetrial.name}**\n`;
-            times += `\`${timetrial.duration}\`\n`;
-            diffs += `\`(${timetrial.difference})\`\n`;
+            members += `${placement} : **${timetrial.user.name}**\n`;
+            times += `\`${(0, exports.msToTime)(timetrial.time)}\`\n`;
+            diffs += `\`(${(0, exports.msToTime)(timetrial.time - data[0].time, true)})\`\n`;
             placement = index < 9 ? `${index + 1}${place} ` : `${index + 1}${place}`;
-            mobileField += `\`${placement} ${(0, generalController_1.addBlank)(timetrial.name.slice(0, 10), maxLength, true)} ${timetrial.duration} (${timetrial.difference})\` \n`;
+            mobileField += `\`${placement} ${(0, generalController_1.addBlank)(timetrial.user.name.slice(0, 10), maxLength, true)} ${(0, exports.msToTime)(timetrial.time)} (${(0, exports.msToTime)(timetrial.time - data[0].time, true)})\` \n`;
         }
     });
     if (indexUser != -1 && indexUser >= 10) {
-        let element = data[indexUser];
-        let place = terminaison[3];
+        const element = data[indexUser];
+        const place = terminaison[3];
         let placement = indexUser < 9
             ? `\`${indexUser + 1}${place}.\``
             : `\`${indexUser + 1}${place}\``;
-        members += `${placement} : **${element.name}**\n`;
-        times += `\`${element.duration}\`\n`;
-        diffs += `\`(${element.difference})\`\n`;
+        members += `${placement} : **${element.user.name}**\n`;
+        times += `\`${(0, exports.msToTime)(element.time)}\`\n`;
+        diffs += `\`(${(0, exports.msToTime)(element.time - data[0].time, true)})\`\n`;
         placement =
             indexUser < 9 ? `${indexUser + 1}${place} ` : `${indexUser + 1}${place}`;
-        mobileField += `\`${placement} ${(0, generalController_1.addBlank)(element.name.slice(0, 10), maxLength, true)} ${element.duration} (${element.difference})\` \n`;
+        mobileField += `\`${placement} ${(0, generalController_1.addBlank)(element.user.name.slice(0, 10), maxLength, true)} ${(0, exports.msToTime)(element.time)} (${(0, exports.msToTime)(element.time - data[0].time, true)})\` \n`;
     }
     return {
         members: { name: "__Membre :__", value: members, inline: true },
@@ -108,33 +90,30 @@ const makeTimetrialFields = (data, user, isShroomless) => {
 };
 exports.makeTimetrialFields = makeTimetrialFields;
 const makeEmbedTimetrial = (infoMap, fields, info) => {
-    const title = `Classement : ${infoMap.initialGame} ${infoMap.nameMap}`;
+    const title = `Classement : ${infoMap.tag} ${infoMap.name}`;
     const emoteEmbed = (0, exports.emote_string)(info.isShroomless);
-    const colorEmbed = (0, generalController_1.rosterColor)(info.idRoster);
-    const isDLC = infoMap.DLC ? "DLC" : "Not DLC";
-    const isRetro = infoMap.retro ? "Retro" : "Not retro";
+    const colorEmbed = 0x2ecc71;
     const quoteShroomless = info.isShroomless ? "shroomless" : "items";
-    const quoteRoster = info.idRoster != undefined ? `pour le roster ${info.idRoster}` : "";
-    let classementEmbed = new discord_js_1.EmbedBuilder()
+    const classementEmbed = new discord_js_1.EmbedBuilder()
         .setColor(colorEmbed)
-        .setFooter({ text: `${infoMap.idMap} - ${isDLC} - ${isRetro}` })
+        .setFooter({ text: `${infoMap.game_id} - ${infoMap.tag}` })
         .setTimestamp(info.date);
     if (info.isEmpty) {
         return classementEmbed
             .setColor(0xec1c24)
             .setTitle(`${title} ${emoteEmbed}`)
-            .setFooter({ text: `${infoMap.idMap} - ${isDLC} - ${isRetro}` })
-            .setThumbnail(infoMap.minia)
+            .setFooter({ text: `${infoMap.game_id} - ${infoMap.tag}` })
+            .setThumbnail(`attachment://${infoMap.tag}.png`)
             .addFields({
             name: "__Erreur:__",
-            value: `Il n'y a pas de temps sur ${infoMap.nameMap} en ${quoteShroomless} ${quoteRoster}`,
+            value: `Il n'y a pas de temps sur ${infoMap.name} en ${quoteShroomless}`,
             inline: true,
         });
     }
     if (!info.isMobile) {
         return classementEmbed
             .setTitle(`${emoteEmbed} ${title}`)
-            .setThumbnail(infoMap.minia)
+            .setThumbnail(`attachment://${infoMap.tag}.png`)
             .addFields(fields.members)
             .addFields(fields.time)
             .addFields(fields.diff)
@@ -143,52 +122,66 @@ const makeEmbedTimetrial = (infoMap, fields, info) => {
     else {
         return classementEmbed
             .setColor(colorEmbed)
-            .setFooter({ text: `${infoMap.idMap} - ${isDLC} - ${isRetro}` })
-            .setAuthor({ name: title, iconURL: infoMap.minia })
+            .setFooter({ text: `${infoMap.game_id} - ${infoMap.tag}` })
+            .setAuthor({ name: title, iconURL: `attachment://${infoMap.tag}.png` })
             .addFields(fields.mobileField);
     }
 };
 exports.makeEmbedTimetrial = makeEmbedTimetrial;
-const makeListButton = (isShroomless, isMobile, idRoster, idMap) => {
+const makeListButton = (isShroomless, isMobile, map_tag, game_id) => {
     const viewLabel = isMobile ? "PC" : "Mobile";
     const emoji = isMobile ? "💻" : "📱";
     const itemLabel = isShroomless ? "With items" : "No items";
     const row = new discord_js_1.ActionRowBuilder()
         .addComponents(new discord_js_1.ButtonBuilder()
-        .setCustomId(`timetrial-YF-${idMap}-${isShroomless}-${isMobile}`)
-        .setLabel("Yoshi")
-        .setStyle(discord_js_1.ButtonStyle.Secondary)
-        .setDisabled(idRoster == "YF"))
-        .addComponents(new discord_js_1.ButtonBuilder()
-        .setCustomId(`timetrial-YFG-${idMap}-${isShroomless}-${isMobile}`)
-        .setLabel("Galaxy")
-        .setStyle(discord_js_1.ButtonStyle.Success)
-        .setDisabled(idRoster == "YFG"))
-        .addComponents(new discord_js_1.ButtonBuilder()
-        .setCustomId(`timetrial-YFO-${idMap}-${isShroomless}-${isMobile}`)
-        .setLabel("Odyssey")
-        .setStyle(discord_js_1.ButtonStyle.Primary)
-        .setDisabled(idRoster == "YFO"))
-        .addComponents(new discord_js_1.ButtonBuilder()
-        .setCustomId(`timetrial-${idRoster}-${idMap}-${!isShroomless}-${isMobile}`)
+        .setCustomId(`timetrial-${map_tag}-${game_id}-${!isShroomless}-${isMobile}`)
         .setLabel(itemLabel)
-        .setStyle(discord_js_1.ButtonStyle.Danger))
+        .setStyle(discord_js_1.ButtonStyle.Success))
         .addComponents(new discord_js_1.ButtonBuilder()
-        .setCustomId(`timetrial-${idRoster}-${idMap}-${isShroomless}-${!isMobile}`)
+        .setCustomId(`timetrial-${map_tag}-${game_id}-${isShroomless}-${!isMobile}`)
         .setLabel(viewLabel)
         .setEmoji(emoji)
         .setStyle(discord_js_1.ButtonStyle.Secondary));
     return row;
 };
 exports.makeListButton = makeListButton;
+const updateTimetrial = async (time, map_tag, isShroomless, user, game_id, bot) => {
+    if (!(0, exports.isTimeValid)(time)) {
+        (0, generalController_1.botLogs)(bot, `Error time is not valid : ${time}`);
+        return `${time} n'est pas un temps valide`;
+    }
+    const timeInMs = (0, exports.timeToMs)(time);
+    const upsert = {
+        game_id: game_id,
+        is_shroomless: isShroomless,
+        map_tag: map_tag,
+        time: timeInMs,
+        user_id: user.id,
+    };
+    const updateTime = await (0, yfApiController_1._upsertTimetrial)(upsert);
+    const response = isShroomless ? `en shroomless` : `avec items`;
+    if (updateTime.statusCode == 201) {
+        const res = updateTime;
+        (0, generalController_1.botLogs)(bot, `${user.username} successfully updated time (${map_tag}, ${time}, ${isShroomless})`);
+        const delta = res.data.delta ? `(${(0, exports.msToTime)(res.data.delta, true)}s)` : "";
+        const old_time = res.data.old_time
+            ? `Ton ancien temps était : ${(0, exports.msToTime)(res.data.old_time)}`
+            : ``;
+        return `Nouveau temps sur ${map_tag} pour ${res.data.timetrial.user.name} : ${(0, exports.msToTime)(res.data.new_time)} ${delta}${response}\n${old_time}`;
+    }
+    else {
+        return `Erreur lors de la commande : ${updateTime.data.message}`;
+    }
+};
+exports.updateTimetrial = updateTimetrial;
 const isTimeValid = (time) => {
     return testTime.test(time) || time.length === 8;
 };
 exports.isTimeValid = isTimeValid;
 const timeToMs = (time) => {
-    let milli = parseInt(time.slice(5), 10);
-    let minToMil = parseInt(time.slice(0, 1), 10) * 60000;
-    let secTomil = parseInt(time.slice(2, 4), 10) * 1000;
+    const milli = parseInt(time.slice(5), 10);
+    const minToMil = parseInt(time.slice(0, 1), 10) * 60000;
+    const secTomil = parseInt(time.slice(2, 4), 10) * 1000;
     return minToMil + secTomil + milli;
 };
 exports.timeToMs = timeToMs;
@@ -197,62 +190,19 @@ const msToTime = (s, isDiff = false) => {
         z = z || 2;
         return ("00" + n).slice(-z);
     }
-    let ms = s % 1000;
+    const ms = s % 1000;
     s = (s - ms) / 1000;
-    let secs = s % 60;
+    const secs = s % 60;
     s = (s - secs) / 60;
-    let mins = s % 60;
+    const mins = s % 60;
     return !isDiff
         ? pad(mins) + ":" + pad(secs) + "." + pad(ms, 3)
         : secs + "." + pad(ms, 3);
 };
 exports.msToTime = msToTime;
-const updateTimetrial = async (time, idMap, isShroomless, user, bot) => {
-    if (!(0, exports.isTimeValid)(time)) {
-        (0, generalController_1.botLogs)(bot, `Error time is not valid : ${time}`);
-        return `${time} n'est pas un temps valide`;
-    }
-    const timeInMs = (0, exports.timeToMs)(time);
-    const patchTime = await (0, yfApiController_1.patchTimetrial)(user.id, idMap, timeInMs, isShroomless);
-    const response = isShroomless ? `en shroomless` : `avec items`;
-    if (patchTime.statusCode != 200) {
-        const postTime = await (0, yfApiController_1.postTimetrial)(user.id, idMap, timeInMs, isShroomless);
-        if (postTime.statusCode != 201) {
-            (0, generalController_1.botLogs)(bot, `Error when adding time : ${postTime.data.toString()}`);
-            return `Erreur : ${postTime.data.toString()}`;
-        }
-        else {
-            (0, generalController_1.botLogs)(bot, `${user.username} successfully added time (${idMap}, ${time}, ${isShroomless})`);
-            return `Nouveau temps : ${time} ${response}`;
-        }
-    }
-    else {
-        (0, generalController_1.botLogs)(bot, `${user.username} successfully updated time (${idMap}, ${time}, ${isShroomless})`);
-        return `Nouveau temps : ${patchTime.data.newTime} (${patchTime.data.diff}s) ${response}\nTon ancien temps était : ${patchTime.data.oldTime}`;
-    }
-};
-exports.updateTimetrial = updateTimetrial;
-const timetrialFinalRanking = async (bot, isMobile) => {
-    const classement = await (0, yfApiController_1.getAllPlayers)();
-    if (classement.statusCode != 200) {
-        (0, generalController_1.botLogs)(bot, `Error when getAllPlayers - ${classement.data}`);
-        return {
-            content: "Erreur lors de la récupération des joueurs",
-        };
-    }
-    const embed = (0, exports.makeEmbedRanking)(classement.data, isMobile);
-    const buttons = (0, exports.makeListButtonRanking)(isMobile);
-    return {
-        content: "",
-        embed: [embed],
-        buttons: buttons,
-        file: [generalController_1.YOSHI_FAMILY_LOGO],
-    };
-};
-exports.timetrialFinalRanking = timetrialFinalRanking;
 const makeEmbedRanking = (classement, isMobile) => {
     const fields = (0, exports.makeFields)(classement);
-    let rankingEmbed = new discord_js_1.EmbedBuilder()
+    const rankingEmbed = new discord_js_1.EmbedBuilder()
         .setColor((0, generalController_1.rosterColor)(""))
         .setFooter({ text: "1er = 10 pts, 2nd = 9 pts, [...] 10ème = 1 pts" })
         .setTimestamp(Date.now());
@@ -317,39 +267,3 @@ const makeFields = (classement) => {
     };
 };
 exports.makeFields = makeFields;
-const makeListButtonRanking = (isMobile) => {
-    const labelView = isMobile ? "Vue PC" : "Vue Mobile";
-    const row = new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder()
-        .setCustomId(`ranking-${!isMobile}`)
-        .setLabel(labelView)
-        .setStyle(discord_js_1.ButtonStyle.Success));
-    return row;
-};
-exports.makeListButtonRanking = makeListButtonRanking;
-const updateFinalRanking = async (bot) => {
-    const newMsg = await (0, exports.timetrialFinalRanking)(bot, false);
-    const channelId = settings_json_1.default.channels.rankings;
-    const msgId = settings_json_1.default.rankingTimetrial.msgId;
-    try {
-        const channel = (await bot.channels.fetch(channelId));
-        const message = (await channel.messages.fetch(msgId));
-        message.edit({
-            content: newMsg.content,
-            components: newMsg.buttons != undefined ? [newMsg.buttons] : [],
-            embeds: newMsg.embed,
-            files: newMsg.file,
-        });
-        const successMessage = `Yoshi successfully updated Final Ranking message`;
-        (0, generalController_1.botLogs)(bot, successMessage);
-    }
-    catch (e) {
-        const errorMessage = `Erreur projetMap : ${e}`;
-        try {
-            (0, generalController_1.botLogs)(bot, errorMessage);
-        }
-        catch (error) {
-            console.log(error);
-        }
-    }
-};
-exports.updateFinalRanking = updateFinalRanking;

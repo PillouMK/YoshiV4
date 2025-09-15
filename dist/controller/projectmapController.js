@@ -1,65 +1,50 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProjectMapMessage = exports.rankingMessage = exports.makeEmbedProjectMap = exports.makeProjectMapMobileRankingField = exports.makeProjectMapRankingFields = exports.maxLengthFields = exports.getProjectMapData = exports.projectMap = void 0;
-const tslib_1 = require("tslib");
+exports.rankingMessage = exports.makeEmbedProjectMap = exports.makeProjectMapMobileRankingField = exports.makeProjectMapRankingFields = exports.maxLengthFields = exports.projectMap = void 0;
 const generalController_1 = require("../controller/generalController");
-const yfApiController_1 = require("./yfApiController");
 const discord_js_1 = require("discord.js");
-const settings_json_1 = tslib_1.__importDefault(require("../settings.json"));
+const global_1 = require("../global");
 exports.projectMap = {};
-const getProjectMapData = async (idRoster, month, iteration) => {
-    const response = await (0, yfApiController_1.getProjectMap)(idRoster, month, iteration);
-    if (response.statusCode !== 200) {
-        return undefined;
-    }
-    const data = {
-        projectMapValid: response.data.projectMapValid,
-        projectMapNotValid: response.data.projectMapNotValid,
-    };
-    return data;
-};
-exports.getProjectMapData = getProjectMapData;
-const maxLengthFields = (projectMap) => {
-    if (projectMap == undefined) {
+const maxLengthFields = (mapStats) => {
+    if (mapStats.length == 0) {
         return {
             idMap: 0,
             iteration: 0,
             score: 0,
         };
     }
-    let maxLength = {
-        idMap: Math.max(...projectMap.map((elt) => {
-            return elt.idMap.toString().length;
+    const maxLength = {
+        idMap: Math.max(...mapStats.map((elt) => {
+            return elt.tag.toString().length;
         })),
-        iteration: Math.max(...projectMap.map((elt) => {
+        iteration: Math.max(...mapStats.map((elt) => {
             return elt.iteration.toString().length;
         })),
-        score: Math.max(...projectMap.map((elt) => {
-            return elt.score.toString().length;
+        score: Math.max(...mapStats.map((elt) => {
+            return elt.weighted_average.toString().length;
         })),
     };
     return maxLength;
 };
 exports.maxLengthFields = maxLengthFields;
-const makeProjectMapRankingFields = (projectMap) => {
-    let rankingFields = [];
+const makeProjectMapRankingFields = (map_stats) => {
+    const rankingFields = [];
     let idMapField = "";
     let scoreField = "";
     let iterationField = "";
-    let maxLength = (0, exports.maxLengthFields)(projectMap);
-    if (projectMap == undefined) {
-    }
-    projectMap.forEach((element, index) => {
-        let space = index < 9 ? ` ` : "";
-        idMapField += `\`${index + 1}${space} : \` **${element.idMap}** \n`;
-        scoreField += `\`${(0, generalController_1.addBlank)(element.score.toString(), maxLength.score)} pts\`\n`;
-        iterationField += `\`${(0, generalController_1.addBlank)(element.iteration.toString(), maxLength.iteration)}\`\n`;
+    const maxLength = (0, exports.maxLengthFields)(map_stats);
+    map_stats.forEach((map, index) => {
+        const space = index < 9 ? ` ` : "";
+        idMapField += `\`${index + 1}${space} : \` **${map.tag}** \n`;
+        scoreField += `\`${(0, generalController_1.addBlank)(map.weighted_average.toString(), maxLength.score)} pts\`\n`;
+        const win_rate = map.win_rate * 100;
+        iterationField += `\`${(0, generalController_1.addBlank)(map.iteration.toString(), maxLength.iteration)} - ${(0, generalController_1.addBlank)(`${win_rate.toString()}%`, 4)}\`\n`;
         if (idMapField.length > 1000) {
             rankingFields.push({
                 map: { name: `__Map :__`, value: idMapField, inline: true },
                 score: { name: `__Score :__`, value: scoreField, inline: true },
                 iteration: {
-                    name: `__Iteration :__`,
+                    name: `__Iteration / Winrate :__`,
                     value: iterationField,
                     inline: true,
                 },
@@ -74,7 +59,7 @@ const makeProjectMapRankingFields = (projectMap) => {
             map: { name: `__Map :__`, value: idMapField, inline: true },
             score: { name: `__Score :__`, value: scoreField, inline: true },
             iteration: {
-                name: `__Iteration :__`,
+                name: `__Iteration / Winrate :__`,
                 value: iterationField,
                 inline: true,
             },
@@ -83,28 +68,30 @@ const makeProjectMapRankingFields = (projectMap) => {
     return rankingFields;
 };
 exports.makeProjectMapRankingFields = makeProjectMapRankingFields;
-const makeProjectMapMobileRankingField = (projectMap) => {
-    let maxLength = (0, exports.maxLengthFields)(projectMap);
-    let rankingField = [];
+const makeProjectMapMobileRankingField = (map_stats) => {
+    const maxLength = (0, exports.maxLengthFields)(map_stats);
+    const rankingField = [];
     let field = "";
-    projectMap.forEach((element, index) => {
-        let space = index < 9 ? ` ` : "";
-        let idMap = (0, generalController_1.addBlank)(element.idMap, maxLength.idMap);
-        let score = (0, generalController_1.addBlank)(element.score.toString(), maxLength.idMap);
-        let iteration = (0, generalController_1.addBlank)(element.iteration.toString(), maxLength.idMap);
+    map_stats.forEach((map, index) => {
+        const space = index < 9 ? ` ` : "";
+        const win_rate = map.win_rate * 100;
+        const idMap = (0, generalController_1.addBlank)(map.tag, maxLength.idMap);
+        const score = (0, generalController_1.addBlank)(map.weighted_average.toString(), maxLength.idMap);
+        const iteration = (0, generalController_1.addBlank)(map.iteration.toString(), maxLength.idMap);
+        const win_rate_s = (0, generalController_1.addBlank)(`${win_rate.toString()}%`, 4);
         if (field.length > 1000) {
             rankingField.push({
-                name: "__Map :     Score :     Iteration :__",
+                name: "__Map:     Score:     Iteration/Winrate:__",
                 value: field,
                 inline: false,
             });
             field = "";
         }
-        field += `\`${index + 1}${space} : ${idMap} | ${score} pts | ${iteration}\`\n`;
+        field += `\`${index + 1}${space} : ${idMap} | ${score} pts | ${iteration} - ${win_rate_s}\`\n`;
     });
     if (field.length > 0) {
         rankingField.push({
-            name: "__Map :     Score :     Iteration :__",
+            name: "__Map:     Score:     Iteration/Winrate:__",
             value: field,
             inline: false,
         });
@@ -112,15 +99,17 @@ const makeProjectMapMobileRankingField = (projectMap) => {
     return rankingField;
 };
 exports.makeProjectMapMobileRankingField = makeProjectMapMobileRankingField;
-const makeEmbedProjectMap = (idRoster, projetMapValid, projetMapNotValid, isMobile) => {
-    let rankingEmbed = new discord_js_1.EmbedBuilder()
-        .setColor((0, generalController_1.rosterColor)(idRoster))
+const makeEmbedProjectMap = (map_stats, isMobile, team, roster) => {
+    const rankingEmbed = new discord_js_1.EmbedBuilder()
+        .setColor(0x2ecc71)
         .setThumbnail("attachment://LaYoshiFamily.png")
-        .setTitle(`----------------- ProjectMap ${idRoster} -----------------`)
+        .setTitle(`---------------- Stats : ${team.name} ----------------`)
         .setTimestamp(Date.now())
-        .setFooter({ text: `project Map ${idRoster}` });
+        .setFooter({
+        text: `project Map ${team.name} ${roster ? roster.name : ""}`,
+    });
     if (!isMobile) {
-        if (projetMapValid == undefined) {
+        if (map_stats.stats.length == 0) {
             rankingEmbed.addFields({
                 name: `__**Données valides :**__`,
                 value: `Aucune données valides`,
@@ -128,28 +117,19 @@ const makeEmbedProjectMap = (idRoster, projetMapValid, projetMapNotValid, isMobi
             });
         }
         else {
-            const rankingFieldsValid = (0, exports.makeProjectMapRankingFields)(projetMapValid);
+            const rankingFields = (0, exports.makeProjectMapRankingFields)(map_stats.stats);
             rankingEmbed.addFields({
                 name: `.`,
                 value: `__**Données valides :**__`,
                 inline: false,
             });
-            rankingFieldsValid.forEach((element) => {
+            rankingFields.forEach((element) => {
                 rankingEmbed.addFields(element.map, element.score, element.iteration);
             });
         }
-        const rankingFieldsNotValid = (0, exports.makeProjectMapRankingFields)(projetMapNotValid);
-        rankingEmbed.addFields({
-            name: `.`,
-            value: `__**Données non-valides :**__`,
-            inline: false,
-        });
-        rankingFieldsNotValid.forEach((element) => {
-            rankingEmbed.addFields(element.map, element.score, element.iteration);
-        });
     }
     else {
-        if (projetMapValid == undefined) {
+        if (map_stats.stats.length == 0) {
             rankingEmbed.addFields({
                 name: `__**Données valides :**__`,
                 value: `Aucune données valides`,
@@ -157,7 +137,7 @@ const makeEmbedProjectMap = (idRoster, projetMapValid, projetMapNotValid, isMobi
             });
         }
         else {
-            const rankingFieldsValid = (0, exports.makeProjectMapMobileRankingField)(projetMapValid);
+            const rankingFieldsValid = (0, exports.makeProjectMapMobileRankingField)(map_stats.stats);
             rankingEmbed.addFields({
                 name: `.`,
                 value: `__**Données valides :**__`,
@@ -167,24 +147,17 @@ const makeEmbedProjectMap = (idRoster, projetMapValid, projetMapNotValid, isMobi
                 rankingEmbed.addFields(element);
             });
         }
-        const rankingFieldsNotValid = (0, exports.makeProjectMapMobileRankingField)(projetMapNotValid);
-        rankingEmbed.addFields({
-            name: `.`,
-            value: `__**Données non-valides :**__`,
-            inline: false,
-        });
-        rankingFieldsNotValid.forEach((element) => {
-            rankingEmbed.addFields(element);
-        });
     }
     return rankingEmbed;
 };
 exports.makeEmbedProjectMap = makeEmbedProjectMap;
-const rankingMessage = (idRoster, month, iteration, projetMapValid, projetMapNotValid, isMobile) => {
-    const content = messageRecap(idRoster, month, iteration);
-    const buttons = makeButtonList(idRoster, isMobile);
-    const file = new discord_js_1.AttachmentBuilder("./image/LaYoshiFamily.png");
-    const embed = (0, exports.makeEmbedProjectMap)(idRoster, projetMapValid, projetMapNotValid, isMobile);
+const rankingMessage = (map_stats, isMobile, team_id, roster_tag, month) => {
+    const team = global_1.globalData.getTeam(team_id);
+    const roster = global_1.globalData.getRoster(team_id, roster_tag ?? "") ?? undefined;
+    const content = messageRecap(team, month, roster);
+    const buttons = makeButtonList(roster_tag, isMobile);
+    const file = new discord_js_1.AttachmentBuilder("./image/LaYoshiFamily.png", { description: "Team logo" });
+    const embed = (0, exports.makeEmbedProjectMap)(map_stats, isMobile, team, roster);
     return {
         embed: [embed],
         buttons: buttons,
@@ -193,44 +166,14 @@ const rankingMessage = (idRoster, month, iteration, projetMapValid, projetMapNot
     };
 };
 exports.rankingMessage = rankingMessage;
-const messageRecap = (idRoster, month, iteration) => {
-    let saut2ligne = ".\n\n\n";
-    let endMsg = "Affichage des données valides et non valides";
-    return `${saut2ligne}**ProjectMap ${idRoster} : ** données des ${month} derniers mois, données jugées valides à partir de ${iteration} itérations\n${endMsg}`;
+const messageRecap = (team, month, roster) => {
+    return `**ProjectMap ${team.name} ${roster ? `- ${roster.name}**` : `**`} : ${month ? `** données des ${month} derniers mois` : ``}\n`;
 };
-const makeButtonList = (idRoster, isMobile) => {
+const makeButtonList = (roster_tag, isMobile) => {
     const labelView = isMobile ? "Vue PC" : "Vue Mobile";
     const idView = isMobile ? "pc" : "mobile";
     return new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder()
-        .setCustomId(`projectmap-${idView}-${idRoster}`)
+        .setCustomId(`projectmap-${idView}-${roster_tag ?? ""}`)
         .setLabel(labelView)
         .setStyle(discord_js_1.ButtonStyle.Primary));
 };
-const updateProjectMapMessage = async (bot, idRoster, month, iteration, isMobile) => {
-    const projectMap = await (0, exports.getProjectMapData)(idRoster, 3, 10);
-    const newMsg = (0, exports.rankingMessage)(idRoster, month, iteration, projectMap.projectMapValid, projectMap.projectMapNotValid, isMobile);
-    const channelId = settings_json_1.default.channels.rankings;
-    const msgId = settings_json_1.default.projectMap[idRoster];
-    try {
-        const channel = (await bot.channels.fetch(channelId));
-        const message = (await channel.messages.fetch(msgId));
-        message.edit({
-            content: newMsg.content,
-            components: [newMsg.buttons],
-            embeds: newMsg.embed,
-            files: [newMsg.file],
-        });
-        const successMessage = `Yoshi successfully updated ProjectMap ${idRoster} message`;
-        (0, generalController_1.botLogs)(bot, successMessage);
-    }
-    catch (e) {
-        const errorMessage = `Erreur projetMap : ${e}`;
-        try {
-            (0, generalController_1.botLogs)(bot, errorMessage);
-        }
-        catch (error) {
-            console.log(error);
-        }
-    }
-};
-exports.updateProjectMapMessage = updateProjectMapMessage;

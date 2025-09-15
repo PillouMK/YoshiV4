@@ -2,14 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const timetrialController_1 = require("../../controller/timetrialController");
-const __1 = require("../..");
 const generalController_1 = require("../../controller/generalController");
+const global_1 = require("../../global");
 module.exports = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName("classement")
         .setDescription("Classement Timetrial")
         .addStringOption((option) => option
-        .setName("idmap")
+        .setName("map")
         .setDescription("Map souhaitée")
         .setRequired(true)
         .setAutocomplete(true))
@@ -17,31 +17,46 @@ module.exports = {
         .setName("is_mobile")
         .setDescription("Vue Mobile")
         .setRequired(false))
-        .addBooleanOption((option) => option.setName("no_item").setDescription("Sans item ?").setRequired(false))
         .addStringOption((option) => option
-        .setName("idroster")
-        .setDescription("Roster")
+        .setName("game")
+        .setDescription("Jeu")
         .setRequired(false)
-        .addChoices({ name: "YFG", value: "YFG" }, { name: "YFO", value: "YFO" })),
+        .setAutocomplete(true))
+        .addBooleanOption((option) => option.setName("no_item").setDescription("Sans item ?").setRequired(false)),
     async autocomplete(interaction) {
-        const value = interaction.options.getFocused().toLocaleLowerCase();
-        const filtered = (0, generalController_1.filterMapList)(__1.LIST_MAPS, value);
         if (!interaction)
             return;
-        const choices = filtered.map((choice) => ({
-            name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
-            value: choice.idMap,
-        }));
-        await interaction.respond(choices);
+        const focusedOption = interaction.options.getFocused(true);
+        if (focusedOption.name === "map") {
+            const selectedGameId = interaction.options.getString("game") ?? "MKWORLD";
+            const value = interaction.options.getFocused().toLocaleLowerCase();
+            const filtered = (0, generalController_1.filterMapList)(global_1.globalData.getAllMaps(selectedGameId), value);
+            if (!interaction)
+                return;
+            const choices = filtered.map((choice) => ({
+                name: `${choice.tag} | ${choice.name}`,
+                value: choice.tag.toString(),
+            }));
+            await interaction.respond(choices);
+        }
+        else if (focusedOption.name === "game") {
+            const games = global_1.globalData.getAllGames();
+            const choices = games.map((choice) => ({
+                name: `${choice.id} | ${choice.name}`,
+                value: choice.id.toString(),
+            }));
+            await interaction.respond(choices);
+        }
     },
     async execute(interaction) {
-        const idMap = interaction.options.getString("idmap").split(" ");
-        const idRoster = interaction.options.getString("idroster") ?? undefined;
+        const map_tag = interaction.options.getString("map").split(" ");
+        const game_id = interaction.options.getString("game") ?? "MKWORLD";
         const isMobile = interaction.options.getBoolean("is_mobile") ?? false;
         const isShroomless = interaction.options.getBoolean("no_item") ?? false;
         const user = interaction.user;
+        const team_id = interaction.guildId;
         await interaction.deferReply();
-        const message = await (0, timetrialController_1.makeTimetrialMessage)(idMap[0], idRoster, isShroomless, user, isMobile);
+        const message = await (0, timetrialController_1.makeTimetrialMessage)(map_tag[0], game_id, team_id, isShroomless, user, isMobile);
         await interaction.editReply({
             content: message.content,
             embeds: message.embed,

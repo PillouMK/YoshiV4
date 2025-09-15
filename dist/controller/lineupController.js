@@ -22,7 +22,7 @@ var StatusLineUp;
 const lineupPath = "./src/database/lineup.json";
 const convertValidsHoursToNumberArray = (hours) => {
     const hoursToArray = hours.split(" ");
-    let validsHours = [];
+    const validsHours = [];
     hoursToArray.forEach((hour) => {
         if (/^(0[0-9]|1[0-9]|2[0-3])$/.test(hour)) {
             validsHours.push(Number(hour));
@@ -32,9 +32,9 @@ const convertValidsHoursToNumberArray = (hours) => {
 };
 exports.convertValidsHoursToNumberArray = convertValidsHoursToNumberArray;
 const sortByRoster = async (idRoster, lineup, listMembers) => {
-    let lineUpByRoster = [];
+    const lineUpByRoster = [];
     lineup.forEach((element) => {
-        let member = listMembers.find((member) => member.id === element.userId);
+        const member = listMembers.find((member) => member.id === element.userId);
         if (member?.roles.cache.find((role) => role.id === idRoster)) {
             lineUpByRoster.push(element);
         }
@@ -42,9 +42,9 @@ const sortByRoster = async (idRoster, lineup, listMembers) => {
     return lineUpByRoster;
 };
 const makeLineupFields = (lineUpByRoster, role) => {
-    let field = { name: "", inline: false, value: "" };
-    let lineupCan = [];
-    let lineupMaybe = [];
+    const field = { name: "", inline: false, value: "" };
+    const lineupCan = [];
+    const lineupMaybe = [];
     lineUpByRoster.forEach((elt) => {
         if (elt.status == 0)
             lineupCan.push(elt.userName);
@@ -64,8 +64,8 @@ const makeLineupFields = (lineUpByRoster, role) => {
     return field;
 };
 const makeSubFields = (lineUp) => {
-    let field = { name: "", inline: false, value: "" };
-    let lineupSub = [];
+    const field = { name: "", inline: false, value: "" };
+    const lineupSub = [];
     lineUp.forEach((elt) => {
         if (elt.status == 2)
             lineupSub.push(elt.userName);
@@ -80,8 +80,8 @@ const makeSubFields = (lineUp) => {
     return field;
 };
 const makeCantFields = (lineUp) => {
-    let field = { name: "", inline: false, value: "" };
-    let lineupCant = [];
+    const field = { name: "", inline: false, value: "" };
+    const lineupCant = [];
     lineUp.forEach((elt) => {
         if (elt.status == 3)
             lineupCant.push(elt.userName);
@@ -97,12 +97,12 @@ const makeCantFields = (lineUp) => {
 };
 const lineupResponse = async (hours, roles, listMembers) => {
     const hourArray = (0, exports.convertValidsHoursToNumberArray)(hours);
-    const isMix = roles.length === 1;
-    let response = [];
-    for (let hour of hourArray) {
+    const isMix = false;
+    const response = [];
+    for (const hour of hourArray) {
         const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
         const lineUpByHour = _lineUpData.lineup[hour];
-        let embed = makeEmbedLineup(hour.toString(), isMix);
+        const embed = makeEmbedLineup(hour.toString(), isMix);
         for (const role of roles) {
             const sortedData = await sortByRoster(role.id, lineUpByHour, listMembers);
             embed.addFields(makeLineupFields(sortedData, role));
@@ -124,7 +124,7 @@ const lineupResponse = async (hours, roles, listMembers) => {
 exports.lineupResponse = lineupResponse;
 function getTimestampForHour(hour) {
     const offsetWithFrance = getTimezoneOffsetInHours("Europe/Paris");
-    let now = new Date(Date.now());
+    const now = new Date(Date.now());
     now.setHours(parseInt(hour) + offsetWithFrance, 0, 0, 0);
     return (now.valueOf() / 1000).toString();
 }
@@ -166,17 +166,12 @@ const makeButtonList = (hour, isMix) => {
         .addComponents(new discord_js_1.ButtonBuilder()
         .setCustomId(`cant-${hour.toString()}-${idView}`)
         .setLabel(`Can't`)
-        .setStyle(discord_js_1.ButtonStyle.Danger))
-        .addComponents(new discord_js_1.ButtonBuilder()
-        .setCustomId(`lineupToggle-${hour.toString()}-${idViewToggle}`)
-        .setEmoji("<:refresh:1359564875419877669>")
-        .setLabel(labelView)
-        .setStyle(discord_js_1.ButtonStyle.Secondary));
+        .setStyle(discord_js_1.ButtonStyle.Danger));
 };
 const addMember = (hour, member, status) => {
     const nameJson = fc_json_1.default.names;
     const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
-    let lineupByHour = _lineUpData.lineup[parseInt(hour)];
+    const lineupByHour = _lineUpData.lineup[parseInt(hour)];
     const index = lineupByHour.findIndex((elt) => elt.userId === member.id);
     let name = member.username;
     if (nameJson[member.id] != undefined) {
@@ -203,7 +198,7 @@ const addMember = (hour, member, status) => {
 exports.addMember = addMember;
 const resetAllLineups = async (bot) => {
     const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
-    for (let msg of _lineUpData.temp_save) {
+    for (const msg of _lineUpData.temp_save) {
         deleteLineupMsgById(msg.id, msg.idChannel, bot);
     }
     _lineUpData.temp_save = [];
@@ -235,11 +230,11 @@ const deleteLineupMsgById = async (idMsg, idChannel, bot) => {
 const updateLineupsByHour = async (bot, hour) => {
     const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
     const lineupTempMsg = _lineUpData.temp_save.filter((elt) => elt.hour === hour);
-    for (let lineup of lineupTempMsg) {
+    for (const lineup of lineupTempMsg) {
         (0, exports.EditSavedMessages)(lineup, bot);
     }
     const lineupSavedMsg = _lineUpData.save.filter((elt) => elt.hour === hour);
-    for (let lineup of lineupSavedMsg) {
+    for (const lineup of lineupSavedMsg) {
         (0, exports.EditSavedMessages)(lineup, bot);
     }
 };
@@ -258,12 +253,15 @@ const pushTempMessage = (idMsg, idChannel, hour) => {
 exports.pushTempMessage = pushTempMessage;
 const toggleMessage = (idMsg, isMix) => {
     const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
+    const _item = _lineUpData.save.find((elt) => elt.id === idMsg);
+    if (_item) {
+        _item.isMix = isMix;
+    }
     const item = _lineUpData.temp_save.find((elt) => elt.id === idMsg);
-    if (!item) {
-        console.warn(`[toggleMessage] Message ID ${idMsg} not found in temp_save.`);
+    if (item) {
+        item.isMix = isMix;
         return;
     }
-    item.isMix = isMix;
     (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
 };
 exports.toggleMessage = toggleMessage;
@@ -275,7 +273,7 @@ const EditSavedMessages = async (lineup, bot) => {
     if (channel.isTextBased()) {
         const msg = await channel.messages.fetch(lineup.id);
         const rolesId = lineup.isMix ? [__1.ROLE_YF, __1.ROLE_YF_TEST] : __1.ROLES;
-        let roleList = [];
+        const roleList = [];
         fetchedRoles?.forEach((role) => {
             if (rolesId.includes(role.id))
                 roleList.push(role);

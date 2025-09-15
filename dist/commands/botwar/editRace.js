@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
 const botwarController_1 = require("../../controller/botwarController");
-const __1 = require("../..");
 const generalController_1 = require("../../controller/generalController");
+const global_1 = require("../../global");
+const bot_war_json_1 = tslib_1.__importDefault(require("../../database/bot-war.json"));
 module.exports = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName("edit_race")
@@ -26,15 +28,15 @@ module.exports = {
         const channelId = interaction.channelId;
         const focusedOption = interaction.options.getFocused(true);
         if (focusedOption.name === "map") {
-            const filtered = (0, generalController_1.filterMapList)(__1.LIST_MAPS, focusedOption.value);
+            const filtered = (0, generalController_1.filterMapList)(global_1.globalData.getAllMaps(), focusedOption.value);
             await interaction.respond(filtered.map((choice) => ({
-                name: `${choice.idMap} | ${choice.initialGame} ${choice.nameMap}`,
-                value: choice.idMap,
+                name: `${choice.tag} | ${choice.name}`,
+                value: choice.tag.toString(),
             })));
         }
         else if (focusedOption.name === "race") {
-            let races = (0, botwarController_1.getNumberOfRace)(channelId);
-            let choices = [];
+            const races = (0, botwarController_1.getNumberOfRace)(channelId);
+            const choices = [];
             for (let i = 1; i <= races; i++) {
                 choices.push(i);
             }
@@ -48,11 +50,21 @@ module.exports = {
         }
     },
     async execute(interaction) {
+        const botwar = bot_war_json_1.default;
+        const botwarPath = "./src/database/bot-war.json";
         const spots = interaction.options.getString("spots").split(" ");
         const map = interaction.options.getString("map").split(" ");
-        const channelId = interaction.channelId;
-        const race = interaction.options.getInteger("race") ?? (0, botwarController_1.getNumberOfRace)(channelId);
-        const newRace = await (0, botwarController_1.editRace)(spots, map[0], channelId, race.toString());
-        await interaction.reply(newRace);
+        const idChannel = interaction.channelId;
+        const race = interaction.options.getInteger("race") ?? (0, botwarController_1.getNumberOfRace)(idChannel);
+        const newRace = await (0, botwarController_1.editRace)(spots, map[0], idChannel, race.toString());
+        const war = botwar.channels[idChannel];
+        try {
+            const msg = await interaction.reply(newRace);
+            war.paramWar.last_message_id = `${interaction.channelId}/${msg.id}`;
+            (0, generalController_1.saveJSONToFile)(botwar, botwarPath);
+        }
+        catch (e) {
+            console.log(e.requestBody.requestBody);
+        }
     },
 };

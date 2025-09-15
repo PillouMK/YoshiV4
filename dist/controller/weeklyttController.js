@@ -1,34 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeListButton = exports.makeWeeklyttFields = exports.makeWeeklyttEmbed = exports.getWeeklytt = exports.updateWeeklyTimetrial = exports.makeEmbedWeeklyAnnounce = exports.sendWeeklyMap = exports.setWeeklyMap = exports.getAllWeeklyMap = void 0;
+exports.makeListButton = exports.makeWeeklyttFields = exports.makeWeeklyttEmbed = exports.makeEmbedWeeklyAnnounce = exports.setWeeklyMap = void 0;
 const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
 const timetrialController_1 = require("./timetrialController");
-const yfApiController_1 = require("./yfApiController");
 const generalController_1 = require("./generalController");
 const fs_1 = tslib_1.__importDefault(require("fs"));
 const settings_json_1 = tslib_1.__importDefault(require("../settings.json"));
 const __1 = require("..");
 const weeklyDataPath = "./src/database/weeklyMap.json";
-const getAllWeeklyMap = async () => {
-    try {
-        const maps = await (0, yfApiController_1.getWeeklyTT)();
-        const weeklyttArray = maps.data.arrayResponse;
-        const weeklyMaps = weeklyttArray.map((weeklytt) => ({
-            idMap: weeklytt.map.idMap,
-            isShroomless: weeklytt.map.isShroomless,
-            goldTime: weeklytt.map.goldTime,
-            silverTime: weeklytt.map.silverTime,
-            bronzeTime: weeklytt.map.bronzeTime,
-        }));
-        return weeklyMaps;
-    }
-    catch (error) {
-        console.error("Error fetching weekly maps:", error);
-        throw new Error("Unable to fetch weekly maps.");
-    }
-};
-exports.getAllWeeklyMap = getAllWeeklyMap;
 const setWeeklyMap = (bot, idMap, isShroomless, goldTime, silverTime, bronzeTime) => {
     const _weeklyMapData = JSON.parse(fs_1.default.readFileSync(weeklyDataPath, "utf-8"));
     const times = [
@@ -36,7 +16,7 @@ const setWeeklyMap = (bot, idMap, isShroomless, goldTime, silverTime, bronzeTime
         { label: "silver", value: silverTime },
         { label: "bronze", value: bronzeTime },
     ];
-    for (let weeklyMap of _weeklyMapData) {
+    for (const weeklyMap of _weeklyMapData) {
         if (weeklyMap.idMap === idMap && weeklyMap.isShroomless === isShroomless) {
             const errorMessage = `${idMap} ${isShroomless ? "No item" : "Item"} est déjà set`;
             (0, generalController_1.botLogs)(bot, `${idMap} ${isShroomless} already set`);
@@ -70,31 +50,6 @@ const setWeeklyMap = (bot, idMap, isShroomless, goldTime, silverTime, bronzeTime
     return `${idMap} en ${isShroomless ? "No item" : "Item"} bien enregistré`;
 };
 exports.setWeeklyMap = setWeeklyMap;
-const sendWeeklyMap = async (bot) => {
-    const _weeklyMapData = JSON.parse(fs_1.default.readFileSync(weeklyDataPath, "utf-8"));
-    let weeklyMapToSend = [];
-    for (let map of _weeklyMapData) {
-        weeklyMapToSend.push({
-            idMap: map.idMap,
-            isShroomless: map.isShroomless,
-            goldTime: map.goldTime,
-            silverTime: map.silverTime,
-            bronzeTime: map.bronzeTime,
-            isObligatory: true,
-            roster: "YFG",
-        });
-    }
-    let post = await (0, yfApiController_1.postMapWeekly)(weeklyMapToSend);
-    if (post.statusCode === 201) {
-        sendWeeklyAnnounce(bot);
-        return "Nouvelle maps envoyées !";
-    }
-    else {
-        (0, generalController_1.botLogs)(bot, `Error when /send_weekly : ${post.statusCode} : ${post.data}`);
-        return `Une erreur est survenue : ${post.data}`;
-    }
-};
-exports.sendWeeklyMap = sendWeeklyMap;
 const sendWeeklyAnnounce = (bot) => {
     const channel = bot.channels.cache.get(settings_json_1.default.channels.announcement);
     const message = (0, exports.makeEmbedWeeklyAnnounce)();
@@ -113,13 +68,13 @@ const makeEmbedWeeklyMap = (length) => {
         .setFooter({ text: `Weekly Map (${length.toString()})` });
 };
 const makeWeeklyMapEmbedFields = (_weeklyMapData) => {
-    let fields = [];
+    const fields = [];
     _weeklyMapData.forEach((element, index) => {
         const emoteIsShroomless = element.isShroomless
             ? "<:no_mushroom_bot:1033130955470295131>"
             : "<:mushroom_bot:1033128412405047356>";
-        let title = `${element.idMap} : ${emoteIsShroomless}`;
-        let textFloor = `:first_place:\`Gold   : ${(0, timetrialController_1.msToTime)(element.goldTime)}\`\n:second_place:\`Silver : ${(0, timetrialController_1.msToTime)(element.silverTime)}\`\n:third_place:\`Bronze : ${(0, timetrialController_1.msToTime)(element.bronzeTime)}\``;
+        const title = `${element.idMap} : ${emoteIsShroomless}`;
+        const textFloor = `:first_place:\`Gold   : ${(0, timetrialController_1.msToTime)(element.goldTime)}\`\n:second_place:\`Silver : ${(0, timetrialController_1.msToTime)(element.silverTime)}\`\n:third_place:\`Bronze : ${(0, timetrialController_1.msToTime)(element.bronzeTime)}\``;
         if (index % 2 == 0 && index != 0)
             fields.push({ name: "\u200b", value: "\u200b" });
         fields.push({ name: title, value: textFloor, inline: true });
@@ -129,7 +84,7 @@ const makeWeeklyMapEmbedFields = (_weeklyMapData) => {
 const makeEmbedWeeklyAnnounce = () => {
     const _weeklyMapData = JSON.parse(fs_1.default.readFileSync(weeklyDataPath, "utf-8"));
     const file = new discord_js_1.AttachmentBuilder("./image/LaYoshiFamily.png");
-    let embed = makeEmbedWeeklyMap(_weeklyMapData.length);
+    const embed = makeEmbedWeeklyMap(_weeklyMapData.length);
     const fields = makeWeeklyMapEmbedFields(_weeklyMapData);
     embed.addFields(fields);
     return {
@@ -139,71 +94,6 @@ const makeEmbedWeeklyAnnounce = () => {
     };
 };
 exports.makeEmbedWeeklyAnnounce = makeEmbedWeeklyAnnounce;
-const updateWeeklyTimetrial = async (time, idMap, isShroomless, user, bot) => {
-    if (!(0, timetrialController_1.isTimeValid)(time)) {
-        (0, generalController_1.botLogs)(bot, `Error time is not valid : ${time}`);
-        return `${time} n'est pas un temps valide`;
-    }
-    const timeInMs = (0, timetrialController_1.timeToMs)(time);
-    const patchTime = await (0, yfApiController_1.patchWeeklyTT)(user.id, idMap, timeInMs, isShroomless);
-    const response = isShroomless ? `en shroomless` : `avec items`;
-    if (patchTime.statusCode == 404) {
-        const postTime = await (0, yfApiController_1.postWeeklyTT)(user.id, idMap, timeInMs, isShroomless);
-        if (postTime.statusCode != 201) {
-            (0, generalController_1.botLogs)(bot, `Error when adding time : ${postTime.data.toString()}`);
-            return `Erreur : ${postTime.data.toString()}`;
-        }
-        else {
-            let endText = "";
-            if (postTime.data.ttExist && postTime.data.newIsBetter) {
-                endText = `Tu as battu ton record qui était de ${postTime.data.timetrial}: C'est enregistré !`;
-            }
-            (0, generalController_1.botLogs)(bot, `${user.username} successfully added time (${idMap}, ${time}, ${isShroomless})`);
-            return `Nouveau temps weekly : ${time} ${response}${endText}`;
-        }
-    }
-    else {
-        let endText = "";
-        if (patchTime.data.newIsBetter) {
-            endText += `\nTu as également battu ton record personnel qui était de : ${patchTime.data.timetrial}`;
-        }
-        (0, generalController_1.botLogs)(bot, `${user.username} successfully updated time (${idMap}, ${time}, ${isShroomless})`);
-        return `Nouveau temps weekly : ${patchTime.data.newWeekly} (${patchTime.data.diff}s) ${response}\nTon ancien temps était : ${patchTime.data.oldWeekly}${endText}`;
-    }
-};
-exports.updateWeeklyTimetrial = updateWeeklyTimetrial;
-const getWeeklytt = async (bot, idMap, isShroomless) => {
-    const req = await (0, yfApiController_1.getWeeklyTT)();
-    if (req.statusCode === 200) {
-        const weeklytt = req.data.arrayResponse;
-        let weeklyttByMap;
-        if (idMap != undefined) {
-            weeklyttByMap = weeklytt.find((v) => v.map.idMap === idMap && isShroomless == v.map.isShroomless);
-        }
-        else {
-            weeklyttByMap = weeklytt[0];
-        }
-        const currentMap = `${weeklyttByMap.map.idMap}-${weeklyttByMap.map.isShroomless}`;
-        let listMap = weeklytt.map((elt) => elt.map);
-        let embed = (0, exports.makeWeeklyttEmbed)(weeklyttByMap.map);
-        const fields = (0, exports.makeWeeklyttFields)(weeklyttByMap);
-        const buttons = (0, exports.makeListButton)(listMap, currentMap);
-        embed.addFields(fields);
-        return {
-            content: "",
-            embed: [embed],
-            buttons: buttons,
-        };
-    }
-    else {
-        (0, generalController_1.botLogs)(bot, `Erreur lors de la récupération des données : ${req.statusCode} - ${req.data}`);
-        return {
-            content: `Erreur lors de la récupération des données : ${req.statusCode} - ${req.data}`,
-            embed: [],
-        };
-    }
-};
-exports.getWeeklytt = getWeeklytt;
 const makeWeeklyttEmbed = (map) => {
     const mapMK = __1.LIST_MAPS.find((v) => v.idMap === map.idMap);
     const title = `Weekly TT : ${mapMK.initialGame} ${mapMK.nameMap}`;
@@ -237,24 +127,24 @@ const makeWeeklyttFields = (weeklytt) => {
         },
     ];
     let index = 0;
-    let fieldGold = weeklytt.weeklyTimetrial.goldArray;
-    let fieldSilver = weeklytt.weeklyTimetrial.silverArray;
-    let fieldBronze = weeklytt.weeklyTimetrial.bronzeArray;
-    let fieldOut = weeklytt.weeklyTimetrial.outArray;
-    let arrayFields = [fieldGold, fieldSilver, fieldBronze, fieldOut];
-    for (let element of arrayFields) {
+    const fieldGold = weeklytt.weeklyTimetrial.goldArray;
+    const fieldSilver = weeklytt.weeklyTimetrial.silverArray;
+    const fieldBronze = weeklytt.weeklyTimetrial.bronzeArray;
+    const fieldOut = weeklytt.weeklyTimetrial.outArray;
+    const arrayFields = [fieldGold, fieldSilver, fieldBronze, fieldOut];
+    for (const element of arrayFields) {
         const maxLength = element.length
-            ? Math.max(...element.map((el) => el.name.length))
+            ? Math.max(...element.map((el) => el.user.name.length))
             : 0;
         let valueField = "";
         element.forEach((elt) => {
-            const name = (0, generalController_1.addBlank)(elt.name, maxLength, true);
-            valueField += `\`${name} : ${elt.duration}\`\n`;
+            const name = (0, generalController_1.addBlank)(elt.user.name, maxLength, true);
+            valueField += `\`${name} : ${(0, timetrialController_1.msToTime)(elt.time)}\`\n`;
         });
         if (valueField == "") {
             valueField = "\u200b";
         }
-        let field = {
+        const field = {
             name: `${arrayFloor[index].nameFloor} : ${arrayFloor[index].timeFloor}`,
             value: valueField,
             inline: true,
@@ -281,7 +171,7 @@ const makeListButton = (listMap, currentMap) => {
     ];
     const row = new discord_js_1.ActionRowBuilder();
     let index = 0;
-    for (let weeklyMap of listMap) {
+    for (const weeklyMap of listMap) {
         const shroomless = weeklyMap.isShroomless ? "ni" : "item";
         row.addComponents(new discord_js_1.ButtonBuilder()
             .setCustomId(`weeklytt-${weeklyMap.idMap}-${weeklyMap.isShroomless}`)

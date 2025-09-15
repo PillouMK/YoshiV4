@@ -27,7 +27,9 @@ module.exports = {
             });
         }
         else {
-            ("Je ne possède pas le code ami de cet utilisateur");
+            interaction.reply({
+                content: "Je ne possède pas le code ami de cet utilisateur",
+            });
         }
     },
 };

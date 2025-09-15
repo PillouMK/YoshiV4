@@ -8,19 +8,20 @@ module.exports = {
     },
     async execute(interaction, args) {
         await interaction.deferUpdate();
-        const idRoster = args[0] === "YF" ? undefined : args[0];
-        const idMap = args[1];
+        const map_tag = args[0];
+        const game_id = args[1];
         const isShroomless = args[2] === "true";
         const isMobile = args[3] === "true";
         const user = interaction.user;
+        const team_id = interaction.guildId;
         try {
-            const message = await (0, timetrialController_1.makeTimetrialMessage)(idMap, idRoster, isShroomless, user, isMobile);
+            const message = await (0, timetrialController_1.makeTimetrialMessage)(map_tag, game_id, team_id, isShroomless, user, isMobile);
             await interaction.editReply({
                 content: message.content,
                 embeds: message.embed,
                 components: message.buttons != undefined ? [message.buttons] : [],
             });
-            (0, generalController_1.botLogs)(interaction.client, `${user.username} successfully updated ranking on ${idMap}`);
+            (0, generalController_1.botLogs)(interaction.client, `${user.username} successfully updated ranking on ${map_tag}`);
         }
         catch (e) {
             (0, generalController_1.botLogs)(interaction.client, e);

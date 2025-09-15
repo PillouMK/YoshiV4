@@ -1,362 +1,229 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postMapWeekly = exports.getWeeklyTT = exports.patchWeeklyTT = exports.postWeeklyTT = exports.patchPlayer = exports.postPlayer = exports.getPlayerById = exports.getAllPlayers = exports.patchTimetrial = exports.postTimetrial = exports.getTimetrialsByMap = exports.getProjectMap = exports.postProjectMap = exports.getAllMaps = void 0;
+exports._getMapStatsByTag = exports._getAllMapStats = exports._getTimetrialsByMap = exports._upsertTimetrial = exports._createUsersBulk = exports._getAllGame = exports._getAllMaps = exports._getAllTeams = exports._getMatch = exports._getAllMatchsPublished = exports._getAllMatchsDone = exports._publishMatch = exports._previewMatch = exports._completeMatch = exports._createMatch = void 0;
 const tslib_1 = require("tslib");
 const axios_1 = tslib_1.__importDefault(require("axios"));
 const config_1 = require("../config");
 const API_URL = "https://yoshi-family-api.fr/v1";
-const API_KEY = config_1.config.API_KEY;
-const mapsEndpoint = "/maps";
-const timetrialEndpoint = "/timetrial";
-const playerEndpoint = "/player";
-const projectMapEndpoint = "/projectmap";
-const weeklyEndpoint = "/weekly";
-const header = {
+const API_V2_URL = "https://nest-yf-api-production.up.railway.app";
+const API_KEY_V2 = config_1.config.API_KEY_V2;
+const endpoint = {
+    users: "/users",
+    maps: "/maps",
+    teams: "/teams",
+    rosters: "/rosters",
+    timetrials: "/timetrials",
+    games: "/games",
+    map_stats: "/map-stats",
+    matchs: (teamId) => `/teams/${teamId}/matchs`,
+    match_users: "/match-users",
+    timetrial: "/timetrial",
+    weekly: "/weekly",
+};
+const header_v2 = {
     Accept: "application/json",
-    "api-key": API_KEY,
+    "x-api-key": API_KEY_V2,
 };
-const getAllMaps = async () => {
-    let responseObject;
-    const maps = await axios_1.default
-        .get(`${API_URL}${mapsEndpoint}`, { headers: header })
-        .then((response) => {
-        responseObject = {
+const postToApi = async (endpoint, body) => {
+    try {
+        const response = await axios_1.default.post(`${API_V2_URL}${endpoint}`, body, {
+            headers: header_v2,
+        });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
+            data: error.response?.data || { message: "Unexpected error" },
         };
-        return responseObject;
-    });
-    return maps;
+    }
 };
-exports.getAllMaps = getAllMaps;
-const postProjectMap = async (projectMapPostObject) => {
-    let responseObject;
-    const projectMap = await axios_1.default
-        .post(`${API_URL}${projectMapEndpoint}`, projectMapPostObject, {
-        headers: header,
-    })
-        .then((response) => {
-        responseObject = {
+const _createMatch = (createMatch) => postToApi(endpoint.matchs(createMatch.team_id), {
+    opponent: createMatch.opponent,
+    roster_id: createMatch.roster_id ?? null,
+    game_id: createMatch.game_id,
+});
+exports._createMatch = _createMatch;
+const _completeMatch = (completeMatch, match_id, team_id) => postToApi(`${endpoint.matchs(team_id)}/${match_id}/complete`, completeMatch);
+exports._completeMatch = _completeMatch;
+const _previewMatch = (previewMatch, match_id, team_id) => postToApi(`${endpoint.matchs(team_id)}/${match_id}/preview`, previewMatch);
+exports._previewMatch = _previewMatch;
+const _publishMatch = async (publishMatch, match_id, team_id) => {
+    return postToApi(`${endpoint.matchs(team_id)}/${match_id}/publish`, publishMatch);
+};
+exports._publishMatch = _publishMatch;
+const _getAllMatchsDone = async (team_id) => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.matchs(team_id)}/done`, {
+            headers: header_v2,
+        });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
+            data: [],
         };
-        return responseObject;
-    });
-    return projectMap;
+    }
 };
-exports.postProjectMap = postProjectMap;
-const getProjectMap = async (idRoster, month, iteration) => {
-    let responseObject;
-    const projectMap = await axios_1.default
-        .get(`${API_URL}${projectMapEndpoint}/${idRoster}`, {
-        headers: header,
-        params: {
-            month: month,
-            iteration: iteration,
-        },
-    })
-        .then((response) => {
-        responseObject = {
+exports._getAllMatchsDone = _getAllMatchsDone;
+const _getAllMatchsPublished = async (team_id) => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.matchs(team_id)}/published`, {
+            headers: header_v2,
+        });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
+            data: [],
         };
-        return responseObject;
-    });
-    return projectMap;
+    }
 };
-exports.getProjectMap = getProjectMap;
-const getTimetrialsByMap = async (idMap, idRoster = undefined) => {
-    let responseObject;
-    const timetrials = await axios_1.default
-        .get(`${API_URL}${timetrialEndpoint}/${idMap}`, {
-        headers: header,
-        params: {
-            idRoster: idRoster,
-        },
-    })
-        .then((response) => {
-        responseObject = {
+exports._getAllMatchsPublished = _getAllMatchsPublished;
+const _getMatch = async (match_id, team_id) => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.matchs(team_id)}/${match_id}`, {
+            headers: header_v2,
+        });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
+            data: error.response?.data,
         };
-        return responseObject;
-    });
-    return timetrials;
+    }
 };
-exports.getTimetrialsByMap = getTimetrialsByMap;
-const postTimetrial = async (idPlayer, idMap, time, isShroomless = false) => {
-    let responseObject;
-    const timetrial = await axios_1.default
-        .post(`${API_URL}/timetrial`, {
-        idMap: idMap,
-        idPlayer: idPlayer,
-        time: time,
-        isShroomless: isShroomless,
-    }, {
-        headers: header,
-    })
-        .then((response) => {
-        responseObject = {
+exports._getMatch = _getMatch;
+const _getAllTeams = async () => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.teams}`, {
+            headers: header_v2,
+        });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
+            data: [],
         };
-        return responseObject;
-    });
-    return timetrial;
+    }
 };
-exports.postTimetrial = postTimetrial;
-const patchTimetrial = async (idPlayer, idMap, time, isShroomless = false) => {
-    let responseObject;
-    let isShroomlessParam = !isShroomless ? 0 : 1;
-    const timetrial = await axios_1.default
-        .patch(`${API_URL}/timetrial/${idMap}/${idPlayer}/${isShroomlessParam}`, {
-        time: time,
-    }, {
-        headers: header,
-    })
-        .then((response) => {
-        responseObject = {
+exports._getAllTeams = _getAllTeams;
+const _getAllMaps = async (game_id) => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.maps}/${game_id}`, { headers: header_v2 });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
+            data: [],
         };
-        return responseObject;
-    });
-    return timetrial;
+    }
 };
-exports.patchTimetrial = patchTimetrial;
-const getAllPlayers = async () => {
-    let responseObject;
-    const player = await axios_1.default
-        .get(`${API_URL}${playerEndpoint}`, { headers: header })
-        .then((response) => {
-        responseObject = {
+exports._getAllMaps = _getAllMaps;
+const _getAllGame = async () => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.games}`, {
+            headers: header_v2,
+        });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
+            data: [],
         };
-        return responseObject;
-    });
-    return player;
+    }
 };
-exports.getAllPlayers = getAllPlayers;
-const getPlayerById = async (idPlayer) => {
-    let responseObject;
-    const player = await axios_1.default
-        .get(`${API_URL}${playerEndpoint}/${idPlayer}`, { headers: header })
-        .then((response) => {
-        responseObject = {
+exports._getAllGame = _getAllGame;
+const _createUsersBulk = (createUsers) => postToApi(`${endpoint.users}/bulk`, {
+    users: createUsers,
+});
+exports._createUsersBulk = _createUsersBulk;
+const _upsertTimetrial = (upsertTimetrial) => postToApi(`${endpoint.timetrials}`, upsertTimetrial);
+exports._upsertTimetrial = _upsertTimetrial;
+const _getTimetrialsByMap = async (map_tag, game_id, team_id) => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.timetrials}/${map_tag}`, {
+            headers: header_v2,
+            params: {
+                team_id: team_id,
+                game_id: game_id,
+            },
+        });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
             data: error.response.data,
         };
-        return responseObject;
-    });
-    return player;
+    }
 };
-exports.getPlayerById = getPlayerById;
-const postPlayer = async (idPlayer, name, idRoster) => {
-    let responseObject;
-    const player = await axios_1.default
-        .post(`${API_URL}${playerEndpoint}`, {
-        idPlayer: idPlayer,
-        name: name,
-        idRoster: idRoster,
-    }, { headers: header })
-        .then((response) => {
-        responseObject = {
+exports._getTimetrialsByMap = _getTimetrialsByMap;
+const _getAllMapStats = async (map_stats_params) => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.map_stats}`, {
+            params: map_stats_params,
+            headers: header_v2,
+        });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
             data: error.response.data,
         };
-        return responseObject;
-    });
-    return player;
+    }
 };
-exports.postPlayer = postPlayer;
-const patchPlayer = async (idPlayer, name, idRoster) => {
-    let responseObject;
-    let body = {};
-    if (name != undefined)
-        body.name = name;
-    if (idRoster != undefined)
-        body.idRoster = idRoster;
-    const player = await axios_1.default
-        .patch(`${API_URL}${playerEndpoint}/${idPlayer}`, body, { headers: header })
-        .then((response) => {
-        responseObject = {
+exports._getAllMapStats = _getAllMapStats;
+const _getMapStatsByTag = async (map_stats_params, map_tag) => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.map_stats}/${map_tag}`, {
+            params: map_stats_params,
+            headers: header_v2,
+        });
+        return {
             statusCode: response.status,
             data: response.data,
         };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
             data: error.response.data,
         };
-        return responseObject;
-    });
-    return player;
+    }
 };
-exports.patchPlayer = patchPlayer;
-const postWeeklyTT = async (idPlayer, idMap, time, isShroomless = false) => {
-    let responseObject;
-    const postWeeklyTimetrial = await axios_1.default
-        .post(`${API_URL}${weeklyEndpoint}`, {
-        idMap: idMap,
-        idPlayer: idPlayer,
-        isShroomless: isShroomless,
-        time: time,
-    }, {
-        headers: header,
-    })
-        .then((response) => {
-        responseObject = {
-            statusCode: response.status,
-            data: response.data,
-        };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
-        };
-        return responseObject;
-    });
-    return postWeeklyTimetrial;
-};
-exports.postWeeklyTT = postWeeklyTT;
-const patchWeeklyTT = async (idPlayer, idMap, time, isShroomless = false) => {
-    let responseObject;
-    const patchWeeklyTimetrial = await axios_1.default
-        .patch(`${API_URL}${weeklyEndpoint}/${idMap}/${idPlayer}/${isShroomless}`, {
-        time: time,
-    }, {
-        headers: header,
-    })
-        .then((response) => {
-        responseObject = {
-            statusCode: response.status,
-            data: response.data,
-        };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
-        };
-        return responseObject;
-    });
-    return patchWeeklyTimetrial;
-};
-exports.patchWeeklyTT = patchWeeklyTT;
-const getWeeklyTT = async () => {
-    let responseObject;
-    const weeklytt = await axios_1.default
-        .get(`${API_URL}${weeklyEndpoint}`, {
-        headers: header,
-    })
-        .then((response) => {
-        responseObject = {
-            statusCode: response.status,
-            data: response.data,
-        };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
-        };
-        return responseObject;
-    });
-    return weeklytt;
-};
-exports.getWeeklyTT = getWeeklyTT;
-const postMapWeekly = async (weeklyMapArray) => {
-    let responseObject;
-    const postMap = await axios_1.default
-        .post(`${API_URL}${mapsEndpoint}/weekly`, {
-        weekly_maps: weeklyMapArray,
-    }, {
-        headers: header,
-    })
-        .then((response) => {
-        responseObject = {
-            statusCode: response.status,
-            data: response.data,
-        };
-        return responseObject;
-    })
-        .catch((error) => {
-        responseObject = {
-            statusCode: error.response.status,
-            data: error.response.data,
-        };
-        return responseObject;
-    });
-    return postMap;
-};
-exports.postMapWeekly = postMapWeekly;
+exports._getMapStatsByTag = _getMapStatsByTag;

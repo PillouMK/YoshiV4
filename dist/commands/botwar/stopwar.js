@@ -13,7 +13,8 @@ module.exports = {
     async execute(interaction) {
         const idChannel = interaction.channelId;
         const isForce = interaction.options.getBoolean("force") ?? false;
-        const stopTheWar = await (0, botwarController_1.stopWar)(interaction.client, idChannel, isForce);
+        const team_id = interaction.guildId;
+        const stopTheWar = await (0, botwarController_1.stopWar)(interaction.client, idChannel, team_id, isForce);
         await interaction.reply(stopTheWar);
     },
 };

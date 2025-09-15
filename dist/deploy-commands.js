@@ -26,13 +26,24 @@ for (const folder of commandFolders) {
     }
 }
 const rest = new REST().setToken(config_1.config.DISCORD_TOKEN);
+const MODE = process.env.NODE_ENV || "dev";
 (async () => {
     try {
-        console.log(`Started refreshing ${commands.length} application (/) commands.`);
-        const data = await rest.put(Routes.applicationGuildCommands(config_1.config.CLIENT_ID, config_1.config.GUILD_ID), { body: commands });
-        console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+        console.log(`Started refreshing ${commands.length} application (/) commands in ${MODE} mode.`);
+        if (MODE === "dev") {
+            await rest.put(Routes.applicationGuildCommands(config_1.config.CLIENT_ID, config_1.config.GUILD_ID), { body: commands });
+            console.log(`⚡ Dev mode → Commands updated in guild ${config_1.config.GUILD_ID}`);
+        }
+        else {
+            await rest.put(Routes.applicationCommands(config_1.config.CLIENT_ID), {
+                body: commands,
+            });
+            console.log(`🌍 Prod mode → Global commands updated`);
+            console.log("⚠️ Attention: cela peut prendre jusqu'à 1h avant d'être visible.");
+        }
+        console.log(`✅ Successfully reloaded ${commands.length} commands.`);
     }
     catch (error) {
-        console.error(error);
+        console.error("❌ Error deploying commands:", error);
     }
 })();

@@ -15,7 +15,7 @@ module.exports = {
         const fetchedMembers = await interaction.guild?.members.fetch();
         const fetchedRoles = await interaction.guild?.roles.fetch();
         const rolesId = isMix ? [__1.ROLE_YF, __1.ROLE_YF_TEST] : __1.ROLES;
-        let roleList = [];
+        const roleList = [];
         fetchedRoles?.forEach((role) => {
             if (rolesId.includes(role.id))
                 roleList.push(role);
