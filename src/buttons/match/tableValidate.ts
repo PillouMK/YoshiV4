@@ -21,6 +21,8 @@ module.exports = {
     const matchCount = await _getAllMatchsPublished(team_id);
     const match = await _getMatch(id, team_id);
     const channel_result_id = globalData.getTeam(team_id)?.result_channel_id;
+    console.log(globalData.getTeam(team_id));
+    console.log(channel_result_id);
 
     await interaction.deferReply();
 

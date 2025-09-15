@@ -15,7 +15,9 @@ module.exports = {
         const matchData = global_1.globalData.getFullMatchPreview(id);
         const matchCount = await (0, yfApiController_1._getAllMatchsPublished)(team_id);
         const match = await (0, yfApiController_1._getMatch)(id, team_id);
-        console.log("url:", matchData?.table_url);
+        const channel_result_id = global_1.globalData.getTeam(team_id)?.result_channel_id;
+        console.log(global_1.globalData.getTeam(team_id));
+        console.log(channel_result_id);
         await interaction.deferReply();
         await interaction.message.edit({
             components: [],
@@ -26,7 +28,7 @@ module.exports = {
             });
             return;
         }
-        const channel = (await interaction.client.channels.fetch("459663694381711360"));
+        const channel = (await interaction.client.channels.fetch(channel_result_id));
         const response = await axios_1.default.get(matchData.table_url, {
             responseType: "arraybuffer",
         });
