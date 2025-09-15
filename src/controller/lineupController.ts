@@ -149,7 +149,7 @@ export const lineupResponse = async (
   listMembers: Collection<string, GuildMember>
 ): Promise<LineUpMessage[]> => {
   const hourArray: number[] = convertValidsHoursToNumberArray(hours);
-  const isMix: boolean = roles.length === 1;
+  const isMix: boolean = false;
   const response: LineUpMessage[] = [];
   for (const hour of hourArray) {
     const _lineUpData = JSON.parse(
@@ -238,14 +238,14 @@ const makeButtonList = (
         .setCustomId(`cant-${hour.toString()}-${idView}`)
         .setLabel(`Can't`)
         .setStyle(ButtonStyle.Danger)
-    )
-    .addComponents(
-      new ButtonBuilder()
-        .setCustomId(`lineupToggle-${hour.toString()}-${idViewToggle}`)
-        .setEmoji("<:refresh:1359564875419877669>")
-        .setLabel(labelView)
-        .setStyle(ButtonStyle.Secondary)
     );
+  // .addComponents(
+  //   new ButtonBuilder()
+  //     .setCustomId(`lineupToggle-${hour.toString()}-${idViewToggle}`)
+  //     .setEmoji("<:refresh:1359564875419877669>")
+  //     .setLabel(labelView)
+  //     .setStyle(ButtonStyle.Secondary)
+  // );
 };
 
 export const addMember = (

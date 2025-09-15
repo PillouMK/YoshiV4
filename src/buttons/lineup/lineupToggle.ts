@@ -14,6 +14,7 @@ module.exports = {
   async execute(interaction: ButtonInteraction, args: string[]) {
     const hour: string = args[0];
     const isMix: boolean = args[1] === "mix";
+    console.log("isMix", isMix, args[1]);
     const fetchedMembers = await interaction.guild?.members.fetch();
     const fetchedRoles = await interaction.guild?.roles.fetch();
     const rolesId: string[] = isMix ? [ROLE_YF, ROLE_YF_TEST] : ROLES;
