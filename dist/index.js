@@ -13,6 +13,7 @@ const maps_json_1 = tslib_1.__importDefault(require("./database/maps.json"));
 const lineupController_1 = require("./controller/lineupController");
 const global_1 = require("./global");
 const matchController_1 = require("./controller/matchController");
+const yfApiController_1 = require("./controller/yfApiController");
 const bot = new discord_js_1.Client({
     intents: [
         discord_js_1.GatewayIntentBits.DirectMessages,
@@ -34,7 +35,7 @@ exports.LOGO_YF = "attachment://LaYoshiFamily.png";
 bot.once(discord_js_1.Events.ClientReady, async (c) => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
     (0, generalController_1.botLogs)(bot, "Yoshi successfully relloged");
-    await global_1.globalData.init();
+    await global_1.globalData.init(bot);
 });
 bot.commands = new discord_js_1.Collection();
 const foldersPath = path_1.default.join(__dirname, "commands");
@@ -94,130 +95,146 @@ for (const folder of selectMenusFolders) {
     }
 }
 bot.on(discord_js_1.Events.GuildMemberAdd, async (member) => {
-    (0, generalController_1.playerAddInGuild)(bot, member);
-});
-bot.on(discord_js_1.Events.GuildMemberRemove, async (member) => {
-    (0, generalController_1.playerRemovedInGuild)(bot, member);
-});
-bot.on(discord_js_1.Events.GuildMemberUpdate, async (oldMember, newMember) => {
-    (0, generalController_1.playerRosterChange)(bot, oldMember, newMember);
+    try {
+        const new_user = {
+            flag: "",
+            id: member.user.id,
+            name: member.user.username,
+        };
+        const add_user = await (0, yfApiController_1._createUser)(new_user);
+        if (add_user.statusCode == 201) {
+            console.log("User added", new_user.name);
+        }
+        else {
+            console.log("User already exist", new_user.name);
+        }
+    }
+    catch (e) {
+        console.log("error while adding", e);
+    }
 });
 bot.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
-    if (interaction.isButton()) {
-        const buttonName = interaction.customId.split("-")[0];
-        const args = interaction.customId.split("-");
-        args.shift();
-        const button = interaction.client.buttons.get(buttonName);
-        if (!button) {
-            console.error(`No buttons interaction matching ${buttonName} was found.`);
-            await interaction.reply({
-                content: `No buttons interaction matching ${buttonName} was found.`,
-                ephemeral: true,
-            });
-            return;
-        }
-        try {
-            await button.execute(interaction, args);
-        }
-        catch (error) {
-            console.error(error);
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({
-                    content: "There was an error while executing the button!",
-                    ephemeral: true,
-                });
-            }
-            else {
+    try {
+        if (interaction.isButton()) {
+            console.log(interaction);
+            const buttonName = interaction.customId.split("-")[0];
+            const args = interaction.customId.split("-");
+            args.shift();
+            const button = interaction.client.buttons.get(buttonName);
+            if (!button) {
+                console.error(`No buttons interaction matching ${buttonName} was found.`);
                 await interaction.reply({
-                    content: "There was an error while executing the button!",
+                    content: `No buttons interaction matching ${buttonName} was found.`,
                     ephemeral: true,
                 });
+                return;
             }
-        }
-        return;
-    }
-    if (interaction.isAnySelectMenu()) {
-        const selectName = interaction.customId.split("-")[0];
-        const args = interaction.customId.split("-");
-        args.shift();
-        const selectMenu = interaction.client.select_menus.get(selectName);
-        if (!selectMenu) {
-            console.error(`No selectMenu interaction matching ${selectName} was found.`);
-            await interaction.reply({
-                content: `No selectMenu interaction matching ${selectName} was found.`,
-                ephemeral: true,
-            });
+            try {
+                await button.execute(interaction, args);
+            }
+            catch (error) {
+                console.error(error);
+                if (interaction.replied || interaction.deferred) {
+                    await interaction.followUp({
+                        content: "There was an error while executing the button!",
+                        ephemeral: true,
+                    });
+                }
+                else {
+                    await interaction.reply({
+                        content: "There was an error while executing the button!",
+                        ephemeral: true,
+                    });
+                }
+            }
             return;
         }
-        try {
-            await selectMenu.execute(interaction, args);
-        }
-        catch (error) {
-            console.error(error);
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({
-                    content: "There was an error while executing the select menu!",
-                    ephemeral: true,
-                });
-            }
-            else {
+        if (interaction.isAnySelectMenu()) {
+            const selectName = interaction.customId.split("-")[0];
+            const args = interaction.customId.split("-");
+            args.shift();
+            const selectMenu = interaction.client.select_menus.get(selectName);
+            if (!selectMenu) {
+                console.error(`No selectMenu interaction matching ${selectName} was found.`);
                 await interaction.reply({
-                    content: "There was an error while executing the select menu!",
+                    content: `No selectMenu interaction matching ${selectName} was found.`,
                     ephemeral: true,
                 });
+                return;
             }
-        }
-        return;
-    }
-    if (interaction.isChatInputCommand()) {
-        const command = interaction.client.commands.get(interaction.commandName);
-        if (!command) {
-            console.error(`No command matching ${interaction.commandName} was found.`);
-            await interaction.reply({
-                content: `No command matching ${interaction.commandName} was found.`,
-                ephemeral: true,
-            });
+            try {
+                await selectMenu.execute(interaction, args);
+            }
+            catch (error) {
+                console.error(error);
+                if (interaction.replied || interaction.deferred) {
+                    await interaction.followUp({
+                        content: "There was an error while executing the select menu!",
+                        ephemeral: true,
+                    });
+                }
+                else {
+                    await interaction.reply({
+                        content: "There was an error while executing the select menu!",
+                        ephemeral: true,
+                    });
+                }
+            }
             return;
         }
-        try {
-            await command.execute(interaction);
-        }
-        catch (error) {
-            console.error(error);
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({
-                    content: "There was an error while executing this command!",
-                    ephemeral: true,
-                });
-            }
-            else {
+        if (interaction.isChatInputCommand()) {
+            const command = interaction.client.commands.get(interaction.commandName);
+            if (!command) {
+                console.error(`No command matching ${interaction.commandName} was found.`);
                 await interaction.reply({
-                    content: "There was an error while executing this command!",
+                    content: `No command matching ${interaction.commandName} was found.`,
                     ephemeral: true,
                 });
+                return;
+            }
+            try {
+                await command.execute(interaction);
+            }
+            catch (error) {
+                console.error(error);
+                if (interaction.replied || interaction.deferred) {
+                    await interaction.followUp({
+                        content: "There was an error while executing this command!",
+                        ephemeral: true,
+                    });
+                }
+                else {
+                    await interaction.reply({
+                        content: "There was an error while executing this command!",
+                        ephemeral: true,
+                    });
+                }
+            }
+        }
+        if (interaction.isAutocomplete()) {
+            const command = interaction.client.commands.get(interaction.commandName);
+            if (!command) {
+                console.error(`No command matching ${interaction.commandName} was found.`);
+                return;
+            }
+            try {
+                await command.autocomplete(interaction);
+            }
+            catch (error) {
+                console.error(error);
             }
         }
     }
-    if (interaction.isAutocomplete()) {
-        const command = interaction.client.commands.get(interaction.commandName);
-        if (!command) {
-            console.error(`No command matching ${interaction.commandName} was found.`);
-            return;
-        }
-        try {
-            await command.autocomplete(interaction);
-        }
-        catch (error) {
-            console.error(error);
-        }
+    catch (e) {
+        console.error("Error interaction", e);
     }
 });
 node_cron_1.default.schedule("0 2,3,4 * * *", () => {
     (0, lineupController_1.resetAllLineups)(bot);
     console.log("Reset executed at", new Date().toLocaleString());
-});
-node_cron_1.default.schedule("0 * * * *", () => {
-    console.log("Update executed at", new Date().toLocaleString());
+}, {
+    scheduled: true,
+    timezone: "Europe/Paris",
 });
 bot.login(config_1.config.DISCORD_TOKEN);
 node_cron_1.default.schedule("0 20 * * *", () => {
@@ -226,4 +243,7 @@ node_cron_1.default.schedule("0 20 * * *", () => {
         (0, matchController_1.recallMissingMatches)(bot, t.id, t.result_channel_id);
         console.log("Recall made for ", t.name);
     }
+}, {
+    scheduled: true,
+    timezone: "Europe/Paris",
 });

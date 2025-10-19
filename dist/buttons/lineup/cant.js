@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const lineupController_1 = require("../../controller/lineupController");
 const __1 = require("../..");
 const generalController_1 = require("../../controller/generalController");
+const global_1 = require("../../global");
 module.exports = {
     data: {
         name: "cant",
@@ -12,7 +13,7 @@ module.exports = {
         const member = interaction.user;
         const isMix = args[1] === "mix";
         const response = (0, lineupController_1.addMember)(hour, member, lineupController_1.StatusLineUp.Cant);
-        const fetchedMembers = await interaction.guild?.members.fetch();
+        const fetchedMembers = global_1.globalData.getGuildMembers(interaction.guildId);
         const fetchedRoles = await interaction.guild?.roles.fetch();
         const rolesId = isMix ? [__1.ROLE_YF, __1.ROLE_YF_TEST] : __1.ROLES;
         const roleList = [];

@@ -32,6 +32,7 @@ export type Match = {
   last_message_id: string | null;
   table_url: string | null;
   roster_id: string | null;
+  title: string | null;
   team_id: string;
   game_id: string;
   created_at: Date;
@@ -54,6 +55,11 @@ export type MatchComplete = {
   is_canceled: boolean;
   maps: MapStatsCreate[];
   last_message_id: string;
+};
+
+export type MatchEdit = {
+  score_team: number;
+  score_opponent: number;
 };
 
 export type MatchPreview = {

@@ -50,7 +50,11 @@ module.exports = {
     const file = new AttachmentBuilder(buffer, { name: "image.png" });
 
     const msg = await channel.send({
-      content: `IT ${matchCount.data.length + 1} | ${match.data.opponent}`,
+      content: `IT ${matchCount.data.length + 1} | ${match.data.opponent}${
+        match.data.title && match.data.title !== "null"
+          ? ` - ${match.data.title}`
+          : ""
+      }`,
       files: [file],
     });
 

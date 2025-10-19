@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._getMapStatsByTag = exports._getAllMapStats = exports._getTimetrialsByMap = exports._upsertTimetrial = exports._createUsersBulk = exports._getAllGame = exports._getAllMaps = exports._getAllTeams = exports._getMatch = exports._getAllMatchsPublished = exports._getAllMatchsDone = exports._publishMatch = exports._previewMatch = exports._completeMatch = exports._createMatch = void 0;
+exports._getMapStatsByTag = exports._getAllMapStats = exports._getTimetrialsByMap = exports._upsertTimetrial = exports._createUser = exports._createUsersBulk = exports._getAllGame = exports._getAllMaps = exports._getAllTeams = exports._getMatch = exports._getAllMatchsPublished = exports._getAllMatchsDone = exports._publishMatch = exports._previewMatch = exports._editMatch = exports._completeMatch = exports._createMatch = void 0;
 const tslib_1 = require("tslib");
 const axios_1 = tslib_1.__importDefault(require("axios"));
 const config_1 = require("../config");
@@ -49,6 +49,8 @@ const _createMatch = (createMatch) => postToApi(endpoint.matchs(createMatch.team
 exports._createMatch = _createMatch;
 const _completeMatch = (completeMatch, match_id, team_id) => postToApi(`${endpoint.matchs(team_id)}/${match_id}/complete`, completeMatch);
 exports._completeMatch = _completeMatch;
+const _editMatch = (editMatch, match_id, team_id) => postToApi(`${endpoint.matchs(team_id)}/${match_id}/edit`, editMatch);
+exports._editMatch = _editMatch;
 const _previewMatch = (previewMatch, match_id, team_id) => postToApi(`${endpoint.matchs(team_id)}/${match_id}/preview`, previewMatch);
 exports._previewMatch = _previewMatch;
 const _publishMatch = async (publishMatch, match_id, team_id) => {
@@ -165,6 +167,10 @@ const _createUsersBulk = (createUsers) => postToApi(`${endpoint.users}/bulk`, {
     users: createUsers,
 });
 exports._createUsersBulk = _createUsersBulk;
+const _createUser = (createUser) => postToApi(`${endpoint.users}`, {
+    users: createUser,
+});
+exports._createUser = _createUser;
 const _upsertTimetrial = (upsertTimetrial) => postToApi(`${endpoint.timetrials}`, upsertTimetrial);
 exports._upsertTimetrial = _upsertTimetrial;
 const _getTimetrialsByMap = async (map_tag, game_id, team_id) => {

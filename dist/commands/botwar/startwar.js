@@ -6,7 +6,7 @@ const global_1 = require("../../global");
 module.exports = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName("startwar")
-        .setDescription("ça fait ping et ça fait pong")
+        .setDescription("commencer un match")
         .addStringOption((option) => option
         .setName("team1")
         .setDescription("Team YF")

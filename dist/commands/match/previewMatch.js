@@ -52,8 +52,9 @@ module.exports = {
                 global_1.globalData.addMatchPreview(id, table, preview_url.data.imageUrl);
                 console.log("url:", preview_url.data.imageUrl);
                 try {
+                    const content = `Titre : ${title}\n${preview_url.data.imageUrl}`;
                     await interaction.reply({
-                        content: preview_url.data.imageUrl,
+                        content: content,
                         components: [buttons],
                     });
                     return;
@@ -68,7 +69,7 @@ module.exports = {
                 console.log(preview_url.data);
                 try {
                     await interaction.reply({
-                        content: "Erreur lors de la preview",
+                        content: "Erreur :" + preview_url.data.message,
                     });
                     return;
                 }

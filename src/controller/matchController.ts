@@ -37,7 +37,7 @@ export const recallMissingMatches = async (
     team_id
   );
   let msg =
-    "<@&199252384612876289> Yoshi pas content, il manque les résultats des matchs suivants :\n";
+    "Yoshi pas content, il manque les résultats des matchs suivants :\n";
 
   if (matchMissing.data.length > 0) {
     for (const match of matchMissing.data) {

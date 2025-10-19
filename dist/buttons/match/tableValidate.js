@@ -35,7 +35,9 @@ module.exports = {
         const buffer = Buffer.from(response.data, "binary");
         const file = new discord_js_1.AttachmentBuilder(buffer, { name: "image.png" });
         const msg = await channel.send({
-            content: `IT ${matchCount.data.length + 1} | ${match.data.opponent}`,
+            content: `IT ${matchCount.data.length + 1} | ${match.data.opponent}${match.data.title && match.data.title !== "null"
+                ? ` - ${match.data.title}`
+                : ""}`,
             files: [file],
         });
         const matchPublish = {

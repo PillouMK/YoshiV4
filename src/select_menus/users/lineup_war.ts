@@ -11,7 +11,7 @@ module.exports = {
     const generated_text = generateMatchPreviewText(selectedUsers);
     await interaction.reply({
       content:
-        'Copie le message, remplit les score (Ne supprime pas les "-" et les "+"), Tu n\'est pas obligé de modifier les FLAG```\n' +
+        'Copie le message, remplit les score (Ne supprime pas les "-" et les "+")```\n' +
         generated_text +
         "\n```",
     });

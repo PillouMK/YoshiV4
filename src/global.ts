@@ -1,3 +1,4 @@
+import { Client, Collection, GuildMember } from "discord.js";
 import {
   _getAllGame,
   _getAllMaps,
@@ -19,10 +20,11 @@ class GlobalData {
     string,
     { data: MatchPreview; expiresAt: number; table_url: string }
   > = new Map();
+  private members: Map<string, Collection<string, GuildMember>> = new Map();
 
   private readonly TTL = 10 * 60 * 1000;
 
-  async init(): Promise<void> {
+  async init(client: Client): Promise<void> {
     const teams_data: ResponseAPI<Team[]> = await _getAllTeams();
     for (const team of teams_data.data) {
       this.teams.set(team.id, team);
@@ -41,6 +43,21 @@ class GlobalData {
       }
 
       this.maps.set(game.id, mapForGame);
+    }
+
+    for (const [guildId, guild] of client.guilds.cache) {
+      try {
+        const fetched = await guild.members.fetch();
+        this.members.set(guildId, fetched); // fetched est déjà une Collection<string, GuildMember>
+        console.log(
+          `Guild ${guild.name} (${guildId}) : ${fetched.size} membres stockés`
+        );
+      } catch (err) {
+        console.error(
+          `Impossible de fetch les membres de la guild ${guild.name} (${guildId}) :`,
+          err
+        );
+      }
     }
 
     setInterval(() => {
@@ -116,6 +133,10 @@ class GlobalData {
 
   deleteMatchPreview(id: string): void {
     this.matchPreviews.delete(id);
+  }
+
+  getGuildMembers(guildId: string): Collection<string, GuildMember> | null {
+    return this.members.get(guildId) || null;
   }
 }
 

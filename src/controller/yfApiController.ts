@@ -7,6 +7,7 @@ import {
   MatchComplete,
   MatchCreate,
   MatchCreated,
+  MatchEdit,
   MatchPreview,
   MatchPublish,
 } from "../model/match.dto";
@@ -103,6 +104,14 @@ export const _completeMatch = (
   team_id: string
 ): Promise<ResponseAPI<any>> =>
   postToApi(`${endpoint.matchs(team_id)}/${match_id}/complete`, completeMatch);
+
+// edit result of match
+export const _editMatch = (
+  editMatch: MatchEdit,
+  match_id: string,
+  team_id: string
+): Promise<ResponseAPI<any>> =>
+  postToApi(`${endpoint.matchs(team_id)}/${match_id}/edit`, editMatch);
 
 // preview table of match
 export const _previewMatch = (
@@ -265,6 +274,13 @@ export const _createUsersBulk = (
 ): Promise<ResponseAPI<any>> =>
   postToApi(`${endpoint.users}/bulk`, {
     users: createUsers,
+  });
+
+export const _createUser = (
+  createUser: UserCreate
+): Promise<ResponseAPI<any>> =>
+  postToApi(`${endpoint.users}`, {
+    users: createUser,
   });
 
 // Timetrial

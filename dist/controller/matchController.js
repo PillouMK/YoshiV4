@@ -18,7 +18,7 @@ const makeTableButtonList = (match_id) => {
 exports.makeTableButtonList = makeTableButtonList;
 const recallMissingMatches = async (bot, team_id, result_channel_id) => {
     const matchMissing = await (0, yfApiController_1._getAllMatchsDone)(team_id);
-    let msg = "<@&199252384612876289> Yoshi pas content, il manque les résultats des matchs suivants :\n";
+    let msg = "Yoshi pas content, il manque les résultats des matchs suivants :\n";
     if (matchMissing.data.length > 0) {
         for (const match of matchMissing.data) {
             msg += `Match \`${match.id}\` - ${(0, generalController_1.makeMessageLink)(team_id, match.last_message_id ?? "")}\n`;

@@ -26,6 +26,8 @@ import mapsJSON from "./database/maps.json";
 import { resetAllLineups } from "./controller/lineupController";
 import { globalData } from "./global";
 import { recallMissingMatches } from "./controller/matchController";
+import { _createUser } from "./controller/yfApiController";
+import { UserCreate } from "./model/user.dto";
 
 declare module "discord.js" {
   interface Client {
@@ -59,7 +61,7 @@ export const LOGO_YF = "attachment://LaYoshiFamily.png";
 bot.once(Events.ClientReady, async (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
   botLogs(bot, "Yoshi successfully relloged");
-  await globalData.init();
+  await globalData.init(bot);
 });
 
 bot.commands = new Collection();
@@ -134,166 +136,192 @@ for (const folder of selectMenusFolders) {
 }
 
 bot.on(Events.GuildMemberAdd, async (member: GuildMember) => {
-  playerAddInGuild(bot, member);
+  try {
+    const new_user: UserCreate = {
+      flag: "",
+      id: member.user.id,
+      name: member.user.username,
+    };
+    const add_user = await _createUser(new_user);
+    if (add_user.statusCode == 201) {
+      console.log("User added", new_user.name);
+    } else {
+      console.log("User already exist", new_user.name);
+    }
+  } catch (e) {
+    console.log("error while adding", e);
+  }
 });
 
-bot.on(
-  Events.GuildMemberRemove,
-  async (member: GuildMember | PartialGuildMember) => {
-    playerRemovedInGuild(bot, member);
+// bot.on(
+//   Events.GuildMemberRemove,
+//   async (member: GuildMember | PartialGuildMember) => {
+//     playerRemovedInGuild(bot, member);
+//   }
+// );
+
+// bot.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
+//   playerRosterChange(bot, oldMember, newMember);
+// });
+
+bot.on(Events.InteractionCreate, async (interaction) => {
+  try {
+    if (interaction.isButton()) {
+      console.log(interaction);
+      // button interactions
+      const buttonName: string = interaction.customId.split("-")[0];
+      const args: string[] = interaction.customId.split("-");
+      args.shift();
+
+      const button = interaction.client.buttons.get(buttonName);
+
+      if (!button) {
+        console.error(
+          `No buttons interaction matching ${buttonName} was found.`
+        );
+        await interaction.reply({
+          content: `No buttons interaction matching ${buttonName} was found.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
+      try {
+        await button.execute(interaction, args);
+      } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({
+            content: "There was an error while executing the button!",
+            ephemeral: true,
+          });
+        } else {
+          await interaction.reply({
+            content: "There was an error while executing the button!",
+            ephemeral: true,
+          });
+        }
+      }
+      return;
+    }
+
+    if (interaction.isAnySelectMenu()) {
+      const selectName: string = interaction.customId.split("-")[0];
+      const args: string[] = interaction.customId.split("-");
+      args.shift();
+
+      const selectMenu = interaction.client.select_menus.get(selectName);
+
+      if (!selectMenu) {
+        console.error(
+          `No selectMenu interaction matching ${selectName} was found.`
+        );
+        await interaction.reply({
+          content: `No selectMenu interaction matching ${selectName} was found.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
+      try {
+        await selectMenu.execute(interaction, args);
+      } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({
+            content: "There was an error while executing the select menu!",
+            ephemeral: true,
+          });
+        } else {
+          await interaction.reply({
+            content: "There was an error while executing the select menu!",
+            ephemeral: true,
+          });
+        }
+      }
+      return;
+    }
+
+    // slash commands interactions
+    if (interaction.isChatInputCommand()) {
+      const command = interaction.client.commands.get(interaction.commandName);
+
+      if (!command) {
+        console.error(
+          `No command matching ${interaction.commandName} was found.`
+        );
+        await interaction.reply({
+          content: `No command matching ${interaction.commandName} was found.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
+      try {
+        await command.execute(interaction);
+      } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({
+            content: "There was an error while executing this command!",
+            ephemeral: true,
+          });
+        } else {
+          await interaction.reply({
+            content: "There was an error while executing this command!",
+            ephemeral: true,
+          });
+        }
+      }
+    }
+
+    // slash commande autocomplete
+    if (interaction.isAutocomplete()) {
+      const command = interaction.client.commands.get(interaction.commandName);
+
+      if (!command) {
+        console.error(
+          `No command matching ${interaction.commandName} was found.`
+        );
+        return;
+      }
+
+      try {
+        await command.autocomplete(interaction);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  } catch (e) {
+    console.error("Error interaction", e);
+  }
+});
+
+cron.schedule(
+  "0 2,3,4 * * *",
+  () => {
+    resetAllLineups(bot);
+    console.log("Reset executed at", new Date().toLocaleString());
+  },
+  {
+    scheduled: true,
+    timezone: "Europe/Paris",
   }
 );
 
-bot.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
-  playerRosterChange(bot, oldMember, newMember);
-});
-
-bot.on(Events.InteractionCreate, async (interaction) => {
-  // if (
-  //   interaction.user.id !== "450353797450039336" &&
-  //   interaction.user.id !== "133978257006526464"
-  // )
-  //   return;
-  if (interaction.isButton()) {
-    // button interactions
-    const buttonName: string = interaction.customId.split("-")[0];
-    const args: string[] = interaction.customId.split("-");
-    args.shift();
-
-    const button = interaction.client.buttons.get(buttonName);
-
-    if (!button) {
-      console.error(`No buttons interaction matching ${buttonName} was found.`);
-      await interaction.reply({
-        content: `No buttons interaction matching ${buttonName} was found.`,
-        ephemeral: true,
-      });
-      return;
-    }
-
-    try {
-      await button.execute(interaction, args);
-    } catch (error) {
-      console.error(error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: "There was an error while executing the button!",
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content: "There was an error while executing the button!",
-          ephemeral: true,
-        });
-      }
-    }
-    return;
-  }
-
-  if (interaction.isAnySelectMenu()) {
-    const selectName: string = interaction.customId.split("-")[0];
-    const args: string[] = interaction.customId.split("-");
-    args.shift();
-
-    const selectMenu = interaction.client.select_menus.get(selectName);
-
-    if (!selectMenu) {
-      console.error(
-        `No selectMenu interaction matching ${selectName} was found.`
-      );
-      await interaction.reply({
-        content: `No selectMenu interaction matching ${selectName} was found.`,
-        ephemeral: true,
-      });
-      return;
-    }
-
-    try {
-      await selectMenu.execute(interaction, args);
-    } catch (error) {
-      console.error(error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: "There was an error while executing the select menu!",
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content: "There was an error while executing the select menu!",
-          ephemeral: true,
-        });
-      }
-    }
-    return;
-  }
-
-  // slash commands interactions
-  if (interaction.isChatInputCommand()) {
-    const command = interaction.client.commands.get(interaction.commandName);
-
-    if (!command) {
-      console.error(
-        `No command matching ${interaction.commandName} was found.`
-      );
-      await interaction.reply({
-        content: `No command matching ${interaction.commandName} was found.`,
-        ephemeral: true,
-      });
-      return;
-    }
-
-    try {
-      await command.execute(interaction);
-    } catch (error) {
-      console.error(error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: "There was an error while executing this command!",
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content: "There was an error while executing this command!",
-          ephemeral: true,
-        });
-      }
-    }
-  }
-
-  // slash commande autocomplete
-  if (interaction.isAutocomplete()) {
-    const command = interaction.client.commands.get(interaction.commandName);
-
-    if (!command) {
-      console.error(
-        `No command matching ${interaction.commandName} was found.`
-      );
-      return;
-    }
-
-    try {
-      await command.autocomplete(interaction);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-});
-
-cron.schedule("0 2,3,4 * * *", () => {
-  resetAllLineups(bot);
-  console.log("Reset executed at", new Date().toLocaleString());
-});
-
-cron.schedule("0 * * * *", () => {
-  console.log("Update executed at", new Date().toLocaleString());
-});
-
 bot.login(config.DISCORD_TOKEN);
 
-cron.schedule("0 20 * * *", () => {
-  const teams = globalData.getAllTeams();
-  for (const t of teams) {
-    recallMissingMatches(bot, t.id, t.result_channel_id);
-    console.log("Recall made for ", t.name);
+cron.schedule(
+  "0 20 * * *",
+  () => {
+    const teams = globalData.getAllTeams();
+    for (const t of teams) {
+      recallMissingMatches(bot, t.id, t.result_channel_id);
+      console.log("Recall made for ", t.name);
+    }
+  },
+  {
+    scheduled: true,
+    timezone: "Europe/Paris",
   }
-});
+);

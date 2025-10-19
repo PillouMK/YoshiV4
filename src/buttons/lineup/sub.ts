@@ -8,6 +8,7 @@ import {
 } from "../../controller/lineupController";
 import { ROLE_YF, ROLE_YF_TEST, ROLES } from "../..";
 import { sortByRoleId } from "../../controller/generalController";
+import { globalData } from "../../global";
 
 module.exports = {
   data: {
@@ -19,7 +20,7 @@ module.exports = {
     const member: User = interaction.user;
     const isMix: boolean = args[1] === "mix";
     const response = addMember(hour, member, StatusLineUp.Sub);
-    const fetchedMembers = await interaction.guild?.members.fetch();
+    const fetchedMembers = globalData.getGuildMembers(interaction.guildId!);
     const fetchedRoles = await interaction.guild?.roles.fetch();
     const rolesId: string[] = isMix ? [ROLE_YF, ROLE_YF_TEST] : ROLES;
     const roleList: Role[] = [];

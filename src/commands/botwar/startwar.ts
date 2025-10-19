@@ -11,7 +11,7 @@ import { Game } from "../../model/game.dto";
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("startwar")
-    .setDescription("ça fait ping et ça fait pong")
+    .setDescription("commencer un match")
     .addStringOption((option) =>
       option
         .setName("team1")

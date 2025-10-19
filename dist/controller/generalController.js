@@ -111,7 +111,7 @@ const playerRosterChange = async (bot, oldMember, newMember) => {
 exports.playerRosterChange = playerRosterChange;
 function generateMatchPreviewText(users) {
     const lines = users.map((user) => `${user.username} - ${user.id} - SCORE +`);
-    const opponentLines = Array(6).fill("joueurX - FLAG - SCORE +");
+    const opponentLines = Array(6).fill("joueurX - SCORE +");
     return [...lines, "|", ...opponentLines].join("\n");
 }
 function parseMatchPreviewText(input, title, theme) {
@@ -146,7 +146,7 @@ function parseMatchPreviewText(input, title, theme) {
     for (const elt of opponent_team_table) {
         if (elt === "")
             continue;
-        const [name, flag, score] = elt.split("-");
+        const [name, score] = elt.split("-");
         const nb_race = checkNumberOfRaces(name);
         const _score = Number(score);
         if (isNaN(_score)) {
@@ -157,14 +157,12 @@ function parseMatchPreviewText(input, title, theme) {
                 name: name,
                 score: _score,
                 number_race: nb_race,
-                ...(flag !== "FLAG" && { flag }),
             });
         }
         else {
             opponent_team.push({
                 name: name,
                 score: _score,
-                ...(flag !== "FLAG" && { flag }),
             });
         }
     }
