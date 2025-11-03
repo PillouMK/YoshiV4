@@ -29,7 +29,7 @@ module.exports = {
         .setDescription("Thème du tableau")
         .addChoices(
           { name: "Dark", value: "dark" },
-          { name: "MKU", value: "MKU" },
+          { name: "Atlas League", value: "atlasLeague" },
           { name: "Light", value: "Light" }
         )
         .setRequired(false)
