@@ -21,7 +21,7 @@ module.exports = {
         .addStringOption((option) => option
         .setName("theme")
         .setDescription("Thème du tableau")
-        .addChoices({ name: "Dark", value: "dark" }, { name: "MKU", value: "MKU" }, { name: "Light", value: "Light" })
+        .addChoices({ name: "Dark", value: "dark" }, { name: "Atlas League", value: "atlasLeague" }, { name: "Light", value: "Light" })
         .setRequired(false)),
     async execute(interaction) {
         const text = interaction.options.getString("text");
