@@ -11,6 +11,7 @@ import {
 } from "../../controller/lineupController";
 import { ROLES } from "../..";
 import { sortByRoleId } from "../../controller/generalController";
+import { globalData } from "../../global";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -24,7 +25,7 @@ module.exports = {
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     const hours: string = interaction.options.getString("horaire")!;
-    const fetchedMembers = await interaction.guild?.members.fetch();
+    const fetchedMembers = globalData.getGuildMembers(interaction.guildId!);
     const fetchedRoles = await interaction.guild?.roles.fetch();
     const rostersRolesId: string[] = ROLES;
     const roleList: Role[] = [];

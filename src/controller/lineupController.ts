@@ -18,6 +18,7 @@ import * as utc from "dayjs/plugin/utc";
 import { ROLE_YF, ROLE_YF_TEST, ROLES } from "..";
 import fs from "fs";
 import fc from "../database/fc.json";
+import { globalData } from "../global";
 dayjs.extend(timezone.default);
 dayjs.extend(utc.default);
 
@@ -383,7 +384,7 @@ export const toggleMessage = (idMsg: string, isMix: boolean) => {
 export const EditSavedMessages = async (lineup: LineUp, bot: Client) => {
   const guild = bot.guilds.cache.get("135721923568074753");
   const fetchedRoles = await guild?.roles.fetch();
-  const fetchedMembers = await guild?.members.fetch();
+  const fetchedMembers = globalData.getGuildMembers(guild!.id);
   const channel = bot.channels.cache.get(lineup.idChannel);
   if (channel!.isTextBased()) {
     const msg = await channel!.messages.fetch(lineup.id);

@@ -48,10 +48,7 @@ class GlobalData {
     for (const [guildId, guild] of client.guilds.cache) {
       try {
         const fetched = await guild.members.fetch();
-        this.members.set(guildId, fetched); // fetched est déjà une Collection<string, GuildMember>
-        console.log(
-          `Guild ${guild.name} (${guildId}) : ${fetched.size} membres stockés`
-        );
+        this.members.set(guildId, fetched);
       } catch (err) {
         console.error(
           `Impossible de fetch les membres de la guild ${guild.name} (${guildId}) :`,
