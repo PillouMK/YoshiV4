@@ -15,14 +15,18 @@ import {
   timeToMs,
   emote_string,
 } from "./timetrialController";
-import { addBlank, botLogs, saveJSONToFile } from "./generalController";
+import { addBlank, botLogs } from "./generalController";
 import fs from "fs";
 import settings from "../settings.json";
 import { MapMK } from "../model/map.dto";
 import { LIST_MAPS, LOGO_YF } from "..";
 import { Timetrial } from "../model/timetrial.dto";
+import path from "path";
+import { JsonStore } from "../model/json";
 
-const weeklyDataPath: string = "./src/database/weeklyMap.json";
+const weeklyPath = path.resolve(process.cwd(), "data", "weeklyMap.json");
+const weeklyStore = new JsonStore<weeklyMap[]>(weeklyPath, []);
+const weekly = weeklyStore.load();
 
 type weeklyMap = {
   idMap: string;
@@ -72,18 +76,15 @@ export const setWeeklyMap = (
   isShroomless: boolean,
   goldTime: string,
   silverTime: string,
-  bronzeTime: string
+  bronzeTime: string,
 ): string => {
-  const _weeklyMapData = JSON.parse(
-    fs.readFileSync(weeklyDataPath, "utf-8")
-  ) as weeklyMap[];
   const times = [
     { label: "gold", value: goldTime },
     { label: "silver", value: silverTime },
     { label: "bronze", value: bronzeTime },
   ];
 
-  for (const weeklyMap of _weeklyMapData) {
+  for (const weeklyMap of weekly) {
     if (weeklyMap.idMap === idMap && weeklyMap.isShroomless === isShroomless) {
       const errorMessage = `${idMap} ${
         isShroomless ? "No item" : "Item"
@@ -109,7 +110,7 @@ export const setWeeklyMap = (
     const errorMessage = `Les temps doivent respecter l'ordre croissant : gold (${goldTime}) < silver (${silverTime}) < bronze (${bronzeTime})`;
     botLogs(
       bot,
-      `Time aren't well ordered : gold ${goldTime}, silver ${silverTime}, bronze ${bronzeTime}`
+      `Time aren't well ordered : gold ${goldTime}, silver ${silverTime}, bronze ${bronzeTime}`,
     );
     return errorMessage;
   }
@@ -122,15 +123,15 @@ export const setWeeklyMap = (
     bronzeTime: timeToMs(bronzeTime),
   };
 
-  _weeklyMapData.push(weeklyMapObject);
-  saveJSONToFile(_weeklyMapData, weeklyDataPath);
+  weekly.push(weeklyMapObject);
+  weeklyStore.save(weekly);
 
   return `${idMap} en ${isShroomless ? "No item" : "Item"} bien enregistré`;
 };
 
 const sendWeeklyAnnounce = (bot: Client) => {
   const channel: TextChannel = bot.channels.cache.get(
-    settings.channels.announcement
+    settings.channels.announcement,
   ) as TextChannel;
   const message: WeeklyAnnouncement = makeEmbedWeeklyAnnounce();
   channel.send({
@@ -150,7 +151,7 @@ const makeEmbedWeeklyMap = (length: number) => {
 };
 
 const makeWeeklyMapEmbedFields = (
-  _weeklyMapData: weeklyMap[]
+  _weeklyMapData: weeklyMap[],
 ): APIEmbedField[] => {
   const fields: APIEmbedField[] = [];
   _weeklyMapData.forEach((element, index) => {
@@ -160,9 +161,9 @@ const makeWeeklyMapEmbedFields = (
 
     const title = `${element.idMap} : ${emoteIsShroomless}`;
     const textFloor = `:first_place:\`Gold   : ${msToTime(
-      element.goldTime
+      element.goldTime,
     )}\`\n:second_place:\`Silver : ${msToTime(
-      element.silverTime
+      element.silverTime,
     )}\`\n:third_place:\`Bronze : ${msToTime(element.bronzeTime)}\``;
     if (index % 2 == 0 && index != 0)
       fields.push({ name: "\u200b", value: "\u200b" });
@@ -172,14 +173,11 @@ const makeWeeklyMapEmbedFields = (
 };
 
 export const makeEmbedWeeklyAnnounce = (): WeeklyAnnouncement => {
-  const _weeklyMapData = JSON.parse(
-    fs.readFileSync(weeklyDataPath, "utf-8")
-  ) as weeklyMap[];
   const file: AttachmentBuilder = new AttachmentBuilder(
-    "./image/LaYoshiFamily.png"
+    "./image/LaYoshiFamily.png",
   );
-  const embed = makeEmbedWeeklyMap(_weeklyMapData.length);
-  const fields = makeWeeklyMapEmbedFields(_weeklyMapData);
+  const embed = makeEmbedWeeklyMap(weekly.length);
+  const fields = makeWeeklyMapEmbedFields(weekly);
   embed.addFields(fields);
 
   return {
@@ -261,7 +259,7 @@ export const makeWeeklyttFields = (weeklytt: Weeklytt): APIEmbedField[] => {
 
 export const makeListButton = (
   listMap: weeklyMap[],
-  currentMap: string
+  currentMap: string,
 ): ActionRowBuilder<ButtonBuilder> => {
   const arrayButtonStyle = [
     ButtonStyle.Primary,
@@ -279,8 +277,8 @@ export const makeListButton = (
         .setLabel(`${weeklyMap.idMap} - ${shroomless}`)
         .setStyle(arrayButtonStyle[index % 4])
         .setDisabled(
-          currentMap === `${weeklyMap.idMap}-${weeklyMap.isShroomless}`
-        )
+          currentMap === `${weeklyMap.idMap}-${weeklyMap.isShroomless}`,
+        ),
     );
     index++;
   }

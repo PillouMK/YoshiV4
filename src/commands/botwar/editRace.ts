@@ -4,16 +4,12 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import {
-  BotWarType,
   editRace,
   getNumberOfRace,
+  set_last_message_id,
 } from "../../controller/botwarController";
-import {
-  filterMapList,
-  saveJSONToFile,
-} from "../../controller/generalController";
+import { filterMapList } from "../../controller/generalController";
 import { globalData } from "../../global";
-import botWarData from "../../database/bot-war.json";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -23,21 +19,21 @@ module.exports = {
       option
         .setName("spots")
         .setDescription("les 6 spots, séparés par un espace")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("map")
         .setDescription("Tag de la map jouée")
         .setRequired(true)
-        .setAutocomplete(true)
+        .setAutocomplete(true),
     )
     .addIntegerOption((option) =>
       option
         .setName("race")
         .setDescription("numéro de la course")
         .setRequired(false)
-        .setAutocomplete(true)
+        .setAutocomplete(true),
     ),
 
   async autocomplete(interaction: AutocompleteInteraction) {
@@ -47,13 +43,13 @@ module.exports = {
     if (focusedOption.name === "map") {
       const filtered = filterMapList(
         globalData.getAllMaps(),
-        focusedOption.value
+        focusedOption.value,
       );
       await interaction.respond(
         filtered.map((choice) => ({
           name: `${choice.tag} | ${choice.name}`,
           value: choice.tag.toString(),
-        }))
+        })),
       );
     } else if (focusedOption.name === "race") {
       const races = getNumberOfRace(channelId);
@@ -66,7 +62,7 @@ module.exports = {
         choices.map((choice) => ({
           name: choice.toString(),
           value: choice,
-        }))
+        })),
       );
     } else {
       // Ne répond pas si le nom de l'option n'est pas reconnu
@@ -75,20 +71,16 @@ module.exports = {
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const botwar: BotWarType = botWarData as BotWarType;
-    const botwarPath: string = "./src/database/bot-war.json";
     const spots: string[] = interaction.options.getString("spots")!.split(" ");
     const map: string[] = interaction.options.getString("map")!.split(" ");
     const idChannel: string = interaction.channelId;
     const race: number =
       interaction.options.getInteger("race") ?? getNumberOfRace(idChannel);
     const newRace = await editRace(spots, map[0], idChannel, race.toString());
-    const war = botwar.channels[idChannel];
 
     try {
       const msg = await interaction.reply(newRace);
-      war.paramWar.last_message_id = `${interaction.channelId}/${msg.id}`;
-      saveJSONToFile(botwar, botwarPath);
+      set_last_message_id(msg.id, interaction.channelId);
     } catch (e: any) {
       console.log(e.requestBody.requestBody);
     }

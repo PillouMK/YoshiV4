@@ -3,8 +3,7 @@ import {
   SlashCommandBuilder,
   User,
 } from "discord.js";
-import fc from "../../database/fc.json";
-import { botLogs } from "../../controller/generalController";
+import { botLogs, getUserFriendCode } from "../../controller/generalController";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -14,11 +13,10 @@ module.exports = {
       option
         .setName("player")
         .setDescription("Heure souhaitée")
-        .setRequired(false)
+        .setRequired(false),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     let id: string = "";
-    const fcJson: Record<string, string> = fc.friendcode;
     const player: User | null = interaction.options.getUser("player")!;
 
     if (player == null) id = interaction.user.id;
@@ -26,16 +24,10 @@ module.exports = {
 
     botLogs(
       interaction.client,
-      `${interaction.user.username} used /fc command`
+      `${interaction.user.username} used /fc command`,
     );
-    if (fcJson[id] != undefined) {
-      interaction.reply({
-        content: fcJson[id],
-      });
-    } else {
-      interaction.reply({
-        content: "Je ne possède pas le code ami de cet utilisateur",
-      });
-    }
+    interaction.reply({
+      content: getUserFriendCode(id),
+    });
   },
 };

@@ -10,6 +10,7 @@ module.exports = {
         name: "tableValidate",
     },
     async execute(interaction, args) {
+        await interaction.deferReply();
         const id = args[0];
         const team_id = interaction.guildId;
         const matchData = global_1.globalData.getFullMatchPreview(id);
@@ -18,7 +19,6 @@ module.exports = {
         const channel_result_id = global_1.globalData.getTeam(team_id)?.result_channel_id;
         console.log(global_1.globalData.getTeam(team_id));
         console.log(channel_result_id);
-        await interaction.deferReply();
         await interaction.message.edit({
             components: [],
         });

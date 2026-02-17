@@ -14,7 +14,7 @@ import {
 import { Team } from "../model/team.dto";
 import { MapMK_V2 } from "../model/map.dto";
 import { Game } from "../model/game.dto";
-import { UserCreate } from "../model/user.dto";
+import { GetUser, UserBDD, UserCreate } from "../model/user.dto";
 import { TimetrialRanking, TimetrialUpsert } from "../model/timetrial.dto";
 import { GetMapStats, MapStatsParam } from "../model/map-stats.dto";
 
@@ -45,7 +45,7 @@ const header_v2 = {
 
 const postToApi = async <T>(
   endpoint: string,
-  body: any
+  body: any,
 ): Promise<ResponseAPI<T>> => {
   try {
     const response = await axios.post<T>(`${API_V2_URL}${endpoint}`, body, {
@@ -89,7 +89,7 @@ const postToApi = async <T>(
 
 // initialize match
 export const _createMatch = (
-  createMatch: MatchCreate
+  createMatch: MatchCreate,
 ): Promise<ResponseAPI<MatchCreated>> =>
   postToApi(endpoint.matchs(createMatch.team_id), {
     opponent: createMatch.opponent,
@@ -101,7 +101,7 @@ export const _createMatch = (
 export const _completeMatch = (
   completeMatch: MatchComplete,
   match_id: string,
-  team_id: string
+  team_id: string,
 ): Promise<ResponseAPI<any>> =>
   postToApi(`${endpoint.matchs(team_id)}/${match_id}/complete`, completeMatch);
 
@@ -109,7 +109,7 @@ export const _completeMatch = (
 export const _editMatch = (
   editMatch: MatchEdit,
   match_id: string,
-  team_id: string
+  team_id: string,
 ): Promise<ResponseAPI<any>> =>
   postToApi(`${endpoint.matchs(team_id)}/${match_id}/edit`, editMatch);
 
@@ -117,7 +117,7 @@ export const _editMatch = (
 export const _previewMatch = (
   previewMatch: MatchPreview,
   match_id: string,
-  team_id: string
+  team_id: string,
 ): Promise<ResponseAPI<any>> =>
   postToApi(`${endpoint.matchs(team_id)}/${match_id}/preview`, previewMatch);
 
@@ -125,23 +125,23 @@ export const _previewMatch = (
 export const _publishMatch = async (
   publishMatch: MatchPublish,
   match_id: string,
-  team_id: string
+  team_id: string,
 ): Promise<ResponseAPI<any>> => {
   return postToApi(
     `${endpoint.matchs(team_id)}/${match_id}/publish`,
-    publishMatch
+    publishMatch,
   );
 };
 
 export const _getAllMatchsDone = async (
-  team_id: string
+  team_id: string,
 ): Promise<ResponseAPI<MatchCreated[]>> => {
   try {
     const response = await axios.get<MatchCreated[]>(
       `${API_V2_URL}${endpoint.matchs(team_id)}/done`,
       {
         headers: header_v2,
-      }
+      },
     );
 
     return {
@@ -157,14 +157,14 @@ export const _getAllMatchsDone = async (
 };
 
 export const _getAllMatchsPublished = async (
-  team_id: string
+  team_id: string,
 ): Promise<ResponseAPI<MatchCreated[]>> => {
   try {
     const response = await axios.get<MatchCreated[]>(
       `${API_V2_URL}${endpoint.matchs(team_id)}/published`,
       {
         headers: header_v2,
-      }
+      },
     );
 
     return {
@@ -181,14 +181,14 @@ export const _getAllMatchsPublished = async (
 
 export const _getMatch = async (
   match_id: string,
-  team_id: string
+  team_id: string,
 ): Promise<ResponseAPI<Match>> => {
   try {
     const response = await axios.get<Match>(
       `${API_V2_URL}${endpoint.matchs(team_id)}/${match_id}`,
       {
         headers: header_v2,
-      }
+      },
     );
 
     return {
@@ -226,12 +226,12 @@ export const _getAllTeams = async (): Promise<ResponseAPI<Team[]>> => {
 // *****************************
 // Maps
 export const _getAllMaps = async (
-  game_id: string
+  game_id: string,
 ): Promise<ResponseAPI<MapMK_V2[]>> => {
   try {
     const response = await axios.get<MapMK_V2[]>(
       `${API_V2_URL}${endpoint.maps}/${game_id}`,
-      { headers: header_v2 }
+      { headers: header_v2 },
     );
 
     return {
@@ -270,18 +270,39 @@ export const _getAllGame = async (): Promise<ResponseAPI<Game[]>> => {
 
 // users create
 export const _createUsersBulk = (
-  createUsers: UserCreate[]
+  createUsers: UserCreate[],
 ): Promise<ResponseAPI<any>> =>
   postToApi(`${endpoint.users}/bulk`, {
     users: createUsers,
   });
 
 export const _createUser = (
-  createUser: UserCreate
+  createUser: UserCreate,
 ): Promise<ResponseAPI<any>> =>
   postToApi(`${endpoint.users}`, {
     users: createUser,
   });
+
+export const _getUser = async (
+  user_id: string,
+): Promise<ResponseAPI<GetUser>> => {
+  try {
+    const response = await axios.get<GetUser>(
+      `${API_V2_URL}${endpoint.users}/${user_id}`,
+      { headers: header_v2 },
+    );
+
+    return {
+      statusCode: response.status,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      statusCode: error.response?.status || 500,
+      data: error.response?.data,
+    };
+  }
+};
 
 // Timetrial
 
@@ -289,14 +310,14 @@ export const _createUser = (
 // complete result of match
 
 export const _upsertTimetrial = (
-  upsertTimetrial: TimetrialUpsert
+  upsertTimetrial: TimetrialUpsert,
 ): Promise<ResponseAPI<any>> =>
   postToApi(`${endpoint.timetrials}`, upsertTimetrial);
 
 export const _getTimetrialsByMap = async (
   map_tag: string,
   game_id: string,
-  team_id: string
+  team_id: string,
 ): Promise<ResponseAPI<TimetrialRanking>> => {
   try {
     const response = await axios.get<TimetrialRanking>(
@@ -307,7 +328,7 @@ export const _getTimetrialsByMap = async (
           team_id: team_id,
           game_id: game_id,
         },
-      }
+      },
     );
 
     return {
@@ -323,7 +344,7 @@ export const _getTimetrialsByMap = async (
 };
 
 export const _getAllMapStats = async (
-  map_stats_params: MapStatsParam
+  map_stats_params: MapStatsParam,
 ): Promise<ResponseAPI<GetMapStats>> => {
   try {
     const response = await axios.get<GetMapStats>(
@@ -331,7 +352,7 @@ export const _getAllMapStats = async (
       {
         params: map_stats_params,
         headers: header_v2,
-      }
+      },
     );
     return {
       statusCode: response.status,
@@ -347,7 +368,7 @@ export const _getAllMapStats = async (
 
 export const _getMapStatsByTag = async (
   map_stats_params: MapStatsParam,
-  map_tag: string
+  map_tag: string,
 ): Promise<ResponseAPI<GetMapStats>> => {
   try {
     const response = await axios.get<GetMapStats>(
@@ -355,7 +376,7 @@ export const _getMapStatsByTag = async (
       {
         params: map_stats_params,
         headers: header_v2,
-      }
+      },
     );
 
     return {

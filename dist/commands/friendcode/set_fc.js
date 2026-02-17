@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
-const fc_json_1 = tslib_1.__importDefault(require("../../database/fc.json"));
 const generalController_1 = require("../../controller/generalController");
 module.exports = {
     data: new discord_js_1.SlashCommandBuilder()
@@ -18,8 +16,6 @@ module.exports = {
         .setRequired(false)),
     async execute(interaction) {
         let id = "";
-        const fcJson = fc_json_1.default;
-        const fc_path = "./src/database/fc.json";
         const player = interaction.options.getUser("player");
         const fc_input = interaction.options.getString("friendcode");
         const regex = /^\d{4}-\d{4}-\d{4}$/;
@@ -31,21 +27,10 @@ module.exports = {
             return;
         }
         id = player == null ? (id = interaction.user.id) : (id = player.id);
-        if (fcJson.friendcode[id] != undefined) {
-            (0, generalController_1.botLogs)(interaction.client, `${interaction.user.username} used /set_fc : updated fc`);
-            fcJson.friendcode[id] = fc_input;
-            (0, generalController_1.saveJSONToFile)(fcJson, fc_path);
-            interaction.reply({
-                content: "Code ami modifié",
-            });
-        }
-        else {
-            (0, generalController_1.botLogs)(interaction.client, `${interaction.user.username} used /set_fc : added fc`);
-            fcJson.friendcode[id] = fc_input;
-            (0, generalController_1.saveJSONToFile)(fcJson, fc_path);
-            interaction.reply({
-                content: "Code ami modifié",
-            });
-        }
+        (0, generalController_1.botLogs)(interaction.client, `${interaction.user.username} used /set_fc : updated fc`);
+        const add_fc = (0, generalController_1.saveUserFriendCode)(id, fc_input);
+        interaction.reply({
+            content: add_fc,
+        });
     },
 };

@@ -21,22 +21,14 @@ module.exports = {
       option
         .setName("horaire")
         .setDescription("Heure souhaitée")
-        .setRequired(true)
+        .setRequired(true),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     const hours: string = interaction.options.getString("horaire")!;
-    const fetchedMembers = globalData.getGuildMembers(interaction.guildId!);
-    const fetchedRoles = await interaction.guild?.roles.fetch();
-    const rostersRolesId: string[] = ROLES;
-    const roleList: Role[] = [];
-    fetchedRoles?.forEach((role) => {
-      if (rostersRolesId.includes(role.id)) roleList.push(role);
-    });
-    sortByRoleId(roleList, ROLES[0]);
     const res: LineUpMessage[] = await lineupResponse(
       hours,
-      roleList,
-      fetchedMembers!
+      true,
+      interaction.guildId!,
     );
     await interaction.deferReply();
     const message = await interaction.editReply({

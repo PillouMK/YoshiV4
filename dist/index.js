@@ -9,7 +9,7 @@ const fs_1 = tslib_1.__importDefault(require("fs"));
 const node_cron_1 = tslib_1.__importDefault(require("node-cron"));
 const generalController_1 = require("./controller/generalController");
 const map_dto_1 = require("./model/map.dto");
-const maps_json_1 = tslib_1.__importDefault(require("./database/maps.json"));
+const maps_json_1 = tslib_1.__importDefault(require("../data/maps.json"));
 const lineupController_1 = require("./controller/lineupController");
 const global_1 = require("./global");
 const matchController_1 = require("./controller/matchController");
@@ -116,7 +116,6 @@ bot.on(discord_js_1.Events.GuildMemberAdd, async (member) => {
 bot.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
     try {
         if (interaction.isButton()) {
-            console.log(interaction);
             const buttonName = interaction.customId.split("-")[0];
             const args = interaction.customId.split("-");
             args.shift();
@@ -230,7 +229,7 @@ bot.on(discord_js_1.Events.InteractionCreate, async (interaction) => {
     }
 });
 node_cron_1.default.schedule("0 2,3,4 * * *", () => {
-    (0, lineupController_1.resetAllLineups)(bot);
+    (0, lineupController_1.resetAllLineups)(bot, "135721923568074753");
     console.log("Reset executed at", new Date().toLocaleString());
 }, {
     scheduled: true,

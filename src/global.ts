@@ -1,4 +1,4 @@
-import { Client, Collection, GuildMember } from "discord.js";
+import { Client } from "discord.js";
 import {
   _getAllGame,
   _getAllMaps,
@@ -20,7 +20,6 @@ class GlobalData {
     string,
     { data: MatchPreview; expiresAt: number; table_url: string }
   > = new Map();
-  private members: Map<string, Collection<string, GuildMember>> = new Map();
 
   private readonly TTL = 10 * 60 * 1000;
 
@@ -43,18 +42,6 @@ class GlobalData {
       }
 
       this.maps.set(game.id, mapForGame);
-    }
-
-    for (const [guildId, guild] of client.guilds.cache) {
-      try {
-        const fetched = await guild.members.fetch();
-        this.members.set(guildId, fetched);
-      } catch (err) {
-        console.error(
-          `Impossible de fetch les membres de la guild ${guild.name} (${guildId}) :`,
-          err
-        );
-      }
     }
 
     setInterval(() => {
@@ -115,7 +102,7 @@ class GlobalData {
   }
 
   getFullMatchPreview(
-    id: string
+    id: string,
   ): { data: MatchPreview; expiresAt: number; table_url: string } | null {
     const entry = this.matchPreviews.get(id);
     if (!entry) return null;
@@ -130,10 +117,6 @@ class GlobalData {
 
   deleteMatchPreview(id: string): void {
     this.matchPreviews.delete(id);
-  }
-
-  getGuildMembers(guildId: string): Collection<string, GuildMember> | null {
-    return this.members.get(guildId) || null;
   }
 }
 

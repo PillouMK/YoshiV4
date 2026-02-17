@@ -5,18 +5,20 @@ const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
 const timetrialController_1 = require("./timetrialController");
 const generalController_1 = require("./generalController");
-const fs_1 = tslib_1.__importDefault(require("fs"));
 const settings_json_1 = tslib_1.__importDefault(require("../settings.json"));
 const __1 = require("..");
-const weeklyDataPath = "./src/database/weeklyMap.json";
+const path_1 = tslib_1.__importDefault(require("path"));
+const json_1 = require("../model/json");
+const weeklyPath = path_1.default.resolve(process.cwd(), "data", "weeklyMap.json");
+const weeklyStore = new json_1.JsonStore(weeklyPath, []);
+const weekly = weeklyStore.load();
 const setWeeklyMap = (bot, idMap, isShroomless, goldTime, silverTime, bronzeTime) => {
-    const _weeklyMapData = JSON.parse(fs_1.default.readFileSync(weeklyDataPath, "utf-8"));
     const times = [
         { label: "gold", value: goldTime },
         { label: "silver", value: silverTime },
         { label: "bronze", value: bronzeTime },
     ];
-    for (const weeklyMap of _weeklyMapData) {
+    for (const weeklyMap of weekly) {
         if (weeklyMap.idMap === idMap && weeklyMap.isShroomless === isShroomless) {
             const errorMessage = `${idMap} ${isShroomless ? "No item" : "Item"} est déjà set`;
             (0, generalController_1.botLogs)(bot, `${idMap} ${isShroomless} already set`);
@@ -45,8 +47,8 @@ const setWeeklyMap = (bot, idMap, isShroomless, goldTime, silverTime, bronzeTime
         silverTime: (0, timetrialController_1.timeToMs)(silverTime),
         bronzeTime: (0, timetrialController_1.timeToMs)(bronzeTime),
     };
-    _weeklyMapData.push(weeklyMapObject);
-    (0, generalController_1.saveJSONToFile)(_weeklyMapData, weeklyDataPath);
+    weekly.push(weeklyMapObject);
+    weeklyStore.save(weekly);
     return `${idMap} en ${isShroomless ? "No item" : "Item"} bien enregistré`;
 };
 exports.setWeeklyMap = setWeeklyMap;
@@ -82,10 +84,9 @@ const makeWeeklyMapEmbedFields = (_weeklyMapData) => {
     return fields;
 };
 const makeEmbedWeeklyAnnounce = () => {
-    const _weeklyMapData = JSON.parse(fs_1.default.readFileSync(weeklyDataPath, "utf-8"));
     const file = new discord_js_1.AttachmentBuilder("./image/LaYoshiFamily.png");
-    const embed = makeEmbedWeeklyMap(_weeklyMapData.length);
-    const fields = makeWeeklyMapEmbedFields(_weeklyMapData);
+    const embed = makeEmbedWeeklyMap(weekly.length);
+    const fields = makeWeeklyMapEmbedFields(weekly);
     embed.addFields(fields);
     return {
         embed: [embed],

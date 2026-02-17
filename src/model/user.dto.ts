@@ -6,7 +6,7 @@ export type UserCreate = {
   team_id?: string;
 };
 
-export type User = {
+export type UserBDD = {
   id: string;
   name: string;
   flag: string;
@@ -14,4 +14,16 @@ export type User = {
   team_id?: string;
   created_at: Date;
   updated_at: Date;
+};
+
+export type UserStats = {
+  average: number;
+  minScore: number;
+  maxScore: number;
+  winRate: number;
+};
+
+export type GetUser = {
+  user: UserBDD;
+  stats: UserStats | null;
 };

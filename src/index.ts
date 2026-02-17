@@ -22,7 +22,7 @@ import {
   convertToMapMK,
   convertToMapMKWORLD,
 } from "./model/map.dto";
-import mapsJSON from "./database/maps.json";
+import mapsJSON from "../data/maps.json";
 import { resetAllLineups } from "./controller/lineupController";
 import { globalData } from "./global";
 import { recallMissingMatches } from "./controller/matchController";
@@ -82,7 +82,7 @@ for (const folder of commandFolders) {
       bot.commands.set(command.data.name, command);
     } else {
       console.log(
-        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
       );
     }
   }
@@ -105,7 +105,7 @@ for (const folder of buttonsFolders) {
       bot.buttons.set(button.data.name, button);
     } else {
       console.log(
-        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
       );
     }
   }
@@ -129,7 +129,7 @@ for (const folder of selectMenusFolders) {
       bot.select_menus.set(selectMenu.data.name, selectMenu);
     } else {
       console.log(
-        `[WARNING] The selectMenu at ${filePath} is missing a required "data" or "execute" property.`
+        `[WARNING] The selectMenu at ${filePath} is missing a required "data" or "execute" property.`,
       );
     }
   }
@@ -167,7 +167,6 @@ bot.on(Events.GuildMemberAdd, async (member: GuildMember) => {
 bot.on(Events.InteractionCreate, async (interaction) => {
   try {
     if (interaction.isButton()) {
-      console.log(interaction);
       // button interactions
       const buttonName: string = interaction.customId.split("-")[0];
       const args: string[] = interaction.customId.split("-");
@@ -177,7 +176,7 @@ bot.on(Events.InteractionCreate, async (interaction) => {
 
       if (!button) {
         console.error(
-          `No buttons interaction matching ${buttonName} was found.`
+          `No buttons interaction matching ${buttonName} was found.`,
         );
         await interaction.reply({
           content: `No buttons interaction matching ${buttonName} was found.`,
@@ -214,7 +213,7 @@ bot.on(Events.InteractionCreate, async (interaction) => {
 
       if (!selectMenu) {
         console.error(
-          `No selectMenu interaction matching ${selectName} was found.`
+          `No selectMenu interaction matching ${selectName} was found.`,
         );
         await interaction.reply({
           content: `No selectMenu interaction matching ${selectName} was found.`,
@@ -248,7 +247,7 @@ bot.on(Events.InteractionCreate, async (interaction) => {
 
       if (!command) {
         console.error(
-          `No command matching ${interaction.commandName} was found.`
+          `No command matching ${interaction.commandName} was found.`,
         );
         await interaction.reply({
           content: `No command matching ${interaction.commandName} was found.`,
@@ -281,7 +280,7 @@ bot.on(Events.InteractionCreate, async (interaction) => {
 
       if (!command) {
         console.error(
-          `No command matching ${interaction.commandName} was found.`
+          `No command matching ${interaction.commandName} was found.`,
         );
         return;
       }
@@ -300,13 +299,13 @@ bot.on(Events.InteractionCreate, async (interaction) => {
 cron.schedule(
   "0 2,3,4 * * *",
   () => {
-    resetAllLineups(bot);
+    resetAllLineups(bot, "135721923568074753");
     console.log("Reset executed at", new Date().toLocaleString());
   },
   {
     scheduled: true,
     timezone: "Europe/Paris",
-  }
+  },
 );
 
 bot.login(config.DISCORD_TOKEN);
@@ -323,5 +322,5 @@ cron.schedule(
   {
     scheduled: true,
     timezone: "Europe/Paris",
-  }
+  },
 );

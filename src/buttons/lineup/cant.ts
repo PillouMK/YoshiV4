@@ -1,4 +1,4 @@
-import { ButtonInteraction, Role, User } from "discord.js";
+import { ButtonInteraction } from "discord.js";
 import {
   LineUpMessage,
   StatusLineUp,
@@ -6,9 +6,8 @@ import {
   lineupResponse,
   updateLineupsByHour,
 } from "../../controller/lineupController";
-import { ROLE_YF, ROLE_YF_TEST, ROLES } from "../..";
-import { sortByRoleId } from "../../controller/generalController";
-import { globalData } from "../../global";
+
+import { _getUser } from "../../controller/yfApiController";
 
 module.exports = {
   data: {
@@ -16,24 +15,18 @@ module.exports = {
   },
 
   async execute(interaction: ButtonInteraction, args: string[]) {
+    await interaction.deferUpdate();
     const hour: string = args[0];
-    const member: User = interaction.user;
     const isMix: boolean = args[1] === "mix";
-    const response = addMember(hour, member, StatusLineUp.Cant);
-    const fetchedMembers = globalData.getGuildMembers(interaction.guildId!);
-    const fetchedRoles = await interaction.guild?.roles.fetch();
-    const rolesId: string[] = isMix ? [ROLE_YF, ROLE_YF_TEST] : ROLES;
-    const roleList: Role[] = [];
-    fetchedRoles?.forEach((role) => {
-      if (rolesId.includes(role.id)) roleList.push(role);
-    });
-    sortByRoleId(roleList, ROLES[0]);
+    const member = await _getUser(interaction.user.id);
+    const response = addMember(hour, member.data.user, StatusLineUp.Cant);
+
     const res: LineUpMessage[] = await lineupResponse(
       hour,
-      roleList,
-      fetchedMembers!
+      isMix,
+      interaction.guildId!,
     );
-    await interaction.deferUpdate();
+
     await interaction.editReply({
       embeds: res[0].embed,
       components: [res[0].buttons],
@@ -44,6 +37,6 @@ module.exports = {
         content: response,
       });
     }
-    updateLineupsByHour(interaction.client, hour);
+    updateLineupsByHour(interaction.client, hour, interaction.guildId!);
   },
 };

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._getMapStatsByTag = exports._getAllMapStats = exports._getTimetrialsByMap = exports._upsertTimetrial = exports._createUser = exports._createUsersBulk = exports._getAllGame = exports._getAllMaps = exports._getAllTeams = exports._getMatch = exports._getAllMatchsPublished = exports._getAllMatchsDone = exports._publishMatch = exports._previewMatch = exports._editMatch = exports._completeMatch = exports._createMatch = void 0;
+exports._getMapStatsByTag = exports._getAllMapStats = exports._getTimetrialsByMap = exports._upsertTimetrial = exports._getUser = exports._createUser = exports._createUsersBulk = exports._getAllGame = exports._getAllMaps = exports._getAllTeams = exports._getMatch = exports._getAllMatchsPublished = exports._getAllMatchsDone = exports._publishMatch = exports._previewMatch = exports._editMatch = exports._completeMatch = exports._createMatch = void 0;
 const tslib_1 = require("tslib");
 const axios_1 = tslib_1.__importDefault(require("axios"));
 const config_1 = require("../config");
@@ -171,6 +171,22 @@ const _createUser = (createUser) => postToApi(`${endpoint.users}`, {
     users: createUser,
 });
 exports._createUser = _createUser;
+const _getUser = async (user_id) => {
+    try {
+        const response = await axios_1.default.get(`${API_V2_URL}${endpoint.users}/${user_id}`, { headers: header_v2 });
+        return {
+            statusCode: response.status,
+            data: response.data,
+        };
+    }
+    catch (error) {
+        return {
+            statusCode: error.response?.status || 500,
+            data: error.response?.data,
+        };
+    }
+};
+exports._getUser = _getUser;
 const _upsertTimetrial = (upsertTimetrial) => postToApi(`${endpoint.timetrials}`, upsertTimetrial);
 exports._upsertTimetrial = _upsertTimetrial;
 const _getTimetrialsByMap = async (map_tag, game_id, team_id) => {

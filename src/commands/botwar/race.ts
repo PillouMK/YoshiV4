@@ -3,14 +3,14 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
-import { BotWarType, raceAdd } from "../../controller/botwarController";
-
 import {
-  filterMapList,
-  saveJSONToFile,
-} from "../../controller/generalController";
+  BotWarType,
+  raceAdd,
+  set_last_message_id,
+} from "../../controller/botwarController";
+
+import { filterMapList } from "../../controller/generalController";
 import { globalData } from "../../global";
-import botWarData from "../../database/bot-war.json";
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -20,14 +20,14 @@ module.exports = {
       option
         .setName("spots")
         .setDescription("les 6 spots, séparés par un espace")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("map")
         .setDescription("Tag de la map jouée")
         .setRequired(true)
-        .setAutocomplete(true)
+        .setAutocomplete(true),
     ),
 
   async autocomplete(interaction: AutocompleteInteraction) {
@@ -45,18 +45,14 @@ module.exports = {
   },
 
   async execute(interaction: ChatInputCommandInteraction) {
-    const botwar: BotWarType = botWarData as BotWarType;
-    const botwarPath: string = "./src/database/bot-war.json";
     const spots: string[] = interaction.options.getString("spots")!.split(" ");
     const map: string[] = interaction.options.getString("map")!.split(" ");
     const idChannel: string = interaction.channelId;
     const newRace = await raceAdd(spots, map[0], idChannel);
-    const war = botwar.channels[idChannel];
 
     try {
       const msg = await interaction.reply(newRace);
-      war.paramWar.last_message_id = `${interaction.channelId}/${msg.id}`;
-      saveJSONToFile(botwar, botwarPath);
+      set_last_message_id(msg.id, interaction.channelId);
     } catch (e: any) {
       console.log(e.requestBody.requestBody);
     }

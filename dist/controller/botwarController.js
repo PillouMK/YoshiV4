@@ -1,13 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changeTagTeam = exports.addPena = exports.editRace = exports.raceAdd = exports.stopWar = exports.createWar = exports.getNumberOfRace = void 0;
+exports.changeTagTeam = exports.addPena = exports.editRace = exports.raceAdd = exports.stopWar = exports.createWar = exports.set_last_message_id = exports.getNumberOfRace = void 0;
 const tslib_1 = require("tslib");
-const bot_war_json_1 = tslib_1.__importDefault(require("../database/bot-war.json"));
 const generalController_1 = require("../controller/generalController");
 const errorMessage_1 = require("../model/errorMessage");
 const __1 = require("..");
 const yfApiController_1 = require("./yfApiController");
 const global_1 = require("../global");
+const json_1 = require("../model/json");
+const path_1 = tslib_1.__importDefault(require("path"));
 const pointMapping = {
     "1": 15,
     "2": 12,
@@ -23,11 +24,15 @@ const pointMapping = {
     "12": 1,
 };
 const rosterList = new Set(["YFG", "YFO"]);
-const botwar = bot_war_json_1.default;
 const embedMsg = "```";
 const backToLine = "\n";
-const botwarPath = "./src/database/bot-war.json";
 const errorMessage = new errorMessage_1.ErrorMessage();
+const botWarPath = path_1.default.resolve(process.cwd(), "data", "bot-war.json");
+const DEFAULT_BOT_WAR = {
+    channels: {},
+};
+const botWarStore = new json_1.JsonStore(botWarPath, DEFAULT_BOT_WAR);
+const botwar = botWarStore.load();
 const checkIfMapExist = (mapKey, mapList) => {
     return mapList.findIndex((map) => map.tag === mapKey) != -1;
 };
@@ -54,7 +59,7 @@ const checkNumberofSpots = (spots) => {
     return spots.length == 6;
 };
 const checkIfWarExistInChannel = (idChannel) => {
-    return idChannel in bot_war_json_1.default.channels;
+    return idChannel in botwar.channels;
 };
 const areRacesEquals = (arr1, arr2, map1, map2) => {
     if (map1 !== map2)
@@ -72,8 +77,8 @@ const placeToPoint = (spots) => {
     }
     return totalYF;
 };
-const getWarResults = (idChannel) => {
-    return botwar.channels[idChannel];
+const getWarResults = (channel_id) => {
+    return botwar.channels[channel_id];
 };
 const checkIfRaceIsValidNumber = (race) => {
     return !isNaN(Number(race)) && Number.isInteger(Number(race));
@@ -85,6 +90,11 @@ exports.getNumberOfRace = getNumberOfRace;
 const similarMapMessage = (map) => {
     return `${map} n'existe pas`;
 };
+const set_last_message_id = (id, channel_id) => {
+    botwar.channels[channel_id].paramWar.last_message_id = `${channel_id}/${id}`;
+    botWarStore.save(botwar);
+};
+exports.set_last_message_id = set_last_message_id;
 const makeResponseMessage = (war, map, scoreYF, scoreAdv, raceDifference, raceNumber, spots) => {
     const penaYF = war.team1.penality > 0 ? `Pénalité : ${war.team1.penality.toString()}` : "";
     const penaADV = war.team2.penality > 0 ? `Pénalité : ${war.team2.penality.toString()}` : "";
@@ -145,7 +155,7 @@ const createWar = async (bot, team_id, idChannel, nameTeam1, nameTeam2, game) =>
             },
         };
         botwar.channels[idChannel] = warObject;
-        (0, generalController_1.saveJSONToFile)(botwar, botwarPath);
+        botWarStore.save(botwar);
         return true;
     }
     else {
@@ -185,7 +195,7 @@ const stopWar = async (bot, idChannel, team_id, isForced = false) => {
         (0, generalController_1.botLogs)(bot, `War ended : ${result.team1.total.toString()} - ${result.team2.total.toString()} (${result.paramWar.totaleDiff.toString()})${match_id}`);
         (0, generalController_1.botLogs)(bot, `API - CompleteMatch success`);
         delete botwar.channels[idChannel];
-        (0, generalController_1.saveJSONToFile)(botwar, botwarPath);
+        botWarStore.save(botwar);
         return msg + match_id;
     }
     else {
@@ -211,7 +221,7 @@ const raceAdd = async (spots, map, idChannel) => {
     const oldRace = botwar.channels[idChannel].paramWar.verifDoublon;
     if (areRacesEquals(spots, oldRace.spots, map, oldRace.map)) {
         botwar.channels[idChannel].paramWar.verifDoublon.map = "";
-        (0, generalController_1.saveJSONToFile)(botwar, botwarPath);
+        botWarStore.save(botwar);
         return errorMessage.raceDuplicated();
     }
     const scoreYF = placeToPoint(spots);
@@ -229,7 +239,7 @@ const raceAdd = async (spots, map, idChannel) => {
     paramWar.verifDoublon.spots = spots;
     paramWar.recapWar.push({ map_tag: map, score: raceDifference });
     paramWar.totaleDiff += raceDifference;
-    (0, generalController_1.saveJSONToFile)(botwar, botwarPath);
+    botWarStore.save(botwar);
     return makeResponseMessage(botwar.channels[idChannel], map, scoreYF, scoreAdv, raceDifference, paramWar.race, spots);
 };
 exports.raceAdd = raceAdd;
@@ -260,7 +270,7 @@ const editRace = async (spots, map, idChannel, race) => {
             paramWar.recapWar[raceAsNumber - 1].score +
             raceDifference;
     paramWar.recapWar[raceAsNumber - 1] = { map_tag: map, score: raceDifference };
-    (0, generalController_1.saveJSONToFile)(botwar, botwarPath);
+    botWarStore.save(botwar);
     return makeResponseMessage(botwar.channels[idChannel], map, scoreYF, scoreAdv, raceDifference, raceAsNumber, spots);
 };
 exports.editRace = editRace;
@@ -283,7 +293,7 @@ const changeTagTeam = (tagTeam, idChannel) => {
         return "Echec lors du changement de tag";
     const save = rosterList.has(tagTeam.toUpperCase());
     botwar.channels[idChannel].team1.nameTeam = tagTeam;
-    (0, generalController_1.saveJSONToFile)(botwar, botwarPath);
+    botWarStore.save(botwar);
     return `Nouveau tag : ${tagTeam}\n${save ? "Sauvegarde activée" : "Sauvegarde pas activée"}`;
 };
 exports.changeTagTeam = changeTagTeam;

@@ -1,23 +1,36 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeMessageLink = exports.playerRosterChange = exports.playerRemovedInGuild = exports.playerAddInGuild = exports.botLogs = exports.MK_MINIA_ATTACHMENT = exports.YOSHI_FAMILY_LOGO = exports.addBlank = exports.rosterColor = exports.sortByRoleId = exports.filterMapList = exports.saveJSONToFile = void 0;
+exports.makeMessageLink = exports.playerRosterChange = exports.playerRemovedInGuild = exports.playerAddInGuild = exports.botLogs = exports.MK_MINIA_ATTACHMENT = exports.YOSHI_FAMILY_LOGO = exports.addBlank = exports.rosterColor = exports.sortByRoleId = exports.filterMapList = exports.getUserFriendCode = exports.saveUserFriendCode = void 0;
 exports.generateMatchPreviewText = generateMatchPreviewText;
 exports.parseMatchPreviewText = parseMatchPreviewText;
 const tslib_1 = require("tslib");
-const fs_1 = tslib_1.__importDefault(require("fs"));
 const settings_json_1 = tslib_1.__importDefault(require("../settings.json"));
 const discord_js_1 = require("discord.js");
-const saveJSONToFile = (data, filePath) => {
-    try {
-        const jsonData = JSON.stringify(data, null, 2);
-        fs_1.default.writeFileSync(filePath, jsonData, "utf-8");
-        console.log(`Données sauvegardées dans le fichier : ${filePath}`);
-    }
-    catch (error) {
-        console.error("Error saving JSON data:", error);
-    }
+const path_1 = tslib_1.__importDefault(require("path"));
+const json_1 = require("../model/json");
+const friendcodePath = path_1.default.resolve(process.cwd(), "data", "fc.json");
+const DEFAULT_FRIEND_CODE = {
+    friendcode: {},
+    names: {},
 };
-exports.saveJSONToFile = saveJSONToFile;
+const friencodeStore = new json_1.JsonStore(friendcodePath, DEFAULT_FRIEND_CODE);
+const friendcode = friencodeStore.load();
+const saveUserFriendCode = (user_id, fc) => {
+    const TEXT = friendcode.friendcode[user_id] != undefined
+        ? "Code ami modifié"
+        : "Code ami ajouté";
+    friendcode.friendcode[user_id] = fc;
+    friencodeStore.save(friendcode);
+    return TEXT;
+};
+exports.saveUserFriendCode = saveUserFriendCode;
+const getUserFriendCode = (user_id) => {
+    if (friendcode.friendcode[user_id])
+        return friendcode.friendcode[user_id];
+    else
+        return "Pas de code-ami enregistré";
+};
+exports.getUserFriendCode = getUserFriendCode;
 const filterMapList = (LIST_MAPS, value) => {
     return LIST_MAPS.filter((map) => map.tag.toLocaleLowerCase().includes(value)).slice(0, 25);
 };

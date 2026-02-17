@@ -3,15 +3,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EditSavedMessages = exports.toggleMessage = exports.pushTempMessage = exports.updateLineupsByHour = exports.resetAllLineups = exports.addMember = exports.lineupResponse = exports.convertValidsHoursToNumberArray = exports.StatusLineUp = void 0;
 const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
-const generalController_1 = require("../controller/generalController");
 const dayjs = tslib_1.__importStar(require("dayjs"));
 const timezone = tslib_1.__importStar(require("dayjs/plugin/timezone"));
 const utc = tslib_1.__importStar(require("dayjs/plugin/utc"));
-const __1 = require("..");
 const fs_1 = tslib_1.__importDefault(require("fs"));
-const fc_json_1 = tslib_1.__importDefault(require("../database/fc.json"));
+const global_1 = require("../global");
+const path_1 = tslib_1.__importDefault(require("path"));
+const json_1 = require("../model/json");
 dayjs.extend(timezone.default);
 dayjs.extend(utc.default);
+const lineupPath = path_1.default.resolve(process.cwd(), "data", "lineup.json");
+const DEFAULT_LINEUP = {
+    lineup: [],
+    save: [],
+    temp_save: [],
+};
+const lineupStore = new json_1.JsonStore(lineupPath, DEFAULT_LINEUP);
+const lineup = lineupStore.load();
 var StatusLineUp;
 (function (StatusLineUp) {
     StatusLineUp[StatusLineUp["Can"] = 0] = "Can";
@@ -19,7 +27,6 @@ var StatusLineUp;
     StatusLineUp[StatusLineUp["Sub"] = 2] = "Sub";
     StatusLineUp[StatusLineUp["Cant"] = 3] = "Cant";
 })(StatusLineUp || (exports.StatusLineUp = StatusLineUp = {}));
-const lineupPath = "./src/database/lineup.json";
 const convertValidsHoursToNumberArray = (hours) => {
     const hoursToArray = hours.split(" ");
     const validsHours = [];
@@ -31,17 +38,16 @@ const convertValidsHoursToNumberArray = (hours) => {
     return validsHours;
 };
 exports.convertValidsHoursToNumberArray = convertValidsHoursToNumberArray;
-const sortByRoster = async (idRoster, lineup, listMembers) => {
+const sortByRoster = async (roster_id, lineup) => {
     const lineUpByRoster = [];
     lineup.forEach((element) => {
-        const member = listMembers.find((member) => member.id === element.userId);
-        if (member?.roles.cache.find((role) => role.id === idRoster)) {
+        if (element.roster === roster_id) {
             lineUpByRoster.push(element);
         }
     });
     return lineUpByRoster;
 };
-const makeLineupFields = (lineUpByRoster, role) => {
+const makeLineupFields = (lineUpByRoster, name) => {
     const field = { name: "", inline: false, value: "" };
     const lineupCan = [];
     const lineupMaybe = [];
@@ -51,7 +57,7 @@ const makeLineupFields = (lineUpByRoster, role) => {
         if (elt.status == 1)
             lineupMaybe.push(elt.userName);
     });
-    field.name = `__YF ${role.name} : (${lineupCan.length}/6)__`;
+    field.name = `__YF ${name} : (${lineupCan.length}/6)__`;
     if (lineupCan.length > 0) {
         field.value = `${lineupCan.join(" / ")}`;
         field.value += lineupMaybe.length > 0 ? " / " : "";
@@ -95,17 +101,25 @@ const makeCantFields = (lineUp) => {
     }
     return field;
 };
-const lineupResponse = async (hours, roles, listMembers) => {
+const lineupResponse = async (hours, isMix, team) => {
     const hourArray = (0, exports.convertValidsHoursToNumberArray)(hours);
-    const isMix = false;
     const response = [];
     for (const hour of hourArray) {
         const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
         const lineUpByHour = _lineUpData.lineup[hour];
+        const _team = global_1.globalData.getTeam(team);
         const embed = makeEmbedLineup(hour.toString(), isMix);
-        for (const role of roles) {
-            const sortedData = await sortByRoster(role.id, lineUpByHour, listMembers);
-            embed.addFields(makeLineupFields(sortedData, role));
+        if (isMix) {
+            embed.addFields(makeLineupFields(lineUpByHour, _team?.name));
+        }
+        else {
+            let rosters = _team?.rosters;
+            if (rosters != undefined) {
+                for (const roster of rosters) {
+                    const sortedData = await sortByRoster(roster.id, lineUpByHour);
+                    embed.addFields(makeLineupFields(sortedData, roster.name));
+                }
+            }
         }
         if (lineUpByHour.findIndex((elt) => elt.status == StatusLineUp.Sub) != -1)
             embed.addFields(makeSubFields(lineUpByHour));
@@ -166,49 +180,50 @@ const makeButtonList = (hour, isMix) => {
         .addComponents(new discord_js_1.ButtonBuilder()
         .setCustomId(`cant-${hour.toString()}-${idView}`)
         .setLabel(`Can't`)
-        .setStyle(discord_js_1.ButtonStyle.Danger));
+        .setStyle(discord_js_1.ButtonStyle.Danger))
+        .addComponents(new discord_js_1.ButtonBuilder()
+        .setCustomId(`lineupToggle-${hour.toString()}-${idViewToggle}`)
+        .setEmoji("<:refresh:1359564875419877669>")
+        .setLabel(labelView)
+        .setStyle(discord_js_1.ButtonStyle.Secondary));
 };
 const addMember = (hour, member, status) => {
-    const nameJson = fc_json_1.default.names;
-    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
-    const lineupByHour = _lineUpData.lineup[parseInt(hour)];
+    const lineupByHour = lineup.lineup[parseInt(hour)];
     const index = lineupByHour.findIndex((elt) => elt.userId === member.id);
-    let name = member.username;
-    if (nameJson[member.id] != undefined) {
-        name = nameJson[member.id];
-    }
+    console.log("member", member);
+    const name = member.name;
     if (index === -1) {
         lineupByHour.push({
             userId: member.id,
             userName: name,
             status: status,
+            roster: member.roster_id,
         });
-        (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
-        return `${member.username} ajouté en **${StatusLineUp[status]}** à ${timestampDiscord(getTimestampForHour(hour))}`;
+        lineupStore.save(lineup);
+        return `${member.name} ajouté en **${StatusLineUp[status]}** à ${timestampDiscord(getTimestampForHour(hour))}`;
     }
     else {
         if (lineupByHour[index].status !== status) {
             lineupByHour[index].status = status;
-            (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
+            lineupStore.save(lineup);
             return `${name} bien passé en **${StatusLineUp[status]}** à ${timestampDiscord(getTimestampForHour(hour))}`;
         }
         return `${name} est déjà en **${StatusLineUp[status]}** à ${timestampDiscord(getTimestampForHour(hour))}`;
     }
 };
 exports.addMember = addMember;
-const resetAllLineups = async (bot) => {
-    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
-    for (const msg of _lineUpData.temp_save) {
+const resetAllLineups = async (bot, team) => {
+    for (const msg of lineup.temp_save) {
         deleteLineupMsgById(msg.id, msg.idChannel, bot);
     }
-    _lineUpData.temp_save = [];
-    _lineUpData.lineup.forEach((element, index) => {
-        _lineUpData.lineup[index] = [];
+    lineup.temp_save = [];
+    lineup.lineup.forEach((element, index) => {
+        lineup.lineup[index] = [];
     });
-    _lineUpData.save.forEach(async (elt) => {
-        await (0, exports.EditSavedMessages)(elt, bot);
+    lineup.save.forEach(async (elt) => {
+        await (0, exports.EditSavedMessages)(elt, bot, team);
     });
-    (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
+    lineupStore.save(lineup);
 };
 exports.resetAllLineups = resetAllLineups;
 const deleteLineupMsgById = async (idMsg, idChannel, bot) => {
@@ -227,59 +242,46 @@ const deleteLineupMsgById = async (idMsg, idChannel, bot) => {
         console.error("Erreur lors de la récupération ou de la suppression du message :", error);
     }
 };
-const updateLineupsByHour = async (bot, hour) => {
-    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
-    const lineupTempMsg = _lineUpData.temp_save.filter((elt) => elt.hour === hour);
+const updateLineupsByHour = async (bot, hour, team) => {
+    const lineupTempMsg = lineup.temp_save.filter((elt) => elt.hour === hour);
     for (const lineup of lineupTempMsg) {
-        (0, exports.EditSavedMessages)(lineup, bot);
+        (0, exports.EditSavedMessages)(lineup, bot, team);
     }
-    const lineupSavedMsg = _lineUpData.save.filter((elt) => elt.hour === hour);
+    const lineupSavedMsg = lineup.save.filter((elt) => elt.hour === hour);
     for (const lineup of lineupSavedMsg) {
-        (0, exports.EditSavedMessages)(lineup, bot);
+        (0, exports.EditSavedMessages)(lineup, bot, team);
     }
 };
 exports.updateLineupsByHour = updateLineupsByHour;
 const pushTempMessage = (idMsg, idChannel, hour) => {
-    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
     const temp_lineup = {
         id: idMsg,
         idChannel: idChannel,
         hour: hour,
         isMix: false,
     };
-    _lineUpData.temp_save.push(temp_lineup);
-    (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
+    lineup.temp_save.push(temp_lineup);
+    lineupStore.save(lineup);
 };
 exports.pushTempMessage = pushTempMessage;
 const toggleMessage = (idMsg, isMix) => {
-    const _lineUpData = JSON.parse(fs_1.default.readFileSync(lineupPath, "utf-8"));
-    const _item = _lineUpData.save.find((elt) => elt.id === idMsg);
+    const _item = lineup.save.find((elt) => elt.id === idMsg);
     if (_item) {
         _item.isMix = isMix;
     }
-    const item = _lineUpData.temp_save.find((elt) => elt.id === idMsg);
+    const item = lineup.temp_save.find((elt) => elt.id === idMsg);
     if (item) {
         item.isMix = isMix;
         return;
     }
-    (0, generalController_1.saveJSONToFile)(_lineUpData, lineupPath);
+    lineupStore.save(lineup);
 };
 exports.toggleMessage = toggleMessage;
-const EditSavedMessages = async (lineup, bot) => {
-    const guild = bot.guilds.cache.get("135721923568074753");
-    const fetchedRoles = await guild?.roles.fetch();
-    const fetchedMembers = await guild?.members.fetch();
+const EditSavedMessages = async (lineup, bot, team) => {
     const channel = bot.channels.cache.get(lineup.idChannel);
     if (channel.isTextBased()) {
         const msg = await channel.messages.fetch(lineup.id);
-        const rolesId = lineup.isMix ? [__1.ROLE_YF, __1.ROLE_YF_TEST] : __1.ROLES;
-        const roleList = [];
-        fetchedRoles?.forEach((role) => {
-            if (rolesId.includes(role.id))
-                roleList.push(role);
-        });
-        (0, generalController_1.sortByRoleId)(roleList, __1.ROLES[0]);
-        const res = await (0, exports.lineupResponse)(lineup.hour, roleList, fetchedMembers);
+        const res = await (0, exports.lineupResponse)(lineup.hour, lineup.isMix, team);
         await msg.edit({
             embeds: res[0].embed,
             components: [res[0].buttons],

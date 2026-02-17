@@ -1,29 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const lineupController_1 = require("../../controller/lineupController");
-const __1 = require("../..");
-const generalController_1 = require("../../controller/generalController");
-const global_1 = require("../../global");
+const yfApiController_1 = require("../../controller/yfApiController");
 module.exports = {
     data: {
         name: "sub",
     },
     async execute(interaction, args) {
-        const hour = args[0];
-        const member = interaction.user;
-        const isMix = args[1] === "mix";
-        const response = (0, lineupController_1.addMember)(hour, member, lineupController_1.StatusLineUp.Sub);
-        const fetchedMembers = global_1.globalData.getGuildMembers(interaction.guildId);
-        const fetchedRoles = await interaction.guild?.roles.fetch();
-        const rolesId = isMix ? [__1.ROLE_YF, __1.ROLE_YF_TEST] : __1.ROLES;
-        const roleList = [];
-        fetchedRoles?.forEach((role) => {
-            if (rolesId.includes(role.id))
-                roleList.push(role);
-        });
-        (0, generalController_1.sortByRoleId)(roleList, __1.ROLES[0]);
-        const res = await (0, lineupController_1.lineupResponse)(hour, roleList, fetchedMembers);
         await interaction.deferUpdate();
+        const hour = args[0];
+        const isMix = args[1] === "mix";
+        const member = await (0, yfApiController_1._getUser)(interaction.user.id);
+        const response = (0, lineupController_1.addMember)(hour, member.data.user, lineupController_1.StatusLineUp.Sub);
+        const res = await (0, lineupController_1.lineupResponse)(hour, isMix, interaction.guildId);
         await interaction.editReply({
             embeds: res[0].embed,
             components: [res[0].buttons],
@@ -33,6 +22,6 @@ module.exports = {
                 content: response,
             });
         }
-        (0, lineupController_1.updateLineupsByHour)(interaction.client, hour);
+        (0, lineupController_1.updateLineupsByHour)(interaction.client, hour, interaction.guildId);
     },
 };

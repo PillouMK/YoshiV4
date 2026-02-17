@@ -1,11 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const discord_js_1 = require("discord.js");
 const botwarController_1 = require("../../controller/botwarController");
 const generalController_1 = require("../../controller/generalController");
 const global_1 = require("../../global");
-const bot_war_json_1 = tslib_1.__importDefault(require("../../database/bot-war.json"));
 module.exports = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName("edit_race")
@@ -50,18 +48,14 @@ module.exports = {
         }
     },
     async execute(interaction) {
-        const botwar = bot_war_json_1.default;
-        const botwarPath = "./src/database/bot-war.json";
         const spots = interaction.options.getString("spots").split(" ");
         const map = interaction.options.getString("map").split(" ");
         const idChannel = interaction.channelId;
         const race = interaction.options.getInteger("race") ?? (0, botwarController_1.getNumberOfRace)(idChannel);
         const newRace = await (0, botwarController_1.editRace)(spots, map[0], idChannel, race.toString());
-        const war = botwar.channels[idChannel];
         try {
             const msg = await interaction.reply(newRace);
-            war.paramWar.last_message_id = `${interaction.channelId}/${msg.id}`;
-            (0, generalController_1.saveJSONToFile)(botwar, botwarPath);
+            (0, botwarController_1.set_last_message_id)(msg.id, interaction.channelId);
         }
         catch (e) {
             console.log(e.requestBody.requestBody);

@@ -11,24 +11,47 @@ import {
   User,
 } from "discord.js";
 import { MatchOpponent, MatchPreview, MatchUser } from "../model/match.dto";
+import path from "path";
+import { JsonStore } from "../model/json";
 
-export const saveJSONToFile = <T>(data: T, filePath: string): void => {
-  try {
-    // Convert object in JSON
-    const jsonData = JSON.stringify(data, null, 2); // 2 for indent
+interface FriendCodes {
+  friendcode: {
+    [idPlayer: string]: string;
+  };
+  names: {
+    [idPlayer: string]: string;
+  };
+}
 
-    // write content in JSON file
-    fs.writeFileSync(filePath, jsonData, "utf-8");
+const friendcodePath = path.resolve(process.cwd(), "data", "fc.json");
+const DEFAULT_FRIEND_CODE: FriendCodes = {
+  friendcode: {},
+  names: {},
+};
+const friencodeStore = new JsonStore<FriendCodes>(
+  friendcodePath,
+  DEFAULT_FRIEND_CODE,
+);
+const friendcode = friencodeStore.load();
 
-    console.log(`Données sauvegardées dans le fichier : ${filePath}`);
-  } catch (error) {
-    console.error("Error saving JSON data:", error);
-  }
+export const saveUserFriendCode = (user_id: string, fc: string): string => {
+  const TEXT =
+    friendcode.friendcode[user_id] != undefined
+      ? "Code ami modifié"
+      : "Code ami ajouté";
+  friendcode.friendcode[user_id] = fc;
+  friencodeStore.save(friendcode);
+  return TEXT;
+};
+
+export const getUserFriendCode = (user_id: string): string => {
+  if (friendcode.friendcode[user_id]) return friendcode.friendcode[user_id];
+  else return "Pas de code-ami enregistré";
 };
 
 export const filterMapList = (LIST_MAPS: MapMK_V2[], value: string) => {
   return LIST_MAPS.filter((map) =>
-    map.tag.toLocaleLowerCase().includes(value)
+    map.tag.toLocaleLowerCase().includes(value),
   ).slice(0, 25);
 };
 
@@ -58,7 +81,7 @@ export const rosterColor = (idRoster: string): number => {
 export const addBlank = (
   string: string,
   number: number,
-  isAfter: boolean = false
+  isAfter: boolean = false,
 ): string => {
   if (!isAfter) {
     while (string.length < number) {
@@ -74,12 +97,12 @@ export const addBlank = (
 };
 
 export const YOSHI_FAMILY_LOGO = new AttachmentBuilder(
-  "./image/LaYoshiFamily.png"
+  "./image/LaYoshiFamily.png",
 );
 
 export const MK_MINIA_ATTACHMENT = (
   game_id: string,
-  map_tag: string
+  map_tag: string,
 ): AttachmentBuilder => {
   return new AttachmentBuilder(`./image/${game_id}/${map_tag}.png`);
 };
@@ -106,7 +129,7 @@ const getCurrentDateTimeString = (): string => {
 export const botLogs = async (bot: Client, message: string) => {
   try {
     const channel = (await bot.channels.fetch(
-      settings.botLogs.channelId
+      settings.botLogs.channelId,
     )) as TextChannel;
     const msg: string = `\`\`\`${getCurrentDateTimeString()} : ${message}\`\`\``;
     channel.send({ content: msg });
@@ -119,7 +142,7 @@ export const playerAddInGuild = async (bot: Client, member: GuildMember) => {};
 
 export const playerRemovedInGuild = async (
   bot: Client,
-  member: GuildMember | PartialGuildMember
+  member: GuildMember | PartialGuildMember,
 ) => {};
 
 const galaxy_id = "643871029210513419";
@@ -128,7 +151,7 @@ const odyssey_id = "643569712353116170";
 export const playerRosterChange = async (
   bot: Client,
   oldMember: GuildMember | PartialGuildMember,
-  newMember: GuildMember | PartialGuildMember
+  newMember: GuildMember | PartialGuildMember,
 ) => {
   botLogs(bot, `${newMember.user.username} rôle mis à jour`);
 
@@ -165,7 +188,7 @@ export function generateMatchPreviewText(users: User[]): string {
 export function parseMatchPreviewText(
   input: string,
   title?: string | null,
-  theme?: string | null
+  theme?: string | null,
 ): MatchPreview | string {
   const own_team: MatchUser[] = [];
   const opponent_team: MatchOpponent[] = [];

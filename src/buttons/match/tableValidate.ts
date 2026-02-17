@@ -15,6 +15,7 @@ module.exports = {
   },
 
   async execute(interaction: ButtonInteraction, args: string[]) {
+    await interaction.deferReply();
     const id: string = args[0];
     const team_id = interaction.guildId!;
     const matchData = globalData.getFullMatchPreview(id);
@@ -23,8 +24,6 @@ module.exports = {
     const channel_result_id = globalData.getTeam(team_id)?.result_channel_id;
     console.log(globalData.getTeam(team_id));
     console.log(channel_result_id);
-
-    await interaction.deferReply();
 
     await interaction.message.edit({
       components: [],
@@ -38,7 +37,7 @@ module.exports = {
     }
 
     const channel = (await interaction.client.channels.fetch(
-      channel_result_id!
+      channel_result_id!,
     )) as TextChannel;
 
     const response = await axios.get(matchData.table_url!, {

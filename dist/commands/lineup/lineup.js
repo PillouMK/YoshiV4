@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const lineupController_1 = require("../../controller/lineupController");
-const __1 = require("../..");
-const generalController_1 = require("../../controller/generalController");
 module.exports = {
     data: new discord_js_1.SlashCommandBuilder()
         .setName("lu")
@@ -14,16 +12,7 @@ module.exports = {
         .setRequired(true)),
     async execute(interaction) {
         const hours = interaction.options.getString("horaire");
-        const fetchedMembers = await interaction.guild?.members.fetch();
-        const fetchedRoles = await interaction.guild?.roles.fetch();
-        const rostersRolesId = __1.ROLES;
-        const roleList = [];
-        fetchedRoles?.forEach((role) => {
-            if (rostersRolesId.includes(role.id))
-                roleList.push(role);
-        });
-        (0, generalController_1.sortByRoleId)(roleList, __1.ROLES[0]);
-        const res = await (0, lineupController_1.lineupResponse)(hours, roleList, fetchedMembers);
+        const res = await (0, lineupController_1.lineupResponse)(hours, true, interaction.guildId);
         await interaction.deferReply();
         const message = await interaction.editReply({
             embeds: res[0].embed,

@@ -1,5 +1,5 @@
 import { MapMK_V2 } from "./map.dto";
-import { User } from "./user.dto";
+import { UserBDD } from "./user.dto";
 
 export type TimetrialUpsert = {
   user_id: string;
@@ -22,7 +22,7 @@ export type TimetrialCreated = {
     is_shroomless: boolean;
     time: number;
     map_id: number;
-    user: User;
+    user: UserBDD;
   };
 };
 
@@ -34,7 +34,7 @@ export type Timetrial = {
   map_id: string;
   created_at: Date;
   updated_at: Date;
-  user: Partial<User>;
+  user: Partial<UserBDD>;
 };
 
 export type TimetrialRanking = {
