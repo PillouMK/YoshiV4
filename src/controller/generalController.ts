@@ -1,4 +1,3 @@
-import fs from "fs";
 import { MapMK_V2 } from "src/model/map.dto";
 import settings from "../settings.json";
 import {
@@ -13,6 +12,8 @@ import {
 import { MatchOpponent, MatchPreview, MatchUser } from "../model/match.dto";
 import path from "path";
 import { JsonStore } from "../model/json";
+import { _createUser, _getUser } from "./yfApiController";
+import { UserCreate } from "../model/user.dto";
 
 interface FriendCodes {
   friendcode: {
@@ -138,15 +139,54 @@ export const botLogs = async (bot: Client, message: string) => {
   }
 };
 
-export const playerAddInGuild = async (bot: Client, member: GuildMember) => {};
+export const playerAddInGuild = async (bot: Client, member: GuildMember) => {
+  const player = await _getUser(member.id);
+  if (player.statusCode === 200) {
+    botLogs(
+      bot,
+      `${member.user.username} joined the server and is already in the database`,
+    );
+    console.log(
+      `${member.user.username} joined the server and is already in the database`,
+    );
+  } else {
+    const user: UserCreate = {
+      id: member.id,
+      name: member.user.username,
+      flag: "fr",
+    };
+    const addPlayer = await _createUser(user);
+    if (addPlayer.statusCode === 201) {
+      botLogs(
+        bot,
+        `${member.user.username} joined the server and was added to the database`,
+      );
+      console.log(
+        `${member.user.username} joined the server and was added to the database`,
+      );
+    } else {
+      botLogs(
+        bot,
+        `${member.user.username} joined the server but could not be added to the database`,
+      );
+      botLogs(
+        bot,
+        `Error: ${addPlayer.statusCode} - ${JSON.stringify(addPlayer.data)}`,
+      );
+      console.log(
+        `${member.user.username} joined the server but could not be added to the database`,
+      );
+      console.log(
+        `Error: ${addPlayer.statusCode} - ${JSON.stringify(addPlayer.data)}`,
+      );
+    }
+  }
+};
 
 export const playerRemovedInGuild = async (
   bot: Client,
   member: GuildMember | PartialGuildMember,
 ) => {};
-
-const galaxy_id = "643871029210513419";
-const odyssey_id = "643569712353116170";
 
 export const playerRosterChange = async (
   bot: Client,

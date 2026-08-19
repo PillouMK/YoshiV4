@@ -137,17 +137,7 @@ for (const folder of selectMenusFolders) {
 
 bot.on(Events.GuildMemberAdd, async (member: GuildMember) => {
   try {
-    const new_user: UserCreate = {
-      flag: "",
-      id: member.user.id,
-      name: member.user.username,
-    };
-    const add_user = await _createUser(new_user);
-    if (add_user.statusCode == 201) {
-      console.log("User added", new_user.name);
-    } else {
-      console.log("User already exist", new_user.name);
-    }
+    playerAddInGuild(bot, member);
   } catch (e) {
     console.log("error while adding", e);
   }
