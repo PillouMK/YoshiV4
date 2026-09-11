@@ -13,7 +13,7 @@ const maps_json_1 = tslib_1.__importDefault(require("../data/maps.json"));
 const lineupController_1 = require("./controller/lineupController");
 const global_1 = require("./global");
 const matchController_1 = require("./controller/matchController");
-const yfApiController_1 = require("./controller/yfApiController");
+const teamController_1 = require("./controller/teamController");
 const bot = new discord_js_1.Client({
     intents: [
         discord_js_1.GatewayIntentBits.DirectMessages,
@@ -26,7 +26,7 @@ const bot = new discord_js_1.Client({
     ],
 });
 exports.LIST_MAPS = maps_json_1.default.maps.map(map_dto_1.convertToMapMK);
-exports.LIST_MAPS_MKWORLD = maps_json_1.default.mkworld.map(map_dto_1.convertToMapMKWORLD);
+exports.LIST_MAPS_MKWORLD = global_1.globalData.getAllMaps("MKWORLD");
 exports.ROLES = ["1408781458008707072", "1408781672492568678"];
 exports.ROLE_YF = "199252384612876289";
 exports.ROLE_YF_TEST = "425783129119260672";
@@ -96,21 +96,18 @@ for (const folder of selectMenusFolders) {
 }
 bot.on(discord_js_1.Events.GuildMemberAdd, async (member) => {
     try {
-        const new_user = {
-            flag: "",
-            id: member.user.id,
-            name: member.user.username,
-        };
-        const add_user = await (0, yfApiController_1._createUser)(new_user);
-        if (add_user.statusCode == 201) {
-            console.log("User added", new_user.name);
-        }
-        else {
-            console.log("User already exist", new_user.name);
-        }
+        (0, generalController_1.playerAddInGuild)(bot, member);
     }
     catch (e) {
         console.log("error while adding", e);
+    }
+});
+bot.on(discord_js_1.Events.GuildMemberUpdate, async (oldMember, newMember) => {
+    try {
+        (0, teamController_1.playerRosterChange)(bot, oldMember, newMember);
+    }
+    catch (e) {
+        console.log("error while updating", e);
     }
 });
 bot.on(discord_js_1.Events.InteractionCreate, async (interaction) => {

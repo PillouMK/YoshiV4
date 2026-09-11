@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeMessageLink = exports.playerRosterChange = exports.playerRemovedInGuild = exports.playerAddInGuild = exports.botLogs = exports.MK_MINIA_ATTACHMENT = exports.YOSHI_FAMILY_LOGO = exports.addBlank = exports.rosterColor = exports.sortByRoleId = exports.filterMapList = exports.getUserFriendCode = exports.saveUserFriendCode = void 0;
+exports.makeMessageLink = exports.playerRemovedInGuild = exports.playerAddInGuild = exports.botLogs = exports.MK_MINIA_ATTACHMENT = exports.YOSHI_FAMILY_LOGO = exports.addBlank = exports.rosterColor = exports.sortByRoleId = exports.filterMapList = exports.getUserFriendCode = exports.saveUserFriendCode = void 0;
 exports.generateMatchPreviewText = generateMatchPreviewText;
 exports.parseMatchPreviewText = parseMatchPreviewText;
 const tslib_1 = require("tslib");
@@ -8,6 +8,7 @@ const settings_json_1 = tslib_1.__importDefault(require("../settings.json"));
 const discord_js_1 = require("discord.js");
 const path_1 = tslib_1.__importDefault(require("path"));
 const json_1 = require("../model/json");
+const yfApiController_1 = require("./yfApiController");
 const friendcodePath = path_1.default.resolve(process.cwd(), "data", "fc.json");
 const DEFAULT_FRIEND_CODE = {
     friendcode: {},
@@ -101,27 +102,34 @@ const botLogs = async (bot, message) => {
     }
 };
 exports.botLogs = botLogs;
-const playerAddInGuild = async (bot, member) => { };
+const playerAddInGuild = async (bot, member) => {
+    const player = await (0, yfApiController_1._getUser)(member.id);
+    if (player.statusCode === 200) {
+        (0, exports.botLogs)(bot, `${member.user.username} joined the server and is already in the database`);
+        console.log(`${member.user.username} joined the server and is already in the database`);
+    }
+    else {
+        const user = {
+            id: member.id,
+            name: member.user.username,
+            flag: "fr",
+        };
+        const addPlayer = await (0, yfApiController_1._createUser)(user);
+        if (addPlayer.statusCode === 201) {
+            (0, exports.botLogs)(bot, `${member.user.username} joined the server and was added to the database`);
+            console.log(`${member.user.username} joined the server and was added to the database`);
+        }
+        else {
+            (0, exports.botLogs)(bot, `${member.user.username} joined the server but could not be added to the database`);
+            (0, exports.botLogs)(bot, `Error: ${addPlayer.statusCode} - ${JSON.stringify(addPlayer.data)}`);
+            console.log(`${member.user.username} joined the server but could not be added to the database`);
+            console.log(`Error: ${addPlayer.statusCode} - ${JSON.stringify(addPlayer.data)}`);
+        }
+    }
+};
 exports.playerAddInGuild = playerAddInGuild;
 const playerRemovedInGuild = async (bot, member) => { };
 exports.playerRemovedInGuild = playerRemovedInGuild;
-const galaxy_id = "643871029210513419";
-const odyssey_id = "643569712353116170";
-const playerRosterChange = async (bot, oldMember, newMember) => {
-    (0, exports.botLogs)(bot, `${newMember.user.username} rôle mis à jour`);
-    const oldRoles = new Set(oldMember.roles.cache.keys());
-    const newRoles = new Set(newMember.roles.cache.keys());
-    const addedRoles = [...newRoles].filter((id) => !oldRoles.has(id));
-    const removedRoles = [...oldRoles].filter((id) => !newRoles.has(id));
-    const handleRoleChange = async (roleId, isAdded) => { };
-    for (const roleId of addedRoles) {
-        await handleRoleChange(roleId, true);
-    }
-    for (const roleId of removedRoles) {
-        await handleRoleChange(roleId, false);
-    }
-};
-exports.playerRosterChange = playerRosterChange;
 function generateMatchPreviewText(users) {
     const lines = users.map((user) => `${user.username} - ${user.id} - SCORE +`);
     const opponentLines = Array(6).fill("joueurX - SCORE +");

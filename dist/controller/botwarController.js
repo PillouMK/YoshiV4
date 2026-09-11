@@ -23,7 +23,7 @@ const pointMapping = {
     "11": 2,
     "12": 1,
 };
-const rosterList = new Set(["YFG", "YFO"]);
+const rosterList = new Set(["YFI", "YFS"]);
 const embedMsg = "```";
 const backToLine = "\n";
 const errorMessage = new errorMessage_1.ErrorMessage();
