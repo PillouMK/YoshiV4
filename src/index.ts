@@ -50,7 +50,7 @@ const bot: Client<boolean> = new Client({
 });
 
 export const LIST_MAPS: MapMK[] = mapsJSON.maps.map(convertToMapMK);
-export const LIST_MAPS_MKWORLD: MapMK_V2[] = globalData.getAllMaps("MKWORLD");
+export const LIST_MAPS_MKWORLD: MapMK_V2[] = globalData.getAllMaps();
 export const ROLES = ["1408781458008707072", "1408781672492568678"];
 export const ROLE_YF = "199252384612876289";
 export const ROLE_YF_TEST = "425783129119260672";

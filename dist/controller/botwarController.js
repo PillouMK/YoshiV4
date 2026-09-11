@@ -209,9 +209,10 @@ const stopWar = async (bot, idChannel, team_id, isForced = false) => {
 exports.stopWar = stopWar;
 const raceAdd = async (spots, map, idChannel) => {
     console.log("list map", __1.LIST_MAPS_MKWORLD);
+    console.log("list map", global_1.globalData.getAllMaps());
     if (!checkIfWarExistInChannel(idChannel))
         return errorMessage.noWarInChannel();
-    if (!checkIfMapExist(map, __1.LIST_MAPS_MKWORLD))
+    if (!checkIfMapExist(map, global_1.globalData.getAllMaps()))
         return similarMapMessage(map);
     if (!checkNumberofSpots(spots))
         return errorMessage.spotsLengthOutOfRange(spots);

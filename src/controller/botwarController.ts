@@ -343,9 +343,11 @@ export const raceAdd = async (
   idChannel: string,
 ): Promise<string> => {
   console.log("list map", LIST_MAPS_MKWORLD);
+  console.log("list map", globalData.getAllMaps());
   if (!checkIfWarExistInChannel(idChannel))
     return errorMessage.noWarInChannel();
-  if (!checkIfMapExist(map, LIST_MAPS_MKWORLD)) return similarMapMessage(map);
+  if (!checkIfMapExist(map, globalData.getAllMaps()))
+    return similarMapMessage(map);
   if (!checkNumberofSpots(spots))
     return errorMessage.spotsLengthOutOfRange(spots);
   if (!checkIfSpotsAreValids(spots)) return errorMessage.spotsNotValids(spots);

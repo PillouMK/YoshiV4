@@ -26,7 +26,7 @@ const bot = new discord_js_1.Client({
     ],
 });
 exports.LIST_MAPS = maps_json_1.default.maps.map(map_dto_1.convertToMapMK);
-exports.LIST_MAPS_MKWORLD = global_1.globalData.getAllMaps("MKWORLD");
+exports.LIST_MAPS_MKWORLD = global_1.globalData.getAllMaps();
 exports.ROLES = ["1408781458008707072", "1408781672492568678"];
 exports.ROLE_YF = "199252384612876289";
 exports.ROLE_YF_TEST = "425783129119260672";
