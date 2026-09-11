@@ -14,7 +14,6 @@ import {
   botLogs,
   playerAddInGuild,
   playerRemovedInGuild,
-  playerRosterChange,
 } from "./controller/generalController";
 import {
   MapMK,
@@ -28,6 +27,7 @@ import { globalData } from "./global";
 import { recallMissingMatches } from "./controller/matchController";
 import { _createUser } from "./controller/yfApiController";
 import { UserCreate } from "./model/user.dto";
+import { playerRosterChange } from "./controller/teamController";
 
 declare module "discord.js" {
   interface Client {
@@ -50,8 +50,7 @@ const bot: Client<boolean> = new Client({
 });
 
 export const LIST_MAPS: MapMK[] = mapsJSON.maps.map(convertToMapMK);
-export const LIST_MAPS_MKWORLD: MapMK_V2[] =
-  mapsJSON.mkworld.map(convertToMapMKWORLD);
+export const LIST_MAPS_MKWORLD: MapMK_V2[] = globalData.getAllMaps("MKWORLD");
 export const ROLES = ["1408781458008707072", "1408781672492568678"];
 export const ROLE_YF = "199252384612876289";
 export const ROLE_YF_TEST = "425783129119260672";
@@ -143,16 +142,17 @@ bot.on(Events.GuildMemberAdd, async (member: GuildMember) => {
   }
 });
 
-// bot.on(
-//   Events.GuildMemberRemove,
-//   async (member: GuildMember | PartialGuildMember) => {
-//     playerRemovedInGuild(bot, member);
-//   }
-// );
-
 // bot.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
 //   playerRosterChange(bot, oldMember, newMember);
 // });
+
+bot.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
+  try {
+    playerRosterChange(bot, oldMember, newMember);
+  } catch (e) {
+    console.log("error while updating", e);
+  }
+});
 
 bot.on(Events.InteractionCreate, async (interaction) => {
   try {

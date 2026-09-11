@@ -29,7 +29,7 @@ const pointMapping: { [key: string]: number } = {
   "11": 2,
   "12": 1,
 };
-const rosterList: Set<string> = new Set<string>(["YFG", "YFO"]);
+const rosterList: Set<string> = new Set<string>(["YFI", "YFS"]);
 const embedMsg = "```";
 const backToLine = "\n";
 const errorMessage = new ErrorMessage();
