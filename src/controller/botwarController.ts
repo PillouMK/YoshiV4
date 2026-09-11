@@ -342,6 +342,7 @@ export const raceAdd = async (
   map: string,
   idChannel: string,
 ): Promise<string> => {
+  console.log("list map", LIST_MAPS_MKWORLD);
   if (!checkIfWarExistInChannel(idChannel))
     return errorMessage.noWarInChannel();
   if (!checkIfMapExist(map, LIST_MAPS_MKWORLD)) return similarMapMessage(map);
